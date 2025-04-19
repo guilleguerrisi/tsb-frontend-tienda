@@ -1,0 +1,236 @@
+.product-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 8px;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+.product-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 6px;
+  padding: 20px;
+  width: 280px;
+  max-width: 95vw;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s ease;
+  font-family: 'Inter', sans-serif;
+  box-sizing: border-box;
+}
+
+.product-image {
+  width: 100%;
+  height: auto;
+  max-height: 240px;
+  object-fit: contain;
+  margin-bottom: 12px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  max-width: 600px;
+  width: 90%;
+  position: relative;
+  text-align: center;
+}
+
+.modal-content h2 {
+  text-align: left;
+}
+
+.modal-image {
+  width: 100%;
+  height: auto;
+  max-height: 420px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.close-button {
+  position: absolute;
+  top: 0.5rem;
+  right: 1rem;
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+h3 {
+  text-align: left;
+  color: rgb(7, 7, 7);
+  text-transform: uppercase;
+  font-size: 1.6rem;
+  margin-top: 20px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+}
+
+p {
+  text-align: left;
+  color: rgb(7, 7, 7);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-top: 12px;
+  margin-bottom: 16px;
+  font-family: 'Inter', sans-serif;
+}
+
+.btn-agregar,
+.btn-quitar {
+  font-size: 1.1rem;
+  padding: 14px 18px;
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-agregar {
+  background-color: #3498db;
+  color: white;
+}
+
+.btn-agregar:hover {
+  background-color: #2980b9;
+}
+
+.btn-quitar {
+  background-color: #ff6b6b;
+  color: white;
+}
+
+.btn-quitar:hover {
+  background-color: #d94d4d;
+}
+
+.btn-agregar:active,
+.btn-quitar:active {
+  transform: scale(0.95);
+}
+
+button:disabled {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+/* ✅ Botón "Ver más" */
+.btn-vermas {
+  background-color: #eeeeee;
+  color: #333;
+  border: 1px solid #ccc;
+  padding: 12px 16px;
+  cursor: pointer;
+  margin-top: 14px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-vermas:hover {
+  background-color: #ddd;
+  transform: scale(1.02);
+}
+
+/* ✅ Etiqueta verde */
+.etiqueta-presupuesto {
+  color: #2ecc71;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.tilde-verde {
+  font-size: 1.2rem;
+  color: #2ecc71;
+}
+
+/* Mensaje centrado */
+.loading-centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
+  text-align: center;
+  font-size: 1.4rem;
+  color: #444;
+}
+
+/* ✅ Responsive */
+@media (max-width: 768px) {
+  .product-card {
+    width: 96%;
+    margin: 10px auto;
+    padding: 18px;
+  }
+
+  .product-image {
+    max-height: 260px;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+    margin-top: 14px;
+  }
+
+  p {
+    font-size: 1.1rem;
+    line-height: 1.7;
+  }
+
+  .btn-agregar,
+  .btn-quitar,
+  .btn-vermas {
+    font-size: 1.1rem;
+    padding: 16px;
+    width: 100%;
+  }
+}
+
+
+.btn-seguir {
+  background-color: transparent;
+  color: #555;
+  font-size: 1rem;
+  margin-top: 1rem;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  font-family: 'Inter', sans-serif;
+  transition: color 0.2s ease;
+}
+
+.btn-seguir:hover {
+  color: #000;
+}

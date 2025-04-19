@@ -1,0 +1,209 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@600&display=swap');
+
+.carrito-container {
+  padding: 2rem;
+  background: linear-gradient(to bottom right, #b993d6, #8ca6db);
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+}
+
+.carrito-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 3rem;
+  font-weight: 600;
+  margin-bottom: 2.5rem;
+  text-align: center;
+  color: #fff;
+  text-shadow: 1px 1px 2px #00000088;
+}
+
+.carrito-items {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-top: 2rem;
+  margin-bottom: 3rem;
+}
+
+.carrito-item {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 1.8rem;
+  transition: transform 0.2s;
+  position: relative;
+  flex-wrap: wrap;
+}
+
+.carrito-item:hover {
+  transform: scale(1.01);
+}
+
+.carrito-item-image {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  border-radius: 0.5rem;
+  margin-right: 1rem;
+  background-color: #f0f0f0;
+  padding: 5px;
+}
+
+.carrito-item-details {
+  flex-grow: 1;
+  min-width: 220px;
+}
+
+.carrito-item-details h3 {
+  margin: 0 0 5px 0;
+  font-size: 1.5rem;
+  color: #333;
+  font-family: 'Poppins', sans-serif;
+}
+
+.carrito-item-details p {
+  margin: 0.4rem 0;
+  color: #444;
+  font-size: 1.2rem;
+  line-height: 1.5;
+}
+
+.carrito-item-price {
+  font-weight: bold;
+  color: #007bff;
+  font-size: 1.2rem;
+}
+
+.carrito-cantidad-subtotal {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+  gap: 1rem;
+}
+
+.cantidad-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 0.5rem;
+}
+
+.cantidad-input {
+  width: 60px;
+  height: 45px;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-family: 'Inter', sans-serif;
+}
+
+.btn-cantidad {
+  width: 36px;
+  height: 45px;
+  background-color: #3498db;
+  color: white;
+  font-size: 1.2rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.btn-cantidad:hover {
+  background-color: #2c80b4;
+}
+
+.subtotal {
+  font-weight: bold;
+  color: #222;
+  white-space: nowrap;
+  font-size: 1.2rem;
+}
+
+.eliminar-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background-color: #ff6b6b;
+  color: white;
+  border: none;
+  padding: 0.6rem 1rem;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 1rem;
+}
+
+.eliminar-button:hover {
+  background-color: #d94d4d;
+}
+
+.carrito-summary {
+  margin-top: 3rem;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.carrito-total {
+  font-size: 2.2rem;
+  font-weight: bold;
+  color: #000;
+  text-shadow: 1px 1px 1px #ffffff99;
+  font-family: 'Poppins', sans-serif;
+}
+
+.solicitar-presupuesto-button {
+  padding: 1.2rem 2.4rem;
+  background-color: #0063f7;
+  color: white;
+  font-size: 1.2rem;
+  text-align: center;
+  border: none;
+  border-radius: 0.8rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.solicitar-presupuesto-button:hover {
+  background-color: #ff7a00;
+}
+
+.volver-contenedor {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.volver-button {
+  display: inline-block;
+  padding: 1rem 2rem;
+  background-color: #ff8c00;
+  color: white;
+  border-radius: 40px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1.2rem;
+  transition: background-color 0.2s;
+}
+
+.leyenda-precio {
+  font-size: 0.9rem;
+  color: #444;
+  text-align: right;
+  margin-top: 1rem;
+  font-style: italic;
+}

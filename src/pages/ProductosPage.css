@@ -1,0 +1,42 @@
+.volver-button {
+  display: inline-block;
+  margin: 2rem auto;
+  padding: 1rem 2rem;
+  background-color: #ff8c00;
+  color: white;
+  border-radius: 30px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1.1rem;
+  transition: background-color 0.2s ease;
+  text-align: center;
+  max-width: 90%;
+  box-sizing: border-box;
+}
+
+.volver-button:hover {
+  background-color: #ff7a00;
+}
+
+@media (max-width: 480px) {
+  .volver-button {
+    font-size: 1rem;
+    padding: 0.8rem 1.6rem;
+  }
+}
+
+
+.footer {
+  text-align: center;
+  color: #fff;
+  padding: 20px;
+  font-size: 0.9rem;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.footer p {
+  margin: 4px 0;
+}
