@@ -5,32 +5,42 @@ import './BotonFlotante.css';
 const BotonFlotante = () => {
   const navigate = useNavigate();
   const [mostrar, setMostrar] = useState(true);
-  let ultimaPosicion = 0;
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const ultimaPosicion = React.useRef(0);
 
-  const irAlCarrito = () => {
-    navigate('/carrito');
-  };
-
-  const modalAbierto = document.body.classList.contains('modal-abierto');
-  if (modalAbierto) return null;
 
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
-      setMostrar(scrollY < ultimaPosicion || scrollY < 10);
-      ultimaPosicion = scrollY;
+      setMostrar(scrollY < ultimaPosicion.current || scrollY < 10);
+      ultimaPosicion.current = scrollY;
+
+    };
+
+    const checkModal = () => {
+      setModalAbierto(document.body.classList.contains('modal-abierto'));
     };
 
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const observer = new MutationObserver(checkModal);
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+    checkModal();
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      observer.disconnect();
+    };
   }, []);
+
+  if (modalAbierto) return null;
 
   return (
     <div className={`boton-flotante-container ${mostrar ? 'visible' : 'oculto'}`}>
       <button className="flotante-boton secundaria" onClick={() => navigate('/')}>
         ← Categorías
       </button>
-      <button className="flotante-boton primaria" onClick={irAlCarrito}>
+      <button className="flotante-boton primaria" onClick={() => navigate('/carrito')}>
         Ver presupuesto
       </button>
     </div>
