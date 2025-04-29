@@ -19,7 +19,7 @@ const Carrito = () => {
     };
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/pedidos`, {
+      const response = await fetch('https://tsb-backend-tienda-production.up.railway.app/api/pedidos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(pedido)
@@ -28,15 +28,14 @@ const Carrito = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Error al crear el pedido');
+        console.error('Respuesta del servidor:', data);
+        throw new Error(data.error || `Error HTTP ${response.status}`);
       }
 
       const idPedido = data.id;
-
       const linkPedido = `https://tiendasaltabazar.up.railway.app/verpedido?id=${idPedido}`;
       const mensajeWhatsApp = `Hola, quisiera solicitar un presupuesto: ${linkPedido}`;
-
-      const telefonoDestino = '5493875537070'; // 🔵 Tu número sin "+" ni espacios
+      const telefonoDestino = '5493875537070';
       const urlWhatsApp = `https://wa.me/${telefonoDestino}?text=${encodeURIComponent(mensajeWhatsApp)}`;
 
       window.open(urlWhatsApp, '_blank');
@@ -44,6 +43,8 @@ const Carrito = () => {
       console.error('❌ Error al enviar pedido por WhatsApp:', error);
       alert('Ocurrió un error al enviar el pedido.');
     }
+
+
   };
 
 
