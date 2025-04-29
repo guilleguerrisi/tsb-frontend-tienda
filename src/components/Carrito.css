@@ -207,3 +207,22 @@
   margin-top: 1rem;
   font-style: italic;
 }
+
+.enviar-whatsapp-button {
+  background-color: #25D366; /* Verde WhatsApp */
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  margin-top: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  text-align: center;
+}
+
+.enviar-whatsapp-button:hover {
+  background-color: #1ebe5b; /* Verde más oscuro al pasar el mouse */
+}

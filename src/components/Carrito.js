@@ -4,7 +4,48 @@ import { useCarrito } from '../contexts/CarritoContext';
 import { Link } from 'react-router-dom';
 
 const Carrito = () => {
-  const { carrito, setCarrito, eliminarDelCarrito, finalizarCompra } = useCarrito();
+  const { carrito, setCarrito, eliminarDelCarrito } = useCarrito();
+
+  const enviarPedidoPorWhatsApp = async () => {
+    if (carrito.length === 0) {
+      alert('El carrito está vacío');
+      return;
+    }
+
+    const pedido = {
+      fecha_pedido: new Date().toISOString(),
+      cliente_tienda: 'cliente_web',
+      array_pedido: JSON.stringify(carrito)
+    };
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/pedidos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pedido)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al crear el pedido');
+      }
+
+      const idPedido = data.id;
+
+      const linkPedido = `https://www.bazaronlinesalta.com.ar/pedido/${idPedido}`;
+      const mensajeWhatsApp = `Hola, quisiera solicitar un presupuesto: ${linkPedido}`;
+
+      const telefonoDestino = '5493875537070'; // 🔵 Tu número sin "+" ni espacios
+      const urlWhatsApp = `https://wa.me/${telefonoDestino}?text=${encodeURIComponent(mensajeWhatsApp)}`;
+
+      window.open(urlWhatsApp, '_blank');
+    } catch (error) {
+      console.error('❌ Error al enviar pedido por WhatsApp:', error);
+      alert('Ocurrió un error al enviar el pedido.');
+    }
+  };
+
 
   const cambiarCantidad = (index, nuevaCantidad) => {
     if (nuevaCantidad < 1) return;
@@ -90,16 +131,17 @@ const Carrito = () => {
           <div className="carrito-total">
             Total: ${new Intl.NumberFormat('es-AR').format(total)}
           </div>
+
           <button
-            className="solicitar-presupuesto-button"
-            onClick={finalizarCompra}
+            className="enviar-whatsapp-button"
+            onClick={enviarPedidoPorWhatsApp}
           >
-            Solicitar presupuesto final
+            📩 Solicitar presupuesto por WhatsApp
           </button>
-
-
         </div>
       )}
+
+
 
       <div className="volver-contenedor">
         <Link to="/" className="volver-button">
