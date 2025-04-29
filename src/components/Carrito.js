@@ -33,7 +33,7 @@ const Carrito = () => {
 
       const idPedido = data.id;
 
-      const linkPedido = `https://www.bazaronlinesalta.com.ar/pedido/${idPedido}`;
+      const linkPedido = `https://tiendasaltabazar.up.railway.app/verpedido?id=${idPedido}`;
       const mensajeWhatsApp = `Hola, quisiera solicitar un presupuesto: ${linkPedido}`;
 
       const telefonoDestino = '5493875537070'; // 🔵 Tu número sin "+" ni espacios
