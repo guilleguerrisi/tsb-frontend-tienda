@@ -17,8 +17,9 @@ const ModalContacto = ({ carrito, onCerrar }) => {
       fecha_pedido: new Date().toISOString(),
       cliente_tienda: 'cliente_web',
       array_pedido: JSON.stringify(carrito),
-      datos_contacto: contacto ? `${nombre} - ${contacto}` : '',
-      mensaje_contacto: comentario || ''
+      contacto_cliente: contacto ? `${nombre} - ${contacto}` : '',
+      mensaje_cliente: comentario || ''
+
     };
 
     try {
