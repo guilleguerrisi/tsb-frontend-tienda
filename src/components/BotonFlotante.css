@@ -57,6 +57,13 @@
   background-color: #1e87db;
 }
 
+.boton-flotante-container.visible {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+
 /* ✅ Responsive */
 @media (max-width: 480px) {
   .flotante-boton {
