@@ -1,51 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './Carrito.css';
 import { useCarrito } from '../contexts/CarritoContext';
 import { Link } from 'react-router-dom';
+import ModalContacto from './ModalContacto';
 
 const Carrito = () => {
   const { carrito, setCarrito, eliminarDelCarrito } = useCarrito();
-
-  const enviarPedidoPorWhatsApp = async () => {
-    if (carrito.length === 0) {
-      alert('El carrito está vacío');
-      return;
-    }
-
-    const pedido = {
-      fecha_pedido: new Date().toISOString(),
-      cliente_tienda: 'cliente_web',
-      array_pedido: JSON.stringify(carrito)
-    };
-
-    try {
-      const response = await fetch('https://tsb-backend-tienda-production.up.railway.app/api/pedidos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(pedido)
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        console.error('Respuesta del servidor:', data);
-        throw new Error(data.error || `Error HTTP ${response.status}`);
-      }
-
-      const idPedido = data.id;
-      const linkPedido = `https://tiendasaltabazar.up.railway.app/verpedido?id=${idPedido}`;
-      const mensajeWhatsApp = `Hola, quisiera solicitar un presupuesto: ${linkPedido}`;
-      const telefonoDestino = '5493875537070';
-      const urlWhatsApp = `https://wa.me/${telefonoDestino}?text=${encodeURIComponent(mensajeWhatsApp)}`;
-
-      window.open(urlWhatsApp, '_blank');
-    } catch (error) {
-      console.error('❌ Error al enviar pedido por WhatsApp:', error);
-      alert('Ocurrió un error al enviar el pedido.');
-    }
-
-
-  };
+  const [mostrarModal, setMostrarModal] = useState(false);
 
 
   const cambiarCantidad = (index, nuevaCantidad) => {
@@ -68,7 +29,7 @@ const Carrito = () => {
   return (
     <div className="carrito-container">
       <h1 className="carrito-title">DETALLE DE PRESUPUESTO</h1>
-
+  
       <div className="carrito-items">
         {carrito.length === 0 ? (
           <p>Tu carrito está vacío.</p>
@@ -126,36 +87,43 @@ const Carrito = () => {
           ))
         )}
       </div>
-
+  
       {carrito.length > 0 && (
         <div className="carrito-summary">
           <div className="carrito-total">
             Total: ${new Intl.NumberFormat('es-AR').format(total)}
           </div>
-
+  
           <button
             className="enviar-whatsapp-button"
-            onClick={enviarPedidoPorWhatsApp}
+            onClick={() => setMostrarModal(true)}
           >
-            📩 Solicitar presupuesto por WhatsApp
+            📩 Solicitar presupuesto
           </button>
         </div>
       )}
-
-
-
+  
+      {/* 🔵 Modal fuera del resumen */}
+      {mostrarModal && (
+        <ModalContacto
+          carrito={carrito}
+          onCerrar={() => setMostrarModal(false)}
+        />
+      )}
+  
       <div className="volver-contenedor">
         <Link to="/" className="volver-button">
           ← Seguir viendo productos
         </Link>
       </div>
-
+  
       <p className="leyenda-precio">
         ⚠️ Los precios exhibidos en esta web son aproximados y tienen carácter informativo.
         El precio final será confirmado por el vendedor una vez revisada tu solicitud de presupuesto.
       </p>
     </div>
   );
+  
 };
 
 export default Carrito;

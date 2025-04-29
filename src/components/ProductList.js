@@ -10,6 +10,20 @@ function ProductList({ grcat }) {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
 
+
+  const manejarClickRuedita = (e, producto) => {
+    if (e.button === 1) { // Botón del medio (ruedita)
+      e.preventDefault();
+  
+      const user = JSON.parse(localStorage.getItem('usuario_admin'));
+      if (!user || !user.autorizado) return;
+  
+      const urlFicha = `https://tsb-frontend-mercaderia-production-3b78.up.railway.app/?id=${producto.id}`;
+      window.open(urlFicha, '_blank');
+    }
+  };
+  
+
   useEffect(() => {
     const fetchProductos = async () => {
       try {
@@ -73,57 +87,72 @@ function ProductList({ grcat }) {
 
   return (
     <div>
-      <div className="product-container">
-        {mercaderia.length === 0 ? (
-          <p style={{ padding: "2rem", textAlign: "center" }}>
-            No hay productos para esta categoría.
-          </p>
-        ) : (
-          mercaderia.map((producto, index) => {
-            const precioCalculado = isNaN(producto.costosiniva)
-              ? 0
-              : Math.round(
-                (producto.costosiniva *
-                  (1 + producto.iva / 100) *
-                  (1 + producto.margen / 100)) / 100
-              ) * 100;
+      {mercaderia.length === 0 ? (
+        <p style={{ padding: "2rem", textAlign: "center" }}>
+          No hay productos para esta categoría.
+        </p>
+      ) : (
+        Object.entries(
+          mercaderia.reduce((acc, prod) => {
+            const grupo = prod.grupo || 'Sin grupo';
+            if (!acc[grupo]) acc[grupo] = [];
+            acc[grupo].push(prod);
+            return acc;
+          }, {})
+        ).map(([grupo, productos]) => (
+          <div key={grupo} className="grupo-productos">
+            <h2 style={{ padding: "1rem", marginBottom: "0" }}>{grupo}</h2>
+            <div className="product-container">
+              {productos.map((producto, index) => {
+                const precioCalculado = isNaN(producto.costosiniva)
+                  ? 0
+                  : Math.round(
+                    (producto.costosiniva *
+                      (1 + producto.iva / 100) *
+                      (1 + producto.margen / 100)) / 100
+                  ) * 100;
 
-            const enCarrito = carrito.some(item => item.codigo_int === producto.codigo_int);
+                const enCarrito = carrito.some(item => item.codigo_int === producto.codigo_int);
 
-            return (
-              <div className="product-card" key={index}>
-                <img
-                  src={producto.imagen1}
-                  alt={producto.descripcion_corta}
-                  className="product-image"
-                  onClick={() => abrirModal(producto)}
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = "/imagenes/no-disponible.jpg";
-                  }}
-                />
-                <h3>
-                  {precioCalculado
-                    ? `$ ${new Intl.NumberFormat('es-AR').format(precioCalculado)}`
-                    : 'Precio no disponible'}
-                </h3>
-                <p>{producto.descripcion_corta}</p>
-                <p><strong>Codigo:</strong> {producto.codigo_int}</p>
+                return (
+                  <div className="product-card" key={index}>
+                    <img
+                      src={producto.imagen1}
+                      alt={producto.descripcion_corta}
+                      className="product-image"
+                      onClick={() => abrirModal(producto)}
+                      onMouseDown={(e) => manejarClickRuedita(e, producto)}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "/imagenes/no-disponible.jpg";
+                      }}
+                    />
 
-                {enCarrito && (
-                  <span className="etiqueta-presupuesto">
-                    <span className="tilde-verde">✔</span> Agregado al presupuesto
-                  </span>
-                )}
+                    <h3>
+                      {precioCalculado
+                        ? `$ ${new Intl.NumberFormat('es-AR').format(precioCalculado)}`
+                        : 'Precio no disponible'}
+                    </h3>
+                    <p>{producto.descripcion_corta}</p>
+                    <p><strong>Codigo:</strong> {producto.codigo_int}</p>
 
-                <button className='btn-vermas' onClick={() => abrirModal(producto)}>
-                  Ver más
-                </button>
-              </div>
-            );
-          })
-        )}
-      </div>
+                    {enCarrito && (
+                      <span className="etiqueta-presupuesto">
+                        <span className="tilde-verde">✔</span> Agregado al presupuesto
+                      </span>
+                    )}
+
+                    <button className='btn-vermas' onClick={() => abrirModal(producto)}>
+                      Ver ficha
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))
+      )}
+
 
       {productoSeleccionado && (
         <div className="modal-overlay" onClick={cerrarModal}>

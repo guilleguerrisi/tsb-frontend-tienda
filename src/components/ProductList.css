@@ -1,20 +1,22 @@
 .product-container {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+  padding: 16px;
   justify-content: center;
-  padding: 8px;
-  gap: 12px;
   box-sizing: border-box;
 }
+
+
 
 .product-card {
   background: white;
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin: 6px;
-  padding: 20px;
-  width: 280px;
-  max-width: 95vw;
+  margin: 10px;
+  padding: 14px;
+  width: 100%;
+  max-width: 100%;  
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -23,6 +25,7 @@
   font-family: 'Inter', sans-serif;
   box-sizing: border-box;
 }
+
 
 .product-image {
   width: 100%;
@@ -186,6 +189,25 @@ button:disabled {
   font-size: 1.4rem;
   color: #444;
 }
+
+.grupo-productos {
+  margin-top: 2rem;
+  margin-bottom: 3rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.grupo-productos h2 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.6rem;
+  color: #ffffff;
+  margin: 0 0 1rem 0;
+  padding-left: 8px;
+  text-align: left;
+  border-left: 4px solid #3498db;
+  padding-left: 12px;
+}
+
 
 /* ✅ Responsive */
 @media (max-width: 768px) {
