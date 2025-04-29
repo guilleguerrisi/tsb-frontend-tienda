@@ -16,7 +16,7 @@ function ProductList({ grcat }) {
     if (e.button === 1) { // Botón del medio (ruedita)
       e.preventDefault();
   
-      const user = JSON.parse(localStorage.getItem('usuario_admin'));
+      const user = JSON.parse(localStorage.getItem('usuarios_admin'));
       if (!user || !user.autorizado) return;
   
       const urlFicha = `https://tsb-frontend-mercaderia-production-3b78.up.railway.app/?id=${producto.id}`;
