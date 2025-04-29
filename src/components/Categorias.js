@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Categorias.css';
-import API_URL from '../config';
+import config from '../config';
 
 const Categorias = () => {
   const [categorias, setCategorias] = useState([]);
@@ -13,7 +13,7 @@ const Categorias = () => {
       try {
 
 
-        const res = await fetch(`${API_URL}/api/categorias`);
+        const res = await fetch(`${config.API_URL}/api/categorias`);
         const data = await res.json();
         setCategorias(data);
       } catch (error) {
