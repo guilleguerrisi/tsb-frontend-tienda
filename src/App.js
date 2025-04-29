@@ -3,21 +3,24 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import ProductosPage from './pages/ProductosPage';
 import Carrito from './components/Carrito';
-import Pedido from './components/Pedido'; // 🔵 Agregado
+import Pedido from './components/Pedido';
 import { CarritoProvider } from './contexts/CarritoContext';
+import ProtectorDeAcceso from './ProtectorDeAcceso'; // ✅ Importado
 import './App.css';
 
 function App() {
   return (
     <CarritoProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/productos" element={<ProductosPage />} />
-          <Route path="/carrito" element={<Carrito />} />
-          <Route path="/pedido/:id" element={<Pedido />} /> {/* 🔵 Agregado */}
-        </Routes>
-      </Router>
+      <ProtectorDeAcceso> {/* ✅ Protección activada */}
+        <Router>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/productos" element={<ProductosPage />} />
+            <Route path="/carrito" element={<Carrito />} />
+            <Route path="/pedido/:id" element={<Pedido />} />
+          </Routes>
+        </Router>
+      </ProtectorDeAcceso>
     </CarritoProvider>
   );
 }
