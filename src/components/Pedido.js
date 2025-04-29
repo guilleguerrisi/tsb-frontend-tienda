@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useCarrito } from '../contexts/CarritoContext';
-import API_URL from '../config';
+import config from '../config';
+
 
 function Pedido() {
   const { id } = useParams();
@@ -11,7 +12,7 @@ function Pedido() {
   useEffect(() => {
     const cargarPedido = async () => {
       try {
-        const res = await fetch(`${API_URL}/api/pedidos/${id}`);
+        const res = await fetch(`${config.API_URL}/api/pedidos/${id}`);
         const data = await res.json();
 
         if (res.ok && data.array_pedido) {

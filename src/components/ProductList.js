@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import './ProductList.css';
 import { useCarrito } from '../contexts/CarritoContext';
-import API_URL from '../config';
+import config from '../config'; // ✅
+
 
 function ProductList({ grcat }) {
   const { carrito, agregarAlCarrito } = useCarrito();
@@ -30,7 +31,7 @@ function ProductList({ grcat }) {
         setCargando(true);
         setError(null);
 
-        let url = `${API_URL}/api/mercaderia`;
+        let url = `${config.API_URL}/api/mercaderia`;
 
         if (grcat) {
           url += `?grcat=${encodeURIComponent(grcat)}`;
