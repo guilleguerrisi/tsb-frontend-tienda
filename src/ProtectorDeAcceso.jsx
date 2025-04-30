@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { obtenerDeviceId } from './device';
-import config from './config'; // 🟡 NUEVO: importamos modoDesarrollo
+import config from './config';
 
 function ProtectorDeAcceso({ children }) {
   const [autorizado, setAutorizado] = useState(null);
@@ -21,8 +21,6 @@ function ProtectorDeAcceso({ children }) {
 
         const result = await response.json();
 
-        console.log('✅ Resultado backend:', result);
-
         if (result.autorizado) {
           setAutorizado(true);
         } else {
@@ -39,32 +37,48 @@ function ProtectorDeAcceso({ children }) {
     verificarAcceso();
   }, []);
 
-  // 🔒 Bloqueo completo si modoDesarrollo está activo y NO autorizado
   if (config.modoDesarrollo && autorizado === false) {
+    const linkWhatsApp = `https://wa.me/5493875537070?text=${encodeURIComponent(
+      `Hola, quisiera hacer una consulta,\nCódigo: ${deviceIdNoAutorizado}`
+    )}`;
+
     return (
       <div style={{ padding: '2rem', textAlign: 'center', background: '#fff8f8', height: '100vh' }}>
         <h2>🚧 Modo mantenimiento</h2>
-        <p>Esta tienda está temporalmente cerrada al público.</p>
-        <p><strong>Device ID:</strong></p>
-        <code style={{ background: '#eee', padding: '8px', borderRadius: '6px', display: 'inline-block' }}>
-          {deviceIdNoAutorizado}
-        </code>
-        <p style={{ marginTop: '1rem' }}>Contactá con el administrador para solicitar acceso.</p>
+        <p>En breve estará la web disponible nuevamente.</p>
+        <p style={{ margin: '1.2rem 0' }}>
+          Si querés realizar una consulta, hacela a nuestro WhatsApp por favor:
+        </p>
+        <a
+          href={linkWhatsApp}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'inline-block',
+            backgroundColor: '#25d366',
+            color: 'white',
+            padding: '12px 24px',
+            borderRadius: '30px',
+            fontSize: '1.1rem',
+            textDecoration: 'none',
+            fontWeight: 'bold',
+            marginTop: '10px'
+          }}
+        >
+          Contactar por WhatsApp
+        </a>
+        <p style={{ marginTop: '2rem', fontSize: '0.8rem', color: '#999' }}>
+          Error: <code style={{ background: '#eee', padding: '4px 8px', borderRadius: '6px' }}>{deviceIdNoAutorizado}</code>
+        </p>
       </div>
     );
   }
 
-  // Mientras verifica...
   if (autorizado === null && !deviceIdNoAutorizado) {
     return <div style={{ padding: '2rem', textAlign: 'center' }}>Verificando acceso...</div>;
   }
 
-  // Si modoDesarrollo está desactivado, o está autorizado
-  return (
-    <>
-      {children}
-    </>
-  );
+  return <>{children}</>;
 }
 
 export default ProtectorDeAcceso;
