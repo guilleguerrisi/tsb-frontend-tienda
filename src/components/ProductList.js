@@ -13,13 +13,23 @@ function ProductList({ grcat }) {
 
 
   const manejarClickRuedita = (e, producto) => {
-    if (e.button === 1) {
+    if (e.button === 1) { // Click del medio
       e.preventDefault();
-      console.log('🖱 Click de ruedita detectado en:', producto.codigo_int);
+  
+      const user = JSON.parse(localStorage.getItem('usuario_admin'));
+      if (!user || !user.autorizado) return;
+  
       const urlFicha = `https://tsb-frontend-mercaderia-production-3b78.up.railway.app/?id=${producto.id}`;
-      window.open(urlFicha, '_blank');
+  
+      // ⬇ Forzamos abrir en una nueva pestaña sin cambiar el foco
+      const nuevaVentana = window.open(urlFicha, '_blank', 'noopener,noreferrer');
+      if (nuevaVentana) {
+        nuevaVentana.blur();
+        window.focus(); // ⬅ vuelve a enfocar la tienda
+      }
     }
   };
+  
   
   
   
