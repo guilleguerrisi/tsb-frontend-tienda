@@ -13,14 +13,14 @@ function ProductList({ grcat }) {
 
 
   const manejarClickRuedita = (e, producto) => {
-    if (e.button === 1) { // Click del botón del medio
-      const user = JSON.parse(localStorage.getItem('usuario_admin'));
-      if (!user || !user.autorizado) return;
-  
+    if (e.button === 1) {
+      e.preventDefault();
+      console.log('🖱 Click de ruedita detectado en:', producto.codigo_int);
       const urlFicha = `https://tsb-frontend-mercaderia-production-3b78.up.railway.app/?id=${producto.id}`;
       window.open(urlFicha, '_blank');
     }
   };
+  
   
   
 
