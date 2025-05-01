@@ -23,14 +23,17 @@ function ProtectorDeAcceso({ children }) {
 
         if (result.autorizado) {
           setAutorizado(true);
+          localStorage.setItem('usuario_admin', JSON.stringify({ autorizado: true })); // ✅
         } else {
           setAutorizado(false);
           setDeviceIdNoAutorizado(deviceId);
+          localStorage.removeItem('usuario_admin'); // ✅
         }
       } catch (error) {
         console.error('❌ Error al verificar acceso:', error);
         setAutorizado(false);
         setDeviceIdNoAutorizado(deviceId);
+        localStorage.removeItem('usuario_admin'); // ✅
       }
     };
 

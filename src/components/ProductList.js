@@ -13,33 +13,6 @@ function ProductList({ grcat }) {
   const [error, setError] = useState(null);
 
 
-  const manejarClickRuedita = (e, producto) => {
-    if (e.button === 1) { // Clic del medio
-      e.preventDefault();
-
-      const user = JSON.parse(localStorage.getItem('usuario_admin'));
-      if (!user || !user.autorizado) return;
-
-      const urlFicha = `https://tsb-frontend-mercaderia-production-3b78.up.railway.app/?id=${producto.id}`;
-
-      const link = document.createElement('a');
-      link.href = urlFicha;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      document.body.appendChild(link);
-
-      // ✅ Simula clic del medio (click button 1)
-      const evt = new MouseEvent('click', {
-        bubbles: true,
-        cancelable: true,
-        view: window,
-        button: 1
-      });
-
-      link.dispatchEvent(evt);
-      document.body.removeChild(link); // 🧹 limpieza
-    }
-  };
 
 
 
@@ -168,32 +141,48 @@ function ProductList({ grcat }) {
 
                 return (
                   <div className="product-card" key={index}>
-                    <img
-                      src={producto.imagen1}
-                      alt={producto.descripcion_corta}
-                      className="product-image"
-                      onClick={() => {
-                        const user = JSON.parse(localStorage.getItem('usuario_admin'));
-                        if (user?.autorizado) {
-                          const link = document.createElement('a');
-                          link.href = `https://tsb-frontend-mercaderia-production-3b78.up.railway.app/?id=${producto.id}`;
-                          link.target = '_blank';
-                          link.rel = 'noopener noreferrer';
-                          document.body.appendChild(link);
-                          link.click();
-                          document.body.removeChild(link);
-                        } else {
-                          abrirModal(producto);
-                        }
-                      }}
-                      onMouseDown={(e) => manejarClickRuedita(e, producto)}
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = "/imagenes/no-disponible.jpg";
-                      }}
-                    />
-
-
+                    {(() => {
+                      const user = JSON.parse(localStorage.getItem('usuario_admin'));
+                      if (user?.autorizado) {
+                        return (
+                          <a
+                            href={`https://tsb-frontend-mercaderia-production-3b78.up.railway.app/?id=${producto.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.preventDefault()} // bloquea clic izquierdo
+                            onMouseDown={(e) => {
+                              if (e.button !== 1) e.preventDefault(); // solo deja ruedita
+                            }}
+                          >
+                            <img
+                              src={producto.imagen1}
+                              alt={producto.descripcion_corta}
+                              className="product-image"
+                              onContextMenu={(e) => e.preventDefault()}
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = "/imagenes/no-disponible.jpg";
+                              }}
+                            />
+                          </a>
+                        );
+                      } else {
+                        return (
+                          <img
+                            src={producto.imagen1}
+                            alt={producto.descripcion_corta}
+                            className="product-image"
+                            onClick={() => abrirModal(producto)}
+                            onContextMenu={(e) => e.preventDefault()}
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = "/imagenes/no-disponible.jpg";
+                            }}
+                          />
+                        );
+                      }
+                    })()}
+                
                     <h3>
                       {precioCalculado
                         ? `$ ${new Intl.NumberFormat('es-AR').format(precioCalculado)}`
@@ -201,18 +190,21 @@ function ProductList({ grcat }) {
                     </h3>
                     <p>{producto.descripcion_corta}</p>
                     <p><strong>Codigo:</strong> {producto.codigo_int}</p>
-
+                
                     {enCarrito && (
                       <span className="etiqueta-presupuesto">
                         <span className="tilde-verde">✔</span> Agregado al presupuesto
                       </span>
                     )}
-
+                
                     <button className='btn-vermas' onClick={() => abrirModal(producto)}>
                       Ver ficha
                     </button>
                   </div>
                 );
+                
+
+
               })}
             </div>
           </div>
