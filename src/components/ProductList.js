@@ -22,23 +22,25 @@ function ProductList({ grcat }) {
   
       const urlFicha = `https://tsb-frontend-mercaderia-production-3b78.up.railway.app/?id=${producto.id}`;
   
-      // ⚠️ Esta línea delega al navegador abrir sin cambiar foco
       const link = document.createElement('a');
       link.href = urlFicha;
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
   
-      // Simula un clic del medio (lo más respetuoso con el navegador)
+      // ✅ Simula clic del medio (click button 1)
       const evt = new MouseEvent('click', {
         bubbles: true,
         cancelable: true,
         view: window,
-        button: 1 // botón del medio
+        button: 1
       });
   
       link.dispatchEvent(evt);
+      document.body.removeChild(link); // 🧹 limpieza
     }
   };
+    
   
 
 
