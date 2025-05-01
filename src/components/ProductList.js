@@ -8,12 +8,13 @@ function ProductList({ grcat }) {
   const { carrito, agregarAlCarrito } = useCarrito();
   const [mercaderia, setProductos] = useState([]);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
+  const [indiceImagen, setIndiceImagen] = useState(0);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
 
 
   const manejarClickRuedita = (e, producto) => {
-    if (e.button === 1) { // Click del medio
+    if (e.button === 1) { // Clic del medio
       e.preventDefault();
   
       const user = JSON.parse(localStorage.getItem('usuario_admin'));
@@ -21,18 +22,28 @@ function ProductList({ grcat }) {
   
       const urlFicha = `https://tsb-frontend-mercaderia-production-3b78.up.railway.app/?id=${producto.id}`;
   
-      // ⬇ Forzamos abrir en una nueva pestaña sin cambiar el foco
-      const nuevaVentana = window.open(urlFicha, '_blank', 'noopener,noreferrer');
-      if (nuevaVentana) {
-        nuevaVentana.blur();
-        window.focus(); // ⬅ vuelve a enfocar la tienda
-      }
+      // ⚠️ Esta línea delega al navegador abrir sin cambiar foco
+      const link = document.createElement('a');
+      link.href = urlFicha;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+  
+      // Simula un clic del medio (lo más respetuoso con el navegador)
+      const evt = new MouseEvent('click', {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+        button: 1 // botón del medio
+      });
+  
+      link.dispatchEvent(evt);
     }
   };
   
-  
-  
-  
+
+
+
+
 
   useEffect(() => {
     const fetchProductos = async () => {
@@ -67,9 +78,38 @@ function ProductList({ grcat }) {
   }, [grcat]);
 
   const abrirModal = (producto) => {
-    setProductoSeleccionado(producto);
+    let arrayImagenes = [];
+
+    if (Array.isArray(producto.imagearray)) {
+      arrayImagenes = producto.imagearray;
+    } else {
+      try {
+        arrayImagenes = JSON.parse(producto.imagearray);
+      } catch {
+        arrayImagenes = [];
+      }
+    }
+
+    // 🟡 Extraer solo URLs si vienen como objetos
+    arrayImagenes = arrayImagenes.map((img) =>
+      typeof img === 'string' ? img : img.imagenamostrar
+    ).filter(Boolean);
+
+    setProductoSeleccionado({
+      ...producto,
+      imagearray: arrayImagenes
+    });
+
+    arrayImagenes.forEach((url) => {
+      const img = new Image();
+      img.src = url;
+    });
+
+    setIndiceImagen(0);
     document.body.classList.add('modal-abierto');
   };
+
+
 
   const cerrarModal = () => {
     setProductoSeleccionado(null);
@@ -168,15 +208,54 @@ function ProductList({ grcat }) {
         <div className="modal-overlay" onClick={cerrarModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <button className="close-button" onClick={cerrarModal}>×</button>
-            <img
-              src={productoSeleccionado.imagen1}
-              alt={productoSeleccionado.descripcion_corta}
-              className="modal-image"
-              onError={(e) => {
-                e.target.onerror = null;
-                e.target.src = "/imagenes/no-disponible.jpg";
-              }}
-            />
+            <div className="carrusel-imagenes">
+              {productoSeleccionado.imagearray?.length > 1 && (
+                <button
+                  onClick={() =>
+                    setIndiceImagen((prev) =>
+                      prev === 0
+                        ? productoSeleccionado.imagearray.length - 1
+                        : prev - 1
+                    )
+                  }
+                  className="flecha-carrusel izquierda"
+                >
+                  ‹
+                </button>
+              )}
+
+              <img
+                src={
+                  productoSeleccionado.imagearray?.[indiceImagen] ||
+                  productoSeleccionado.imagen1 ||
+                  "/imagenes/no-disponible.jpg"
+                }
+                alt={productoSeleccionado.descripcion_corta}
+                className="modal-image"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/imagenes/no-disponible.jpg";
+                }}
+              />
+
+              {productoSeleccionado.imagearray?.length > 1 && (
+                <button
+                  onClick={() =>
+                    setIndiceImagen((prev) =>
+                      prev === productoSeleccionado.imagearray.length - 1
+                        ? 0
+                        : prev + 1
+                    )
+                  }
+                  className="flecha-carrusel derecha"
+                >
+                  ›
+                </button>
+              )}
+            </div>
+
+
+
             <h2>
               <strong>
                 {isNaN(productoSeleccionado.costosiniva)

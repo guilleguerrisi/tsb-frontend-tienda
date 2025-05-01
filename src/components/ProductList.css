@@ -193,11 +193,12 @@ button:disabled {
 }
 
 .grupo-productos {
-  margin-top: 2rem;
-  margin-bottom: 3rem;
-  padding-bottom: 1rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0rem;
+  padding-bottom: 0.5rem;
   border-bottom: 1px solid #ddd;
 }
+
 
 .grupo-productos h2 {
   font-family: 'Poppins', sans-serif;
@@ -209,6 +210,52 @@ button:disabled {
   border-left: 4px solid #3498db;
   padding-left: 12px;
 }
+
+.modal-image {
+  max-width: 100%;
+  max-height: 60vh;
+  object-fit: contain;
+  border-radius: 6px;
+  transition: opacity 0.3s ease;
+}
+
+
+.carrusel-imagenes {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.flecha-carrusel {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2rem;
+  font-weight: bold;
+  background-color: rgba(255, 255, 255, 0.6);
+  border: none;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  z-index: 2;
+  transition: background-color 0.2s ease;
+}
+
+.flecha-carrusel:hover {
+  background-color: rgba(255, 255, 255, 0.85);
+}
+
+.flecha-carrusel.izquierda {
+  left: -20px;
+}
+
+.flecha-carrusel.derecha {
+  right: -20px;
+}
+
 
 
 /* ✅ Responsive */
