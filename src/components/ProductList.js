@@ -16,18 +16,18 @@ function ProductList({ grcat }) {
   const manejarClickRuedita = (e, producto) => {
     if (e.button === 1) { // Clic del medio
       e.preventDefault();
-  
+
       const user = JSON.parse(localStorage.getItem('usuario_admin'));
       if (!user || !user.autorizado) return;
-  
+
       const urlFicha = `https://tsb-frontend-mercaderia-production-3b78.up.railway.app/?id=${producto.id}`;
-  
+
       const link = document.createElement('a');
       link.href = urlFicha;
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
       document.body.appendChild(link);
-  
+
       // ✅ Simula clic del medio (click button 1)
       const evt = new MouseEvent('click', {
         bubbles: true,
@@ -35,13 +35,13 @@ function ProductList({ grcat }) {
         view: window,
         button: 1
       });
-  
+
       link.dispatchEvent(evt);
       document.body.removeChild(link); // 🧹 limpieza
     }
   };
-    
-  
+
+
 
 
 
@@ -172,13 +172,27 @@ function ProductList({ grcat }) {
                       src={producto.imagen1}
                       alt={producto.descripcion_corta}
                       className="product-image"
-                      onClick={() => abrirModal(producto)}
+                      onClick={() => {
+                        const user = JSON.parse(localStorage.getItem('usuario_admin'));
+                        if (user?.autorizado) {
+                          const link = document.createElement('a');
+                          link.href = `https://tsb-frontend-mercaderia-production-3b78.up.railway.app/?id=${producto.id}`;
+                          link.target = '_blank';
+                          link.rel = 'noopener noreferrer';
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
+                        } else {
+                          abrirModal(producto);
+                        }
+                      }}
                       onMouseDown={(e) => manejarClickRuedita(e, producto)}
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = "/imagenes/no-disponible.jpg";
                       }}
                     />
+
 
                     <h3>
                       {precioCalculado
