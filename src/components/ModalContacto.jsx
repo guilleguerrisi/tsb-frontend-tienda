@@ -35,8 +35,9 @@ const ModalContacto = ({ carrito, onCerrar }) => {
         throw new Error(data.error || `Error HTTP ${response.status}`);
       }
 
-      const idPedido = data.id;
-      const link = `https://tiendasaltabazar.up.railway.app/verpedido?id=${idPedido}`;
+      const idPedido = data.data.id;
+
+      const link = `https://www.bazaronlinesalta.com.ar/verpedido?id=${idPedido}`;
 
       if (modo === 'whatsapp') {
         const mensaje = `Hola, quisiera solicitar un presupuesto: ${link}`;

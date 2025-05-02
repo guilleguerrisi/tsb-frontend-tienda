@@ -78,7 +78,7 @@ function ProtectorDeAcceso({ children }) {
   }
 
   if (autorizado === null && !deviceIdNoAutorizado) {
-    return <div style={{ padding: '2rem', textAlign: 'center' }}>Verificando acceso...</div>;
+    return <div style={{ padding: '2rem', textAlign: 'center' }}>Cargando...</div>;
   }
 
   return <>{children}</>;
