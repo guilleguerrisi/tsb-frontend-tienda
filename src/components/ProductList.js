@@ -137,57 +137,54 @@ function ProductList({ grcat }) {
                   const precioCalculado = isNaN(producto.costosiniva)
                     ? 0
                     : Math.round(
-                        (producto.costosiniva *
-                          (1 + producto.iva / 100) *
-                          (1 + producto.margen / 100)) / 100
-                      ) * 100;
-  
+                      (producto.costosiniva *
+                        (1 + producto.iva / 100) *
+                        (1 + producto.margen / 100)) / 100
+                    ) * 100;
+
                   const enCarrito = carrito.some(item => item.codigo_int === producto.codigo_int);
-  
+
                   return (
                     <div className="product-card" key={index}>
                       {(() => {
                         const user = JSON.parse(localStorage.getItem('usuario_admin'));
-                        if (user?.autorizado) {
-                          return (
-                            <a
-                              href={`https://tsb-frontend-mercaderia-production-3b78.up.railway.app/?id=${producto.id}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.preventDefault()}
-                              onMouseDown={(e) => {
-                                if (e.button !== 1) e.preventDefault();
-                              }}
-                            >
-                              <img
-                                src={producto.imagen1}
-                                alt={producto.descripcion_corta}
-                                className="product-image"
-                                onContextMenu={(e) => e.preventDefault()}
-                                onError={(e) => {
-                                  e.target.onerror = null;
-                                  e.target.src = "/imagenes/no-disponible.jpg";
-                                }}
-                              />
-                            </a>
-                          );
-                        } else {
-                          return (
+
+                        return (
+                          <a
+                            href={
+                              user?.autorizado
+                                ? `https://tsb-frontend-mercaderia-production-3b78.up.railway.app/?id=${producto.id}`
+                                : undefined
+                            }
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => {
+                              if (!user?.autorizado) {
+                                e.preventDefault();
+                                abrirModal(producto);
+                              }
+                            }}
+                            onMouseDown={(e) => {
+                              // solo permitir rueda del medio para autorizados
+                              if (user?.autorizado && e.button === 1) return;
+                              if (!user?.autorizado) e.preventDefault();
+                            }}
+                          >
                             <img
                               src={producto.imagen1}
                               alt={producto.descripcion_corta}
                               className="product-image"
-                              onClick={() => abrirModal(producto)}
                               onContextMenu={(e) => e.preventDefault()}
                               onError={(e) => {
                                 e.target.onerror = null;
                                 e.target.src = "/imagenes/no-disponible.jpg";
                               }}
                             />
-                          );
-                        }
+                          </a>
+                        );
                       })()}
-  
+
+
                       <h3>
                         {precioCalculado
                           ? `$ ${new Intl.NumberFormat('es-AR').format(precioCalculado)}`
@@ -195,13 +192,13 @@ function ProductList({ grcat }) {
                       </h3>
                       <p>{producto.descripcion_corta}</p>
                       <p><strong>Codigo:</strong> {producto.codigo_int}</p>
-  
+
                       {enCarrito && (
                         <span className="etiqueta-presupuesto">
                           <span className="tilde-verde">✔</span> Agregado al presupuesto
                         </span>
                       )}
-  
+
                       <button className='btn-vermas' onClick={() => abrirModal(producto)}>
                         Ver ficha
                       </button>
@@ -213,7 +210,7 @@ function ProductList({ grcat }) {
           );
         })
       )}
-  
+
       {productoSeleccionado && (
         <div className="modal-overlay" onClick={cerrarModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -233,7 +230,7 @@ function ProductList({ grcat }) {
                   ‹
                 </button>
               )}
-  
+
               <img
                 src={
                   productoSeleccionado.imagearray?.[indiceImagen] ||
@@ -247,7 +244,7 @@ function ProductList({ grcat }) {
                   e.target.src = "/imagenes/no-disponible.jpg";
                 }}
               />
-  
+
               {productoSeleccionado.imagearray?.length > 1 && (
                 <button
                   onClick={() =>
@@ -263,23 +260,23 @@ function ProductList({ grcat }) {
                 </button>
               )}
             </div>
-  
+
             <h2>
               <strong>
                 {isNaN(productoSeleccionado.costosiniva)
                   ? 'Precio no disponible'
                   : `$ ${new Intl.NumberFormat('es-AR').format(
-                      Math.round(
-                        (productoSeleccionado.costosiniva *
-                          (1 + productoSeleccionado.iva / 100) *
-                          (1 + productoSeleccionado.margen / 100)) / 100
-                      ) * 100
-                    )}`}
+                    Math.round(
+                      (productoSeleccionado.costosiniva *
+                        (1 + productoSeleccionado.iva / 100) *
+                        (1 + productoSeleccionado.margen / 100)) / 100
+                    ) * 100
+                  )}`}
               </strong>
             </h2>
             <p>{productoSeleccionado.descripcion_corta}</p>
             <p><strong>Codigo:</strong> {productoSeleccionado.codigo_int}</p>
-  
+
             <button
               onClick={() => {
                 const yaEsta = carrito.some(item => item.codigo_int === productoSeleccionado.codigo_int);
@@ -300,7 +297,7 @@ function ProductList({ grcat }) {
                 ? 'Quitar del presupuesto'
                 : 'Agregar al presupuesto'}
             </button>
-  
+
             <button className="btn-seguir" onClick={cerrarModal}>
               ← Seguir viendo productos
             </button>
@@ -309,7 +306,7 @@ function ProductList({ grcat }) {
       )}
     </div>
   );
-  
+
 
 }
 
