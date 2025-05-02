@@ -1,11 +1,13 @@
 import React, { useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useCarrito } from '../contexts/CarritoContext';
 import config from '../config';
 
-
 function Pedido() {
-  const { id } = useParams();
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const id = params.get("id");
+
   const navigate = useNavigate();
   const { setCarrito } = useCarrito();
 
