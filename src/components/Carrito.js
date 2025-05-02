@@ -1,13 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Carrito.css';
 import { useCarrito } from '../contexts/CarritoContext';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import ModalContacto from './ModalContacto';
+import config from '../config';
 
 const Carrito = () => {
   const { carrito, setCarrito, eliminarDelCarrito } = useCarrito();
   const [mostrarModal, setMostrarModal] = useState(false);
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const idPedido = params.get("id");
 
+  // 🔄 Si accedemos con /carrito?id=XX, cargamos ese carrito desde el backend
+  useEffect(() => {
+    const cargarPedido = async () => {
+      if (!idPedido) return;
+
+      try {
+        const res = await fetch(`${config.API_URL}/api/pedidos/${idPedido}`);
+        const data = await res.json();
+
+        if (res.ok && data.array_pedido) {
+          const carritoCargado = JSON.parse(data.array_pedido);
+          setCarrito(carritoCargado);
+        } else {
+          alert('No se pudo cargar el presupuesto.');
+        }
+      } catch (error) {
+        console.error('Error al cargar pedido desde carrito:', error);
+        alert('Error al conectar con el servidor.');
+      }
+    };
+
+    cargarPedido();
+  }, [idPedido, setCarrito]);
 
   const cambiarCantidad = (index, nuevaCantidad) => {
     if (nuevaCantidad < 1) return;
@@ -29,7 +56,7 @@ const Carrito = () => {
   return (
     <div className="carrito-container">
       <h1 className="carrito-title">DETALLE DE PRESUPUESTO</h1>
-  
+
       <div className="carrito-items">
         {carrito.length === 0 ? (
           <p>Tu carrito está vacío.</p>
@@ -87,13 +114,13 @@ const Carrito = () => {
           ))
         )}
       </div>
-  
+
       {carrito.length > 0 && (
         <div className="carrito-summary">
           <div className="carrito-total">
             Total: ${new Intl.NumberFormat('es-AR').format(total)}
           </div>
-  
+
           <button
             className="enviar-whatsapp-button"
             onClick={() => setMostrarModal(true)}
@@ -102,28 +129,26 @@ const Carrito = () => {
           </button>
         </div>
       )}
-  
-      {/* 🔵 Modal fuera del resumen */}
+
       {mostrarModal && (
         <ModalContacto
           carrito={carrito}
           onCerrar={() => setMostrarModal(false)}
         />
       )}
-  
+
       <div className="volver-contenedor">
         <Link to="/" className="volver-button">
           ← Seguir viendo productos
         </Link>
       </div>
-  
+
       <p className="leyenda-precio">
         ⚠️ Los precios exhibidos en esta web son aproximados y tienen carácter informativo.
         El precio final será confirmado por el vendedor una vez revisada tu solicitud de presupuesto.
       </p>
     </div>
   );
-  
 };
 
 export default Carrito;

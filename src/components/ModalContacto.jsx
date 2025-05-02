@@ -37,7 +37,7 @@ const ModalContacto = ({ carrito, onCerrar }) => {
 
       const idPedido = data.data.id;
 
-      const link = `https://www.bazaronlinesalta.com.ar/verpedido?id=${idPedido}`;
+      const link = `https://www.bazaronlinesalta.com.ar/carrito?id=${idPedido}`;
 
       if (modo === 'whatsapp') {
         const mensaje = `Hola, quisiera solicitar un presupuesto: ${link}`;
