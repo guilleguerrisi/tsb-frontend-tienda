@@ -41,10 +41,10 @@ export const CarritoProvider = ({ children }) => {
     } else {
       const productoConPrecio = {
         ...producto,
-        id: carrito.length + 1,
         price: calcularPrecio(producto),
-        cantidad: 1, // 👈 agregamos cantidad inicial
+        cantidad: 1,
       };
+      
       setCarrito([...carrito, productoConPrecio]);
     }
   };
