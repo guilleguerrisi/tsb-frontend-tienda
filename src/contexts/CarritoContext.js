@@ -60,9 +60,15 @@ export const CarritoProvider = ({ children }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ carrito, clienteID }),
-      });
-
+        body: JSON.stringify({
+          carrito: carrito.map(item => ({
+            id: Number(item.id),               // ✅ ID como número
+            cantidad: item.cantidad || 1       // ✅ cantidad segura
+          })),
+          clienteID,
+        }),
+      }); // ⬅️ este paréntesis de cierre estaba faltando
+  
       if (response.ok) {
         alert('Compra guardada en la base de datos');
         setCarrito([]);
@@ -75,6 +81,7 @@ export const CarritoProvider = ({ children }) => {
       alert('No se pudo conectar con el servidor');
     }
   };
+  
 
   return (
     <CarritoContext.Provider
