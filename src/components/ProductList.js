@@ -147,51 +147,43 @@ function ProductList({ grcat }) {
                   return (
                     <div className="product-card" key={index}>
                     {(() => {
-                      const user = JSON.parse(localStorage.getItem('usuario_admin'));
-                      const autorizado = user?.autorizado;
-                  
-                      if (autorizado) {
-                        return (
-                          <a
-                            href={`https://tsb-frontend-mercaderia-production-3b78.up.railway.app/?id=${producto.id}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onMouseDown={(e) => {
-                              if (e.button !== 1) return; // rueda del medio permitida
-                            }}
-                          >
-                            <img
-                              src={producto.imagen1}
-                              alt={producto.descripcion_corta}
-                              className="product-image"
-                              onContextMenu={(e) => e.preventDefault()}
-                              onError={(e) => {
-                                e.target.onerror = null;
-                                e.target.src = "/imagenes/no-disponible.jpg";
-                              }}
-                            />
-                          </a>
-                        );
-                      } else {
-                        return (
-                          <div
-                            onClick={() => abrirModal(producto)}
-                            style={{ cursor: 'pointer' }}
-                          >
-                            <img
-                              src={producto.imagen1}
-                              alt={producto.descripcion_corta}
-                              className="product-image"
-                              onContextMenu={(e) => e.preventDefault()}
-                              onError={(e) => {
-                                e.target.onerror = null;
-                                e.target.src = "/imagenes/no-disponible.jpg";
-                              }}
-                            />
-                          </div>
-                        );
-                      }
-                    })()}
+                   const user = JSON.parse(localStorage.getItem('usuario_admin'));
+                   const autorizado = user?.autorizado;
+                 
+                   const Imagen = (
+                     <img
+                       src={producto.imagen1}
+                       alt={producto.descripcion_corta}
+                       className="product-image"
+                       onContextMenu={(e) => e.preventDefault()}
+                       onError={(e) => {
+                         e.target.onerror = null;
+                         e.target.src = "/imagenes/no-disponible.jpg";
+                       }}
+                     />
+                   );
+                 
+                   if (autorizado) {
+                     return (
+                       <a
+                         href={`https://tsb-frontend-mercaderia-production-3b78.up.railway.app/?id=${producto.id}`}
+                         target="_blank"
+                         rel="noopener noreferrer"
+                         onMouseDown={(e) => {
+                           if (e.button !== 1) return; // solo permitir rueda del medio
+                         }}
+                       >
+                         {Imagen}
+                       </a>
+                     );
+                   } else {
+                     return (
+                       <div onClick={() => abrirModal(producto)} style={{ cursor: 'pointer' }}>
+                         {Imagen}
+                       </div>
+                     );
+                   }
+                 })()}
                   
                     <h3>
                       {precioCalculado
