@@ -147,8 +147,14 @@ function ProductList({ grcat }) {
                   return (
                     <div className="product-card" key={index}>
                       {(() => {
-                        const user = JSON.parse(localStorage.getItem('usuario_admin'));
-                        const autorizado = user?.autorizado;
+                       let autorizado = false;
+                       try {
+                         const raw = localStorage.getItem('usuario_admin');
+                         const user = raw ? JSON.parse(raw) : null;
+                         autorizado = user?.autorizado === true;
+                       } catch {
+                         autorizado = false;
+                       }
                   
                         const Imagen = (
                           <img

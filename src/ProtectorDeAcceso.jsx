@@ -21,19 +21,19 @@ function ProtectorDeAcceso({ children }) {
 
         const result = await response.json();
 
-        if (result.autorizado) {
+        if (result.autorizado === true) {
           setAutorizado(true);
-          localStorage.setItem('usuario_admin', JSON.stringify({ autorizado: true })); // ✅
+          localStorage.setItem('usuario_admin', JSON.stringify({ autorizado: true }));
         } else {
           setAutorizado(false);
           setDeviceIdNoAutorizado(deviceId);
-          localStorage.removeItem('usuario_admin'); // ✅
+          localStorage.setItem('usuario_admin', JSON.stringify({ autorizado: false }));
         }
       } catch (error) {
         console.error('❌ Error al verificar acceso:', error);
         setAutorizado(false);
         setDeviceIdNoAutorizado(deviceId);
-        localStorage.removeItem('usuario_admin'); // ✅
+        localStorage.setItem('usuario_admin', JSON.stringify({ autorizado: false }));
       }
     };
 
