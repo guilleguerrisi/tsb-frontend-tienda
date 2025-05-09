@@ -146,65 +146,81 @@ function ProductList({ grcat }) {
 
                   return (
                     <div className="product-card" key={index}>
-                    {(() => {
-                   const user = JSON.parse(localStorage.getItem('usuario_admin'));
-                   const autorizado = user?.autorizado;
-                 
-                   const Imagen = (
-                     <img
-                       src={producto.imagen1}
-                       alt={producto.descripcion_corta}
-                       className="product-image"
-                       onContextMenu={(e) => e.preventDefault()}
-                       onError={(e) => {
-                         e.target.onerror = null;
-                         e.target.src = "/imagenes/no-disponible.jpg";
-                       }}
-                     />
-                   );
-                 
-                   if (autorizado) {
-                     return (
-                       <a
-                         href={`https://tsb-frontend-mercaderia-production-3b78.up.railway.app/?id=${producto.id}`}
-                         target="_blank"
-                         rel="noopener noreferrer"
-                         onMouseDown={(e) => {
-                           if (e.button !== 1) return; // solo permitir rueda del medio
-                         }}
-                       >
-                         {Imagen}
-                       </a>
-                     );
-                   } else {
-                     return (
-                       <div onClick={() => abrirModal(producto)} style={{ cursor: 'pointer' }}>
-                         {Imagen}
-                       </div>
-                     );
-                   }
-                 })()}
+                      {(() => {
+                        const user = JSON.parse(localStorage.getItem('usuario_admin'));
+                        const autorizado = user?.autorizado;
                   
-                    <h3>
-                      {precioCalculado
-                        ? `$ ${new Intl.NumberFormat('es-AR').format(precioCalculado)}`
-                        : 'Precio no disponible'}
-                    </h3>
-                    <p>{producto.descripcion_corta}</p>
-                    <p><strong>Codigo:</strong> {producto.codigo_int}</p>
+                        const Imagen = (
+                          <img
+                            src={producto.imagen1}
+                            alt={producto.descripcion_corta}
+                            className="product-image"
+                            onContextMenu={(e) => e.preventDefault()}
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = "/imagenes/no-disponible.jpg";
+                            }}
+                          />
+                        );
                   
-                    {enCarrito && (
-                      <span className="etiqueta-presupuesto">
-                        <span className="tilde-verde">✔</span> Agregado al presupuesto
-                      </span>
-                    )}
+                        if (autorizado) {
+                          return (
+                            <div>
+                              <a
+                                href={`https://tsb-frontend-mercaderia-production-3b78.up.railway.app/?id=${producto.id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onMouseDown={(e) => {
+                                  if (e.button !== 1 && e.button !== 0) e.preventDefault();
+                                }}
+                              >
+                                {Imagen}
+                              </a>
                   
-                    <button className='btn-vermas' onClick={() => abrirModal(producto)}>
-                      Ver ficha
-                    </button>
-                  </div>
+                              {/* 🔗 Hipervínculo visible solo para usuarios autorizados */}
+                              <a
+                                href={`https://tsb-frontend-mercaderia-production-3b78.up.railway.app/?id=${producto.id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="btn-hyperlink"
+                                style={{ display: 'block', marginTop: '0.5rem' }}
+                                onMouseDown={(e) => {
+                                  if (![0, 1].includes(e.button)) e.preventDefault();
+                                }}
+                              >
+                                🔗 Abrir producto
+                              </a>
+                            </div>
+                          );
+                        } else {
+                          return (
+                            <div onClick={() => abrirModal(producto)} style={{ cursor: 'pointer' }}>
+                              {Imagen}
+                            </div>
+                          );
+                        }
+                      })()}
                   
+                      <h3>
+                        {precioCalculado
+                          ? `$ ${new Intl.NumberFormat('es-AR').format(precioCalculado)}`
+                          : 'Precio no disponible'}
+                      </h3>
+                      <p>{producto.descripcion_corta}</p>
+                      <p><strong>Codigo:</strong> {producto.codigo_int}</p>
+                  
+                      {enCarrito && (
+                        <span className="etiqueta-presupuesto">
+                          <span className="tilde-verde">✔</span> Agregado al presupuesto
+                        </span>
+                      )}
+                  
+                      <button className='btn-vermas' onClick={() => abrirModal(producto)}>
+                        Ver ficha
+                      </button>
+                    </div>
                   );
+                  
                 })}
               </div>
             </div>
