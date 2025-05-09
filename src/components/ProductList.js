@@ -146,28 +146,18 @@ function ProductList({ grcat }) {
 
                   return (
                     <div className="product-card" key={index}>
-                      {(() => {
-                        const user = JSON.parse(localStorage.getItem('usuario_admin'));
-
+                    {(() => {
+                      const user = JSON.parse(localStorage.getItem('usuario_admin'));
+                      const autorizado = user?.autorizado;
+                  
+                      if (autorizado) {
                         return (
                           <a
-                            href={
-                              user?.autorizado
-                                ? `https://tsb-frontend-mercaderia-production-3b78.up.railway.app/?id=${producto.id}`
-                                : undefined
-                            }
+                            href={`https://tsb-frontend-mercaderia-production-3b78.up.railway.app/?id=${producto.id}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            onClick={(e) => {
-                              if (!user?.autorizado) {
-                                e.preventDefault();
-                                abrirModal(producto);
-                              }
-                            }}
                             onMouseDown={(e) => {
-                              // solo permitir rueda del medio para autorizados
-                              if (user?.autorizado && e.button === 1) return;
-                              if (!user?.autorizado) e.preventDefault();
+                              if (e.button !== 1) return; // rueda del medio permitida
                             }}
                           >
                             <img
@@ -182,27 +172,46 @@ function ProductList({ grcat }) {
                             />
                           </a>
                         );
-                      })()}
-
-
-                      <h3>
-                        {precioCalculado
-                          ? `$ ${new Intl.NumberFormat('es-AR').format(precioCalculado)}`
-                          : 'Precio no disponible'}
-                      </h3>
-                      <p>{producto.descripcion_corta}</p>
-                      <p><strong>Codigo:</strong> {producto.codigo_int}</p>
-
-                      {enCarrito && (
-                        <span className="etiqueta-presupuesto">
-                          <span className="tilde-verde">✔</span> Agregado al presupuesto
-                        </span>
-                      )}
-
-                      <button className='btn-vermas' onClick={() => abrirModal(producto)}>
-                        Ver ficha
-                      </button>
-                    </div>
+                      } else {
+                        return (
+                          <div
+                            onClick={() => abrirModal(producto)}
+                            style={{ cursor: 'pointer' }}
+                          >
+                            <img
+                              src={producto.imagen1}
+                              alt={producto.descripcion_corta}
+                              className="product-image"
+                              onContextMenu={(e) => e.preventDefault()}
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = "/imagenes/no-disponible.jpg";
+                              }}
+                            />
+                          </div>
+                        );
+                      }
+                    })()}
+                  
+                    <h3>
+                      {precioCalculado
+                        ? `$ ${new Intl.NumberFormat('es-AR').format(precioCalculado)}`
+                        : 'Precio no disponible'}
+                    </h3>
+                    <p>{producto.descripcion_corta}</p>
+                    <p><strong>Codigo:</strong> {producto.codigo_int}</p>
+                  
+                    {enCarrito && (
+                      <span className="etiqueta-presupuesto">
+                        <span className="tilde-verde">✔</span> Agregado al presupuesto
+                      </span>
+                    )}
+                  
+                    <button className='btn-vermas' onClick={() => abrirModal(producto)}>
+                      Ver ficha
+                    </button>
+                  </div>
+                  
                   );
                 })}
               </div>
