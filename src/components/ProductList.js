@@ -147,14 +147,16 @@ function ProductList({ grcat }) {
                   return (
                     <div className="product-card" key={index}>
                       {(() => {
-                       let autorizado = false;
-                       try {
-                         const raw = localStorage.getItem('usuario_admin');
-                         const user = raw ? JSON.parse(raw) : null;
-                         autorizado = user?.autorizado === true;
-                       } catch {
-                         autorizado = false;
-                       }
+                        let autorizado = false;
+                        try {
+                          const raw = localStorage.getItem('usuario_admin');
+                          if (raw && raw !== 'undefined' && raw !== 'null') {
+                            const user = JSON.parse(raw);
+                            autorizado = user?.autorizado === true;
+                          }
+                        } catch {
+                          autorizado = false;
+                        }
                   
                         const Imagen = (
                           <img
@@ -177,13 +179,12 @@ function ProductList({ grcat }) {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onMouseDown={(e) => {
-                                  if (e.button !== 1 && e.button !== 0) e.preventDefault();
+                                  if (![0, 1].includes(e.button)) e.preventDefault();
                                 }}
                               >
                                 {Imagen}
                               </a>
                   
-                              {/* 🔗 Hipervínculo visible solo para usuarios autorizados */}
                               <a
                                 href={`https://tsb-frontend-mercaderia-production-3b78.up.railway.app/?id=${producto.id}`}
                                 target="_blank"
@@ -226,6 +227,7 @@ function ProductList({ grcat }) {
                       </button>
                     </div>
                   );
+                  
                   
                 })}
               </div>
