@@ -150,7 +150,13 @@ function ProductList({ grcat }) {
                         let autorizado = false;
                         try {
                           const raw = localStorage.getItem('usuario_admin');
-                          if (raw && raw !== 'undefined' && raw !== 'null') {
+                          if (
+                            raw &&
+                            raw !== 'undefined' &&
+                            raw !== 'null' &&
+                            typeof raw === 'string' &&
+                            raw.trim().startsWith('{')
+                          ) {
                             const user = JSON.parse(raw);
                             autorizado = user?.autorizado === true;
                           }
@@ -174,28 +180,26 @@ function ProductList({ grcat }) {
                         if (autorizado) {
                           return (
                             <div>
-                              <a
-                                href={`https://tsb-frontend-mercaderia-production-3b78.up.railway.app/?id=${producto.id}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onMouseDown={(e) => {
-                                  if (![0, 1].includes(e.button)) e.preventDefault();
-                                }}
-                              >
-                                {Imagen}
-                              </a>
+                              {Imagen}
                   
                               <a
                                 href={`https://tsb-frontend-mercaderia-production-3b78.up.railway.app/?id=${producto.id}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="btn-hyperlink"
-                                style={{ display: 'block', marginTop: '0.5rem' }}
+                                style={{
+                                  fontSize: '0.65rem',
+                                  opacity: 0.4,
+                                  display: 'block',
+                                  marginTop: '0.25rem',
+                                  textAlign: 'right',
+                                  pointerEvents: 'auto'
+                                }}
                                 onMouseDown={(e) => {
                                   if (![0, 1].includes(e.button)) e.preventDefault();
                                 }}
                               >
-                                🔗 Abrir producto
+                                🔗
                               </a>
                             </div>
                           );
@@ -222,11 +226,12 @@ function ProductList({ grcat }) {
                         </span>
                       )}
                   
-                      <button className='btn-vermas' onClick={() => abrirModal(producto)}>
+                      <button className="btn-vermas" onClick={() => abrirModal(producto)}>
                         Ver ficha
                       </button>
                     </div>
                   );
+                  
                   
                   
                 })}
