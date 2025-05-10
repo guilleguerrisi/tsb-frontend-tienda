@@ -52,37 +52,43 @@ function ProductList({ grcat }) {
     fetchProductos();
   }, [grcat]);
 
-  const abrirModal = (producto) => {
-    let arrayImagenes = [];
+ const abrirModal = (producto) => {
+  let arrayImagenes = [];
 
+  try {
     if (Array.isArray(producto.imagearray)) {
       arrayImagenes = producto.imagearray;
-    } else {
-      try {
-        arrayImagenes = JSON.parse(producto.imagearray);
-      } catch {
-        arrayImagenes = [];
-      }
+    } else if (
+      typeof producto.imagearray === 'string' &&
+      producto.imagearray.trim().startsWith('[')
+    ) {
+      arrayImagenes = JSON.parse(producto.imagearray);
     }
+  } catch {
+    arrayImagenes = [];
+  }
 
-    // 🟡 Extraer solo URLs si vienen como objetos
-    arrayImagenes = arrayImagenes.map((img) =>
-      typeof img === 'string' ? img : img.imagenamostrar
-    ).filter(Boolean);
+  if (!Array.isArray(arrayImagenes)) arrayImagenes = [];
 
-    setProductoSeleccionado({
-      ...producto,
-      imagearray: arrayImagenes
-    });
+  // 🟡 Extraer solo URLs válidas
+  arrayImagenes = arrayImagenes
+    .map((img) => typeof img === 'string' ? img : img?.imagenamostrar)
+    .filter((url) => typeof url === 'string' && url.trim() !== '');
 
-    arrayImagenes.forEach((url) => {
-      const img = new Image();
-      img.src = url;
-    });
+  setProductoSeleccionado({
+    ...producto,
+    imagearray: arrayImagenes
+  });
 
-    setIndiceImagen(0);
-    document.body.classList.add('modal-abierto');
-  };
+  arrayImagenes.forEach((url) => {
+    const img = new Image();
+    img.src = url;
+  });
+
+  setIndiceImagen(0);
+  document.body.classList.add('modal-abierto');
+};
+
 
 
 

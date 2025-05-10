@@ -63,7 +63,7 @@ export const CarritoProvider = ({ children }) => {
         body: JSON.stringify({
           carrito: carrito.map(item => ({
             id: Number(item.id),               // ✅ ID como número
-            cantidad: item.cantidad || 1       // ✅ cantidad segura
+            cantidad: item.cantidad || 1      // ✅ cantidad segura
           })),
           clienteID,
         }),
