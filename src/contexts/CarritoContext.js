@@ -34,20 +34,43 @@ export const CarritoProvider = ({ children }) => {
     ) * 100;
   };
 
-  const agregarAlCarrito = (producto) => {
-    const yaEnCarrito = carrito.some(item => item.codigo_int === producto.codigo_int);
-    if (yaEnCarrito) {
-      setCarrito(carrito.filter(item => item.codigo_int !== producto.codigo_int));
-    } else {
-      const productoConPrecio = {
-        ...producto,
-        price: calcularPrecio(producto),
-        cantidad: 1,
-      };
-      
-      setCarrito([...carrito, productoConPrecio]);
-    }
+  const agregarAlCarrito = (producto, cantidad = 1) => {
+    setCarrito(prev => {
+      const existente = prev.find(item => item.codigo_int === producto.codigo_int);
+
+      if (existente) {
+        const nuevaCantidad = existente.cantidad + cantidad;
+        if (nuevaCantidad <= 0) {
+          return prev.filter(item => item.codigo_int !== producto.codigo_int);
+        }
+        return prev.map(item =>
+          item.codigo_int === producto.codigo_int
+            ? { ...item, cantidad: nuevaCantidad }
+            : item
+        );
+      } else {
+        const productoConPrecio = {
+          ...producto,
+          price: calcularPrecio(producto),
+          cantidad: cantidad,
+        };
+        return [...prev, productoConPrecio];
+      }
+    });
   };
+
+  const cambiarCantidad = (codigo_int, nuevaCantidad) => {
+    setCarrito(prev => {
+      if (nuevaCantidad <= 0) {
+        return prev.filter(item => item.codigo_int !== codigo_int);
+      }
+      return prev.map(item =>
+        item.codigo_int === codigo_int ? { ...item, cantidad: nuevaCantidad } : item
+      );
+    });
+  };
+
+
 
   const eliminarDelCarrito = (index) => {
     setCarrito(prev => prev.filter((_, i) => i !== index));
@@ -68,7 +91,7 @@ export const CarritoProvider = ({ children }) => {
           clienteID,
         }),
       }); // ⬅️ este paréntesis de cierre estaba faltando
-  
+
       if (response.ok) {
         alert('Compra guardada en la base de datos');
         setCarrito([]);
@@ -81,7 +104,12 @@ export const CarritoProvider = ({ children }) => {
       alert('No se pudo conectar con el servidor');
     }
   };
-  
+
+  const reemplazarCarrito = (nuevoCarrito) => {
+  setCarrito(nuevoCarrito);
+};
+
+
 
   return (
     <CarritoContext.Provider
@@ -89,10 +117,13 @@ export const CarritoProvider = ({ children }) => {
         carrito,
         setCarrito,
         agregarAlCarrito,
+        cambiarCantidad,
+        reemplazarCarrito,
         eliminarDelCarrito,
         finalizarCompra,
       }}
     >
+
       {children}
     </CarritoContext.Provider>
   );

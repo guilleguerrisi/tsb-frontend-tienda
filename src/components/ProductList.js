@@ -14,6 +14,14 @@ function ProductList({ grcat }) {
 
 
 
+  const obtenerCantidad = (codigo_int) => {
+    const item = carrito.find(p => p.codigo_int === codigo_int);
+    return item?.cantidad || 0;
+  };
+
+  const modificarCantidad = (producto, delta) => {
+    agregarAlCarrito(producto, delta);
+  };
 
 
 
@@ -52,42 +60,42 @@ function ProductList({ grcat }) {
     fetchProductos();
   }, [grcat]);
 
- const abrirModal = (producto) => {
-  let arrayImagenes = [];
+  const abrirModal = (producto) => {
+    let arrayImagenes = [];
 
-  try {
-    if (Array.isArray(producto.imagearray)) {
-      arrayImagenes = producto.imagearray;
-    } else if (
-      typeof producto.imagearray === 'string' &&
-      producto.imagearray.trim().startsWith('[')
-    ) {
-      arrayImagenes = JSON.parse(producto.imagearray);
+    try {
+      if (Array.isArray(producto.imagearray)) {
+        arrayImagenes = producto.imagearray;
+      } else if (
+        typeof producto.imagearray === 'string' &&
+        producto.imagearray.trim().startsWith('[')
+      ) {
+        arrayImagenes = JSON.parse(producto.imagearray);
+      }
+    } catch {
+      arrayImagenes = [];
     }
-  } catch {
-    arrayImagenes = [];
-  }
 
-  if (!Array.isArray(arrayImagenes)) arrayImagenes = [];
+    if (!Array.isArray(arrayImagenes)) arrayImagenes = [];
 
-  // 🟡 Extraer solo URLs válidas
-  arrayImagenes = arrayImagenes
-    .map((img) => typeof img === 'string' ? img : img?.imagenamostrar)
-    .filter((url) => typeof url === 'string' && url.trim() !== '');
+    // 🟡 Extraer solo URLs válidas
+    arrayImagenes = arrayImagenes
+      .map((img) => typeof img === 'string' ? img : img?.imagenamostrar)
+      .filter((url) => typeof url === 'string' && url.trim() !== '');
 
-  setProductoSeleccionado({
-    ...producto,
-    imagearray: arrayImagenes
-  });
+    setProductoSeleccionado({
+      ...producto,
+      imagearray: arrayImagenes
+    });
 
-  arrayImagenes.forEach((url) => {
-    const img = new Image();
-    img.src = url;
-  });
+    arrayImagenes.forEach((url) => {
+      const img = new Image();
+      img.src = url;
+    });
 
-  setIndiceImagen(0);
-  document.body.classList.add('modal-abierto');
-};
+    setIndiceImagen(0);
+    document.body.classList.add('modal-abierto');
+  };
 
 
 
@@ -169,7 +177,7 @@ function ProductList({ grcat }) {
                         } catch {
                           autorizado = false;
                         }
-                  
+
                         const Imagen = (
                           <img
                             src={producto.imagen1}
@@ -182,12 +190,12 @@ function ProductList({ grcat }) {
                             }}
                           />
                         );
-                  
+
                         if (autorizado) {
                           return (
                             <div>
                               {Imagen}
-                  
+
                               <a
                                 href={`https://tsb-frontend-mercaderia-production-3b78.up.railway.app/?id=${producto.id}`}
                                 target="_blank"
@@ -217,7 +225,7 @@ function ProductList({ grcat }) {
                           );
                         }
                       })()}
-                  
+
                       <h3>
                         {precioCalculado
                           ? `$ ${new Intl.NumberFormat('es-AR').format(precioCalculado)}`
@@ -225,21 +233,39 @@ function ProductList({ grcat }) {
                       </h3>
                       <p>{producto.descripcion_corta}</p>
                       <p><strong>Codigo:</strong> {producto.codigo_int}</p>
-                  
+
                       {enCarrito && (
                         <span className="etiqueta-presupuesto">
                           <span className="tilde-verde">✔</span> Agregado al presupuesto
                         </span>
                       )}
-                  
+
+                      <div className="control-cantidad">
+                        <button onClick={() => modificarCantidad(producto, -1)} className="btn-menos">−</button>
+                        <input
+                          type="number"
+                          min="0"
+                          value={obtenerCantidad(producto.codigo_int)}
+                          onChange={(e) => {
+                            const nueva = parseInt(e.target.value) || 0;
+                            const actual = obtenerCantidad(producto.codigo_int);
+                            modificarCantidad(producto, nueva - actual);
+                          }}
+                          className="cantidad-input"
+                        />
+                        <button onClick={() => modificarCantidad(producto, 1)} className="btn-mas">+</button>
+                      </div>
+
+
+
                       <button className="btn-vermas" onClick={() => abrirModal(producto)}>
                         Ver ficha
                       </button>
                     </div>
                   );
-                  
-                  
-                  
+
+
+
                 })}
               </div>
             </div>
@@ -313,26 +339,23 @@ function ProductList({ grcat }) {
             <p>{productoSeleccionado.descripcion_corta}</p>
             <p><strong>Codigo:</strong> {productoSeleccionado.codigo_int}</p>
 
-            <button
-              onClick={() => {
-                const yaEsta = carrito.some(item => item.codigo_int === productoSeleccionado.codigo_int);
-                agregarAlCarrito({
-                  ...productoSeleccionado,
-                  price: productoSeleccionado.costosiniva,
-                  quitar: yaEsta
-                });
-              }}
-              className={
-                carrito.some(item => item.codigo_int === productoSeleccionado.codigo_int)
-                  ? 'btn-quitar'
-                  : 'btn-agregar'
-              }
-              style={{ marginTop: '1rem' }}
-            >
-              {carrito.some(item => item.codigo_int === productoSeleccionado.codigo_int)
-                ? 'Quitar del presupuesto'
-                : 'Agregar al presupuesto'}
-            </button>
+            <div className="control-cantidad" style={{ marginTop: '1rem' }}>
+              <button onClick={() => modificarCantidad(productoSeleccionado, -1)} className="btn-menos">−</button>
+              <input
+                type="number"
+                min="0"
+                value={obtenerCantidad(productoSeleccionado.codigo_int)}
+                onChange={(e) => {
+                  const nueva = parseInt(e.target.value) || 0;
+                  const actual = obtenerCantidad(productoSeleccionado.codigo_int);
+                  modificarCantidad(productoSeleccionado, nueva - actual);
+                }}
+                className="cantidad-input"
+              />
+              <button onClick={() => modificarCantidad(productoSeleccionado, 1)} className="btn-mas">+</button>
+            </div>
+
+
 
             <button className="btn-seguir" onClick={cerrarModal}>
               ← Seguir viendo productos

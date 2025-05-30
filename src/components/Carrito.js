@@ -6,7 +6,9 @@ import ModalContacto from './ModalContacto';
 import config from '../config';
 
 const Carrito = () => {
-  const { carrito, setCarrito, eliminarDelCarrito } = useCarrito();
+ const { carrito, cambiarCantidad, eliminarDelCarrito, reemplazarCarrito } = useCarrito();
+
+
   const [mostrarModal, setMostrarModal] = useState(false);
   const location = useLocation();
   const params = new URLSearchParams(location.search);
@@ -23,7 +25,8 @@ const Carrito = () => {
 
         if (res.ok && data.array_pedido) {
           const carritoCargado = JSON.parse(data.array_pedido);
-          setCarrito(carritoCargado);
+          reemplazarCarrito(carritoCargado);
+
         } else {
           alert('No se pudo cargar el presupuesto.');
         }
@@ -34,19 +37,10 @@ const Carrito = () => {
     };
 
     cargarPedido();
-  }, [idPedido, setCarrito]);
+  }, [idPedido, reemplazarCarrito]);
 
-  const cambiarCantidad = (index, nuevaCantidad) => {
-    if (nuevaCantidad < 1) return;
 
-    const nuevoCarrito = [...carrito];
-    nuevoCarrito[index] = {
-      ...nuevoCarrito[index],
-      cantidad: parseInt(nuevaCantidad),
-    };
 
-    setCarrito(nuevoCarrito);
-  };
 
   const total = carrito.reduce(
     (acc, item) => acc + item.price * (item.cantidad || 1),
@@ -80,7 +74,7 @@ const Carrito = () => {
                     <button
                       type="button"
                       className="btn-cantidad"
-                      onClick={() => cambiarCantidad(index, item.cantidad - 1)}
+                      onClick={() => cambiarCantidad(item.codigo_int, item.cantidad - 1)}
                     >
                       –
                     </button>
@@ -88,13 +82,13 @@ const Carrito = () => {
                       type="number"
                       min="1"
                       value={item.cantidad || 1}
-                      onChange={(e) => cambiarCantidad(index, e.target.value)}
+                      onChange={(e) => cambiarCantidad(item.codigo_int, parseInt(e.target.value) || 1)}
                       className="cantidad-input"
                     />
                     <button
                       type="button"
                       className="btn-cantidad"
-                      onClick={() => cambiarCantidad(index, item.cantidad + 1)}
+                      onClick={() => cambiarCantidad(item.codigo_int, item.cantidad + 1)}
                     >
                       +
                     </button>
@@ -103,6 +97,7 @@ const Carrito = () => {
                     Subtotal: ${new Intl.NumberFormat('es-AR').format(item.price * (item.cantidad || 1))}
                   </span>
                 </div>
+
               </div>
               <button
                 className="eliminar-button"
@@ -125,7 +120,7 @@ const Carrito = () => {
             className="enviar-whatsapp-button"
             onClick={() => setMostrarModal(true)}
           >
-            📩 Solicitar presupuesto
+            📩 Solicitar revision de presupuesto
           </button>
         </div>
       )}

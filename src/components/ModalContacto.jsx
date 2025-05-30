@@ -80,7 +80,7 @@ const ModalContacto = ({ carrito, onCerrar }) => {
               checked={modo === 'contacto'}
               onChange={() => setModo('contacto')}
             />{' '}
-            Dejar mis datos para que me contacten
+            Quisiera que me contacten
           </label>
         </div>
 
