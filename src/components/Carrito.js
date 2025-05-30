@@ -120,7 +120,7 @@ const Carrito = () => {
                 ${new Intl.NumberFormat('es-AR').format(total)}
               </span><br />
               <span className="info-retiro">
-                Envío a domicilio sin cargo en la ciudad de Salta Capital, para compras desde $80.000. Para montos inferires solo abonrías $3.000 de envío.
+                Envío a domicilio sin cargo en la ciudad de Salta Capital, para compras desde $80.000. Para montos inferiores solo abonarías $3.000 de envío.
               </span>
             </p>
           </div>
