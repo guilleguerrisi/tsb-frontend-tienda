@@ -5,7 +5,7 @@ const API_URL =
 
 const config = {
   API_URL,
-  modoDesarrollo: true // 🔁 Cambialo a false para abrir al público
+  modoDesarrollo: false // 🔁 Cambialo a false para abrir al público
 };
 
 export default config;

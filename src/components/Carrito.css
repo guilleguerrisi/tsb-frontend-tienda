@@ -226,3 +226,47 @@
 .enviar-whatsapp-button:hover {
   background-color: #1ebe5b; /* Verde más oscuro al pasar el mouse */
 }
+
+
+.carrito-total-opcion2 {
+  margin-top: 1.5rem;
+  background: #f5faff;
+  border: 1px solid #b9e3f5;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: left;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.opcion2-titulo {
+  font-weight: bold;
+  color: #3498db;
+  margin-bottom: 0.5rem;
+}
+
+.opcion2-texto {
+  margin: 0;
+  color: #333;
+}
+
+.monto-clave {
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.beneficio-restriccion {
+  display: block;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #aa2e00;
+  background-color: #fff5f2;
+  padding: 0.75rem;
+  border-left: 4px solid #d35400;
+  border-radius: 6px;
+  line-height: 1.4;
+}
+
+
+
+

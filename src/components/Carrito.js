@@ -6,7 +6,7 @@ import ModalContacto from './ModalContacto';
 import config from '../config';
 
 const Carrito = () => {
- const { carrito, cambiarCantidad, eliminarDelCarrito, reemplazarCarrito } = useCarrito();
+  const { carrito, cambiarCantidad, eliminarDelCarrito, reemplazarCarrito } = useCarrito();
 
 
   const [mostrarModal, setMostrarModal] = useState(false);
@@ -112,8 +112,46 @@ const Carrito = () => {
 
       {carrito.length > 0 && (
         <div className="carrito-summary">
-          <div className="carrito-total">
-            Total: ${new Intl.NumberFormat('es-AR').format(total)}
+          <div className="carrito-total-opcion2">
+            <p className="opcion2-titulo">🛒 Opción minorista:</p>
+            <p className="opcion2-texto">
+              <strong>Total:</strong>{' '}
+              <span className="monto-clave">
+                ${new Intl.NumberFormat('es-AR').format(total)}
+              </span><br />
+              <span className="info-retiro">
+                Envío a domicilio sin cargo en la ciudad de Salta Capital, para compras desde $80.000. Para montos inferires solo abonrías $3.000 de envío.
+              </span>
+            </p>
+          </div>
+
+          <div className="carrito-total-opcion2">
+            <p className="opcion2-titulo">💼 Opción mayorista (15% de descuento sobre el Total):</p>
+            <p className="opcion2-texto">
+              Abonás <strong>el 20%</strong> ahora por transferencia: <span className="monto-clave">
+                ${new Intl.NumberFormat('es-AR').format(Math.round(total * 0.85 * 0.20))}
+              </span><br />
+              y el <strong>80%</strong> restante al momento del retiro, 2 días hábiles después: <span className="monto-clave">
+                ${new Intl.NumberFormat('es-AR').format(Math.round(total * 0.85 * 0.80))}
+              </span><br />
+              <em>(Este método aplica un 15% de descuento sobre el precio total)</em><br /><br />
+              <strong>Total con descuento:</strong>{' '}
+              <span className="monto-clave">
+                ${new Intl.NumberFormat('es-AR').format(Math.round(total * 0.85))}
+              </span><br />
+              <strong>Ahorrás:</strong>{' '}
+              <span className="monto-clave">
+                ${new Intl.NumberFormat('es-AR').format(Math.round(total * 0.15))}
+              </span><br /><br />
+              <span className="info-retiro">
+                SE RETIRA POR DEPOSITO EN CASEROS 1041 - SALTA CAPITAL (Entre calles Islas Malvinas y Jujuy).<br />
+                ESTAMOS DE LUNES A VIERNES DE 10:30 A 13:30 Y DE 17:00 A 19:00 HS - SÁBADO CERRADO.
+              </span>
+              <span className="beneficio-restriccion">
+                ⚠️ Este beneficio es exclusivo para pedidos que se retiren a los 2 días hábiles luego del día de la transferencia.
+                No aplica para compras inmediatas en el local físico.
+              </span>
+            </p>
           </div>
 
           <button
@@ -140,8 +178,16 @@ const Carrito = () => {
 
       <p className="leyenda-precio">
         ⚠️ Los precios exhibidos en esta web son aproximados y tienen carácter informativo.
-        El precio final será confirmado por el vendedor una vez revisada tu solicitud de presupuesto.
+        El precio final y stock será confirmado por el vendedor una vez revisada tu solicitud de presupuesto.
       </p>
+
+      <p className="info-contacto">
+        {`TIENDA SALTA BAZAR
+DEPOSITO EN CASEROS 1041 - SALTA CAPITAL (Entre calles Islas Malvinas y Jujuy)
+ESTAMOS DE LUNES A VIERNES DE 10:30 A 13:30 Y DE 17:00 A 19:00 HS - SABADO CERRADO`}
+      </p>
+
+
     </div>
   );
 };
