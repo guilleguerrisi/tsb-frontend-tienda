@@ -110,58 +110,61 @@ const Carrito = () => {
         )}
       </div>
 
-      {carrito.length > 0 && (
-        <div className="carrito-summary">
-          <div className="carrito-total-opcion2">
-            <p className="opcion2-titulo">🛒 Opción minorista:</p>
-            <p className="opcion2-texto">
-              <strong>Total:</strong>{' '}
-              <span className="monto-clave">
-                ${new Intl.NumberFormat('es-AR').format(total)}
-              </span><br />
-              <span className="info-retiro">
-                Envío a domicilio sin cargo en la ciudad de Salta Capital, para compras desde $80.000. Para montos inferiores solo abonarías $3.000 de envío.
-              </span>
-            </p>
-          </div>
+    {carrito.length > 0 && (
+  <div className="carrito-summary">
+    <div className="carrito-total-opcion2">
+      <p className="opcion2-titulo">🛒 Opción minorista:</p>
+      <p className="opcion2-texto">
+        <strong>Total:</strong>{' '}
+        <span className="monto-clave">
+          ${new Intl.NumberFormat('es-AR').format(total)}
+        </span><br />
+        <span className="info-retiro">
+          Envío a domicilio sin cargo en la ciudad de Salta Capital, para compras desde $80.000. Para montos inferiores solo abonarías $3.000 de envío.
+        </span>
+      </p>
+    </div>
 
-          <div className="carrito-total-opcion2">
-            <p className="opcion2-titulo">💼 Opción mayorista (15% de descuento sobre el Total):</p>
-            <p className="opcion2-texto">
-              Abonás <strong>el 20%</strong> ahora por transferencia: <span className="monto-clave">
-                ${new Intl.NumberFormat('es-AR').format(Math.round(total * 0.85 * 0.20))}
-              </span><br />
-              y el <strong>80%</strong> restante al momento del retiro, 2 días hábiles después: <span className="monto-clave">
-                ${new Intl.NumberFormat('es-AR').format(Math.round(total * 0.85 * 0.80))}
-              </span><br />
-              <em>(Este método aplica un 15% de descuento sobre el precio total)</em><br /><br />
-              <strong>Total con descuento:</strong>{' '}
-              <span className="monto-clave">
-                ${new Intl.NumberFormat('es-AR').format(Math.round(total * 0.85))}
-              </span><br />
-              <strong>Ahorrás:</strong>{' '}
-              <span className="monto-clave">
-                ${new Intl.NumberFormat('es-AR').format(Math.round(total * 0.15))}
-              </span><br /><br />
-              <span className="info-retiro">
-                SE RETIRA POR DEPOSITO EN CASEROS 1041 - SALTA CAPITAL (Entre calles Islas Malvinas y Jujuy).<br />
-                ESTAMOS DE LUNES A VIERNES DE 10:30 A 13:30 Y DE 17:00 A 19:00 HS - SÁBADO CERRADO.
-              </span>
-              <span className="beneficio-restriccion">
-                ⚠️ Este beneficio es exclusivo para pedidos que tengan un total con descuento, superior a $50.000 y se retiren a los 2 días hábiles luego del día de la transferencia.
-                No aplica para compras inmediatas en el local físico.
-              </span>
-            </p>
-          </div>
+    {/* 💼 Opción mayorista: solo mostrar si el total con descuento supera 100.000 */}
+    {Math.round(total * 0.85) > 100000 && (
+      <div className="carrito-total-opcion2">
+        <p className="opcion2-titulo">💼 Opción mayorista (15% de descuento sobre el Total):</p>
+        <p className="opcion2-texto">
+          Abonás <strong>el 20%</strong> ahora por transferencia: <span className="monto-clave">
+            ${new Intl.NumberFormat('es-AR').format(Math.round(total * 0.85 * 0.20))}
+          </span><br />
+          y el <strong>80%</strong> restante al momento del retiro, 2 días hábiles después: <span className="monto-clave">
+            ${new Intl.NumberFormat('es-AR').format(Math.round(total * 0.85 * 0.80))}
+          </span><br />
+          <em>(Este método aplica un 15% de descuento sobre el precio total)</em><br /><br />
+          <strong>Total con descuento:</strong>{' '}
+          <span className="monto-clave">
+            ${new Intl.NumberFormat('es-AR').format(Math.round(total * 0.85))}
+          </span><br />
+          <strong>Ahorrás:</strong>{' '}
+          <span className="monto-clave">
+            ${new Intl.NumberFormat('es-AR').format(Math.round(total * 0.15))}
+          </span><br /><br />
+          <span className="info-retiro">
+            SE RETIRA POR DEPOSITO EN CASEROS 1041 - SALTA CAPITAL (Entre calles Islas Malvinas y Jujuy).<br />
+            ESTAMOS DE LUNES A VIERNES DE 10:30 A 13:30 Y DE 17:00 A 19:00 HS - SÁBADO CERRADO.
+          </span>
+          <span className="beneficio-restriccion">
+            ⚠️ Este beneficio es exclusivo para pedidos que tengan un total con descuento, superior a $50.000 y se retiren a los 2 días hábiles luego del día de la transferencia.
+            No aplica para compras inmediatas en el local físico.
+          </span>
+        </p>
+      </div>
+    )}
 
-          <button
-            className="enviar-whatsapp-button"
-            onClick={() => setMostrarModal(true)}
-          >
-            📩 Solicitar revision de presupuesto
-          </button>
-        </div>
-      )}
+    <button
+      className="enviar-whatsapp-button"
+      onClick={() => setMostrarModal(true)}
+    >
+      📩 Solicitar revision de presupuesto
+    </button>
+  </div>
+)}
 
       {mostrarModal && (
         <ModalContacto
