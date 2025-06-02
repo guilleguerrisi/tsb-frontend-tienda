@@ -150,7 +150,7 @@ const Carrito = () => {
             ESTAMOS DE LUNES A VIERNES DE 10:30 A 13:30 Y DE 17:00 A 19:00 HS - SÁBADO CERRADO.
           </span>
           <span className="beneficio-restriccion">
-            ⚠️ Este beneficio es exclusivo para pedidos que tengan un total con descuento, superior a $50.000 y se retiren a los 2 días hábiles luego del día de la transferencia.
+            ⚠️ Este beneficio es exclusivo para pedidos que tengan un total con descuento, superior a $100.000 y se retiren a los 2 días hábiles luego del día de la transferencia.
             No aplica para compras inmediatas en el local físico.
           </span>
         </p>
