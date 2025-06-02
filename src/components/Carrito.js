@@ -137,7 +137,7 @@ const Carrito = () => {
                 Abonás <strong>el 20%</strong> ahora por transferencia: <span className="monto-clave">
                   ${new Intl.NumberFormat('es-AR').format(Math.round(total * 0.85 * 0.20))}
                 </span><br />
-                y el <strong>80%</strong> restante al momento del o entrega, 2 días hábiles después: <span className="monto-clave">
+                y el <strong>80%</strong> restante al momento del retiro o entrega, 2 días hábiles después: <span className="monto-clave">
                   ${new Intl.NumberFormat('es-AR').format(Math.round(total * 0.85 * 0.80))}
                 </span><br />
                 <em>(Este método aplica un 15% de descuento sobre el precio total)</em><br /><br />
