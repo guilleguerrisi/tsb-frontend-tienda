@@ -177,7 +177,7 @@ h1 {
   }
 }
 
-/* 👇 AGREGADO: Ajustes para que en móviles se vean 4 tarjetas por fila */
+/* 👇 Ajustes para que en móviles se vean 4 tarjetas por fila y elementos más compactos */
 @media (max-width: 767px) {
   .product-container {
     display: flex;
@@ -222,9 +222,18 @@ h1 {
     margin: 2px 0;
   }
 
+  .product-card .cantidad button {
+    font-size: 0.6rem;
+    width: 20px;
+    height: 20px;
+    padding: 2px;
+  }
+
   .product-card .cantidad input[type="number"] {
     width: 25px;
     font-size: 0.7rem;
+    height: 20px;
+    text-align: center;
   }
 
   .product-card button {
