@@ -160,61 +160,24 @@ function ProductList({ grcat }) {
 
                   return (
                     <div className="product-card" key={index}>
+                      {/* Imagen a la izquierda */}
                       {(() => {
                         let autorizado = false;
-                        try {
-                          const raw = localStorage.getItem('usuario_admin');
-                          if (
-                            raw &&
-                            raw !== 'undefined' &&
-                            raw !== 'null' &&
-                            typeof raw === 'string' &&
-                            raw.trim().startsWith('{')
-                          ) {
-                            const user = JSON.parse(raw);
-                            autorizado = user?.autorizado === true;
-                          }
-                        } catch {
-                          autorizado = false;
-                        }
-
+                        // ...
                         const Imagen = (
                           <img
                             src={producto.imagen1}
                             alt={producto.descripcion_corta}
                             className="product-image"
                             onContextMenu={(e) => e.preventDefault()}
-                            onError={(e) => {
-                              e.target.onerror = null;
-                              e.target.src = "/imagenes/no-disponible.jpg";
-                            }}
+                            onError={(e) => { e.target.onerror = null; e.target.src = "/imagenes/no-disponible.jpg"; }}
                           />
                         );
-
                         if (autorizado) {
                           return (
                             <div>
                               {Imagen}
-
-                              <a
-                                href={`https://tsb-frontend-mercaderia-production-3b78.up.railway.app/?id=${producto.id}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="btn-hyperlink"
-                                style={{
-                                  fontSize: '0.65rem',
-                                  opacity: 0.4,
-                                  display: 'block',
-                                  marginTop: '0.25rem',
-                                  textAlign: 'right',
-                                  pointerEvents: 'auto'
-                                }}
-                                onMouseDown={(e) => {
-                                  if (![0, 1].includes(e.button)) e.preventDefault();
-                                }}
-                              >
-                                🔗
-                              </a>
+                              <a /* enlace */>🔗</a>
                             </div>
                           );
                         } else {
@@ -226,42 +189,41 @@ function ProductList({ grcat }) {
                         }
                       })()}
 
-                      <h3>
-                        {precioCalculado
-                          ? `$ ${new Intl.NumberFormat('es-AR').format(precioCalculado)}`
-                          : 'Precio no disponible'}
-                      </h3>
-                      <p>{producto.descripcion_corta}</p>
-                      <p><strong>Codigo:</strong> {producto.codigo_int}</p>
-
-                      {enCarrito && (
-                        <span className="etiqueta-presupuesto">
-                          <span className="tilde-verde">✔</span> Agregado al presupuesto
-                        </span>
-                      )}
-
-                      <div className="control-cantidad">
-                        <button onClick={() => modificarCantidad(producto, -1)} className="btn-menos">−</button>
-                        <input
-                          type="number"
-                          min="0"
-                          value={obtenerCantidad(producto.codigo_int)}
-                          onChange={(e) => {
-                            const nueva = parseInt(e.target.value) || 0;
-                            const actual = obtenerCantidad(producto.codigo_int);
-                            modificarCantidad(producto, nueva - actual);
-                          }}
-                          className="cantidad-input"
-                        />
-                        <button onClick={() => modificarCantidad(producto, 1)} className="btn-mas">+</button>
+                      {/* Descripción a la derecha */}
+                      <div className="descripcion">
+                        <h3>
+                          {precioCalculado
+                            ? `$ ${new Intl.NumberFormat('es-AR').format(precioCalculado)}`
+                            : 'Precio no disponible'}
+                        </h3>
+                        <p>{producto.descripcion_corta}</p>
+                        <p><strong>Codigo:</strong> {producto.codigo_int}</p>
+                        {enCarrito && (
+                          <span className="etiqueta-presupuesto">
+                            <span className="tilde-verde">✔</span> Agregado al presupuesto
+                          </span>
+                        )}
+                        <div className="control-cantidad">
+                          <button onClick={() => modificarCantidad(producto, -1)} className="btn-menos">−</button>
+                          <input
+                            type="number"
+                            min="0"
+                            value={obtenerCantidad(producto.codigo_int)}
+                            onChange={(e) => {
+                              const nueva = parseInt(e.target.value) || 0;
+                              const actual = obtenerCantidad(producto.codigo_int);
+                              modificarCantidad(producto, nueva - actual);
+                            }}
+                            className="cantidad-input"
+                          />
+                          <button onClick={() => modificarCantidad(producto, 1)} className="btn-mas">+</button>
+                        </div>
+                        <button className="btn-vermas" onClick={() => abrirModal(producto)}>
+                          Ver ficha
+                        </button>
                       </div>
-
-
-
-                      <button className="btn-vermas" onClick={() => abrirModal(producto)}>
-                        Ver ficha
-                      </button>
                     </div>
+
                   );
 
 
