@@ -186,7 +186,7 @@ h1 {
   }
 
   .product-card {
-    width: 23%;
+    width: 48%;
     margin: 1%;
     box-sizing: border-box;
     font-size: 0.7rem;
@@ -214,7 +214,7 @@ h1 {
     text-align: center;
   }
 
-  .product-card .cantidad {
+  .control-cantidad {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -222,22 +222,23 @@ h1 {
     margin: 2px 0;
   }
 
-  .product-card .cantidad button {
+  .control-cantidad button {
     font-size: 0.6rem;
     width: 20px;
     height: 20px;
     padding: 2px;
   }
 
-  .product-card .cantidad input[type="number"] {
+  .control-cantidad input[type="number"] {
     width: 25px;
     font-size: 0.7rem;
     height: 20px;
     text-align: center;
   }
 
-  .product-card button {
+  .product-card button.btn-vermas {
     font-size: 0.7rem;
     padding: 2px 4px;
   }
 }
+
