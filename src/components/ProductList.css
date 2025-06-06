@@ -302,10 +302,22 @@ button:disabled {
 
 /* ✅ Responsive */
 @media (max-width: 768px) {
+  .product-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 8px;
+  }
+
   .product-card {
-    width: 96%;
-    margin: 10px auto;
-    padding: 18px;
+    width: 100%;
+    margin: 0;
+    box-sizing: border-box;
+    font-size: 0.7rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.3rem;
   }
 
   .product-image {
@@ -313,41 +325,46 @@ button:disabled {
   }
 
   h3 {
-    font-size: 1.5rem;
-    margin-top: 14px;
+    font-size: 0.9rem;
+    margin: 2px 0;
+    text-align: center;
   }
 
   p {
-    font-size: 1.1rem;
-    line-height: 1.7;
+    font-size: 0.7rem;
+    margin: 2px 0;
+    text-align: center;
+  }
+
+  .control-cantidad {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2px;
+    margin: 2px 0;
+  }
+
+  .control-cantidad button {
+    font-size: 0.6rem;
+    width: 20px;
+    height: 20px;
+    padding: 2px;
+  }
+
+  .control-cantidad input[type="number"] {
+    width: 25px;
+    font-size: 0.7rem;
+    height: 20px;
+    text-align: center;
   }
 
   .btn-agregar,
   .btn-quitar,
   .btn-vermas {
-    font-size: 1.1rem;
-    padding: 16px;
+    font-size: 0.7rem;
+    padding: 2px 4px;
     width: 100%;
   }
-}
-
-
-.btn-seguir {
-  background-color: #f2f2f2;
-  color: #333;
-  font-size: 1rem;
-  padding: 10px 16px;
-  margin-top: 1.5rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  cursor: pointer;
-  font-family: 'Inter', sans-serif;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.btn-seguir:hover {
-  background-color: #ddd;
-  color: black;
 }
 
 
