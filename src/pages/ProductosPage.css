@@ -25,7 +25,6 @@
   }
 }
 
-
 .footer {
   text-align: center;
   color: #fff;
@@ -39,4 +38,43 @@
 
 .footer p {
   margin: 4px 0;
+}
+
+/* 👇 AGREGADO: Ajustes para vista móvil (4 tarjetas por fila) */
+@media (max-width: 767px) {
+  .contenedor-tarjetas {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .tarjeta-producto {
+    width: 23%;
+    margin: 1%;
+    box-sizing: border-box;
+    padding: 0.5rem;
+    font-size: 0.7rem;
+  }
+
+  .tarjeta-producto img {
+    width: 100%;
+    height: auto;
+  }
+
+  .tarjeta-producto .cantidad {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.2rem;
+  }
+
+  .tarjeta-producto .cantidad input[type="number"] {
+    width: 30px;
+    font-size: 0.7rem;
+  }
+
+  .tarjeta-producto button {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+  }
 }
