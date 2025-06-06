@@ -176,3 +176,42 @@ h1 {
     padding: 1rem;
   }
 }
+
+/* 👇 AGREGADO: Ajustes para que en móviles se vean 4 tarjetas por fila */
+@media (max-width: 767px) {
+  .product-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .product-card {
+    width: 23%;
+    margin: 1%;
+    box-sizing: border-box;
+    padding: 0.5rem;
+    font-size: 0.7rem;
+  }
+
+  .product-card img {
+    width: 100%;
+    height: auto;
+  }
+
+  .product-card .cantidad {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.2rem;
+  }
+
+  .product-card .cantidad input[type="number"] {
+    width: 30px;
+    font-size: 0.7rem;
+  }
+
+  .product-card button {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+  }
+}
