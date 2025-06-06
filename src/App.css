@@ -189,29 +189,46 @@ h1 {
     width: 23%;
     margin: 1%;
     box-sizing: border-box;
-    padding: 0.5rem;
     font-size: 0.7rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.3rem;
   }
 
   .product-card img {
     width: 100%;
     height: auto;
+    margin-bottom: 4px;
+  }
+
+  .product-card h3 {
+    font-size: 0.9rem;
+    margin: 2px 0;
+    text-align: center;
+  }
+
+  .product-card p {
+    font-size: 0.7rem;
+    margin: 2px 0;
+    text-align: center;
   }
 
   .product-card .cantidad {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 0.2rem;
+    gap: 2px;
+    margin: 2px 0;
   }
 
   .product-card .cantidad input[type="number"] {
-    width: 30px;
+    width: 25px;
     font-size: 0.7rem;
   }
 
   .product-card button {
     font-size: 0.7rem;
-    padding: 0.2rem 0.4rem;
+    padding: 2px 4px;
   }
 }
