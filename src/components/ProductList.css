@@ -297,6 +297,29 @@ button:disabled {
 }
 
 
+/* ✅ Estilo más grande para botones dentro del modal */
+.modal-content .control-cantidad button {
+  font-size: 1rem;
+  width: 28px;
+  height: 28px;
+  padding: 4px;
+}
+
+.modal-content .cantidad-input {
+  width: 40px;
+  font-size: 1rem;
+  height: 28px;
+  text-align: center;
+}
+
+.modal-content .btn-seguir {
+  font-size: 1rem;
+  padding: 10px 16px;
+  width: auto;
+}
+
+
+
 
 
 
@@ -310,7 +333,7 @@ button:disabled {
   }
 
   .product-card {
-    width: 100%;
+  
     margin: 0;
     box-sizing: border-box;
     font-size: 0.7rem;
