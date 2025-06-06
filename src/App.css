@@ -187,7 +187,7 @@ h1 {
 
   .product-card {
     width: 48%;
-    margin: 1%;
+    margin: 0.5%;
     box-sizing: border-box;
     font-size: 0.7rem;
     display: flex;
