@@ -342,7 +342,7 @@ button:disabled {
   }
 
   .product-card .product-image {
-    width: 100px;             /* tamaño fijo */
+    width: 150px;             /* tamaño fijo */
     height: auto;
     object-fit: contain;
     border-radius: 8px;
