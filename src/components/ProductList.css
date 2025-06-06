@@ -326,69 +326,66 @@ button:disabled {
 /* ✅ Responsive */
 @media (max-width: 768px) {
   .product-container {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    display: block; /* Una sola columna */
     padding: 8px;
   }
 
   .product-card {
-  
-    margin: 0;
-    box-sizing: border-box;
-    font-size: 0.7rem;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 0.3rem;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    padding: 0.5rem;
   }
 
-  .product-image {
-    max-height: 260px;
+  .product-card .product-image {
+    width: 100px;
+    height: auto;
+    object-fit: contain;
+    border-radius: 8px;
+    flex-shrink: 0;
   }
 
-  h3 {
+  .product-card h3 {
+    font-size: 1rem;
+    margin: 2px 0;
+    text-align: left;
+  }
+
+  .product-card p {
     font-size: 0.9rem;
     margin: 2px 0;
-    text-align: center;
-  }
-
-  p {
-    font-size: 0.7rem;
-    margin: 2px 0;
-    text-align: center;
+    text-align: left;
   }
 
   .control-cantidad {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
-    gap: 2px;
-    margin: 2px 0;
+    gap: 4px;
+    margin-top: 4px;
   }
 
   .control-cantidad button {
-    font-size: 0.6rem;
-    width: 20px;
-    height: 20px;
-    padding: 2px;
+    font-size: 0.7rem;
+    width: 24px;
+    height: 24px;
   }
 
   .control-cantidad input[type="number"] {
-    width: 25px;
-    font-size: 0.7rem;
-    height: 20px;
+    width: 30px;
+    font-size: 0.8rem;
     text-align: center;
   }
 
-  .btn-agregar,
-  .btn-quitar,
   .btn-vermas {
-    font-size: 0.7rem;
-    padding: 2px 4px;
-    width: 100%;
+    font-size: 0.8rem;
+    padding: 4px 6px;
+    width: auto;
+    align-self: flex-start;
   }
 }
-
 
 
