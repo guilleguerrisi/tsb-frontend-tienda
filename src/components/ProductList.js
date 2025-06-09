@@ -225,44 +225,7 @@ function ProductList({ grcat }) {
                         }
                       })()}
 
-                      <div className="product-info">
-                        <h3>
-                          {precioCalculado
-                            ? `$ ${new Intl.NumberFormat('es-AR').format(precioCalculado)}`
-                            : 'Precio no disponible'}
-                        </h3>
-                        <p>{producto.descripcion_corta}</p>
-                        <p><strong>Codigo:</strong> {producto.codigo_int}</p>
-
-                        {enCarrito && (
-                          <span className="etiqueta-presupuesto">
-                            <span className="tilde-verde">✔</span> Agregado al presupuesto
-                          </span>
-                        )}
-
-                        <div className="control-cantidad">
-                          <button onClick={() => modificarCantidad(producto, -1)} className="btn-menos">−</button>
-                          <input
-                            type="number"
-                            min="0"
-                            value={obtenerCantidad(producto.codigo_int)}
-                            onChange={(e) => {
-                              const nueva = parseInt(e.target.value) || 0;
-                              const actual = obtenerCantidad(producto.codigo_int);
-                              modificarCantidad(producto, nueva - actual);
-                            }}
-                            className="cantidad-input"
-                          />
-                          <button onClick={() => modificarCantidad(producto, 1)} className="btn-mas">+</button>
-                        </div>
-
-                        <button className="btn-vermas" onClick={() => abrirModal(producto)}>
-                          Ver ficha
-                        </button>
-                      </div>
-
-
-                      {/* 👇 NUEVO CONTENEDOR PARA LA INFO */}
+                      {/* 👇 SOLO UN BLOQUE DE product-info */}
                       <div className="product-info">
                         <h3>
                           {precioCalculado
@@ -299,8 +262,8 @@ function ProductList({ grcat }) {
                         </button>
                       </div>
                     </div>
-
                   );
+
 
 
 
