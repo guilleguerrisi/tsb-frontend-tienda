@@ -272,7 +272,7 @@ button:disabled {
     align-items: flex-start;
     gap: 10px;
     width: 95%;                /* 🔥 Reducir margen izquierdo/derecho */
-    margin: 0 auto 8px auto;   /* 🔥 Márgenes iguales: centrado y menor margen abajo */
+    margin: 0 auto 6px auto;   /* 🔥 Márgenes iguales: centrado y menor margen abajo */
     box-sizing: border-box;
     padding: 0.5rem;
   }
@@ -329,6 +329,14 @@ button:disabled {
     padding: 4px 6px;
     width: auto;
     align-self: flex-start;
+  }
+
+    .product-card .bottom-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
   }
 }
 
