@@ -259,16 +259,20 @@ button:disabled {
 /* ✅ Responsive solo para móvil */
 @media (max-width: 768px) {
   .product-container {
-    display: block;
+    display: flex;             /* 🔥 Usar flex en lugar de block */
+    flex-wrap: wrap;
+    justify-content: center;   /* 🔥 Centrar tarjetas horizontalmente */
+    gap: 8px;                  /* 🔥 Reducir espacio entre tarjetas */
     padding: 8px;
   }
 
   .product-card {
-    display: flex !important; /* 🔥 fila horizontal solo en móvil */
+    display: flex !important;
     flex-direction: row;
     align-items: flex-start;
     gap: 10px;
-    margin-bottom: 10px;
+    width: 95%;                /* 🔥 Reducir margen izquierdo/derecho */
+    margin: 0 auto 8px auto;   /* 🔥 Márgenes iguales: centrado y menor margen abajo */
     box-sizing: border-box;
     padding: 0.5rem;
   }
@@ -327,3 +331,4 @@ button:disabled {
     align-self: flex-start;
   }
 }
+
