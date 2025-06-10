@@ -7,8 +7,6 @@
   box-sizing: border-box;
 }
 
-
-
 .product-card {
   background: white;
   border-radius: 12px;
@@ -17,17 +15,12 @@
   padding: 14px;
   width: 100%;
   max-width: 100%;
-  text-align: center;
   transition: transform 0.2s ease;
   font-family: 'Inter', sans-serif;
   box-sizing: border-box;
-
-  /* ✅ Cambios clave para evitar estiramiento */
   align-self: start;
-  display: block;
+  /* Elimina display:block para no sobreescribir la vista móvil */
 }
-
-
 
 .product-image {
   width: 100%;
@@ -37,51 +30,6 @@
   margin-bottom: 12px;
   cursor: pointer;
   border-radius: 8px;
-}
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-}
-
-.modal-content {
-  background: white;
-  padding: 2rem;
-  border-radius: 10px;
-  max-width: 600px;
-  width: 90%;
-  position: relative;
-  text-align: center;
-}
-
-.modal-content h2 {
-  text-align: left;
-}
-
-.modal-image {
-  width: 100%;
-  height: auto;
-  max-height: 420px;
-  object-fit: contain;
-  border-radius: 8px;
-}
-
-.close-button {
-  position: absolute;
-  top: 0.5rem;
-  right: 1rem;
-  font-size: 1.5rem;
-  background: none;
-  border: none;
-  cursor: pointer;
 }
 
 h3 {
@@ -144,7 +92,6 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* ✅ Botón "Ver más" */
 .btn-vermas {
   background-color: #eeeeee;
   color: #333;
@@ -160,13 +107,11 @@ button:disabled {
   display: block;
 }
 
-
 .btn-vermas:hover {
   background-color: #ddd;
   transform: scale(1.02);
 }
 
-/* ✅ Etiqueta verde */
 .etiqueta-presupuesto {
   color: #2ecc71;
   font-size: 0.95rem;
@@ -184,7 +129,6 @@ button:disabled {
   color: #2ecc71;
 }
 
-/* Mensaje centrado */
 .loading-centered {
   display: flex;
   justify-content: center;
@@ -202,7 +146,6 @@ button:disabled {
   border-bottom: 1px solid #ddd;
 }
 
-
 .grupo-productos h2 {
   font-family: 'Poppins', sans-serif;
   font-size: 1.6rem;
@@ -213,9 +156,6 @@ button:disabled {
   border-left: 4px solid #3498db;
   padding-left: 12px;
 }
-
-
-
 
 .carrusel-imagenes {
   position: relative;
@@ -296,8 +236,6 @@ button:disabled {
   font-family: 'Inter', sans-serif;
 }
 
-
-/* ✅ Estilo más grande para botones dentro del modal */
 .modal-content .control-cantidad button {
   font-size: 1rem;
   width: 28px;
@@ -318,21 +256,15 @@ button:disabled {
   width: auto;
 }
 
-
-
-
-
-
-/* ✅ Responsive */
 /* ✅ Responsive solo para móvil */
 @media (max-width: 768px) {
   .product-container {
-    display: block; /* Una sola columna */
+    display: block;
     padding: 8px;
   }
 
   .product-card {
-    display: flex;             /* 🔥 fila horizontal solo en móvil */
+    display: flex !important; /* 🔥 fila horizontal solo en móvil */
     flex-direction: row;
     align-items: flex-start;
     gap: 10px;
@@ -342,7 +274,7 @@ button:disabled {
   }
 
   .product-card .product-image {
-    width: 150px;             /* tamaño fijo */
+    width: 150px;
     height: auto;
     object-fit: contain;
     border-radius: 8px;
