@@ -203,3 +203,9 @@ p {
   cursor: pointer;
 }
 
+.modal-content .btn-seguir {
+  font-size: 1rem;
+  padding: 10px 16px;
+  width: auto;
+  margin-top: 1rem; /* 🔥 Esto es clave: separa el botón del bloque de cantidad */
+}

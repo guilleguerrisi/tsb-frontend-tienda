@@ -257,20 +257,19 @@ button:disabled {
 }
 
 /* ✅ Responsive solo para móvil */
+/* ✅ Responsive solo para móvil */
 @media (max-width: 768px) {
   .product-container {
-    display: block;
-    padding: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
   }
 
   .product-card {
-    display: flex !important; /* 🔥 fila horizontal solo en móvil */
-    flex-direction: row;
-    align-items: flex-start;
-    gap: 10px;
-    margin-bottom: 10px;
+    width: 90%;
+    max-width: 320px;
     box-sizing: border-box;
-    padding: 0.5rem;
   }
 
   .product-card .product-image {
@@ -327,3 +326,4 @@ button:disabled {
     align-self: flex-start;
   }
 }
+
