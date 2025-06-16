@@ -41,7 +41,7 @@ const BotonFlotante = () => {
         ← Categorías
       </button>
       <button className="flotante-boton primaria" onClick={() => navigate('/carrito')}>
-        Ver presupuesto
+        Ver tu pedido
       </button>
     </div>
   );

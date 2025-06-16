@@ -152,34 +152,26 @@
 .carrito-summary {
   margin-top: 3rem;
   display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 2rem;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
-.carrito-total {
-  font-size: 2.2rem;
-  font-weight: bold;
-  color: #000;
-  text-shadow: 1px 1px 1px #ffffff99;
-  font-family: 'Poppins', sans-serif;
-}
-
-.solicitar-presupuesto-button {
-  padding: 1.2rem 2.4rem;
-  background-color: #0063f7;
+.enviar-whatsapp-button {
+  background-color: #007bff;
   color: white;
-  font-size: 1.2rem;
-  text-align: center;
   border: none;
-  border-radius: 0.8rem;
+  padding: 16px 24px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  text-align: center;
 }
 
-.solicitar-presupuesto-button:hover {
-  background-color: #ff7a00;
+.enviar-whatsapp-button:hover {
+  background-color: #0056b3;
 }
 
 .volver-contenedor {
@@ -200,75 +192,74 @@
   transition: background-color 0.2s;
 }
 
+.carrito-footer {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 2rem;
+  margin-top: 3rem;
+  border-radius: 10px;
+  gap: 1.5rem;
+}
+
 .leyenda-precio {
-  font-size: 0.9rem;
-  color: #444;
-  text-align: right;
-  margin-top: 1rem;
-  font-style: italic;
-}
-
-.enviar-whatsapp-button {
-  background-color: #25D366; /* Verde WhatsApp */
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  margin-top: 10px;
-  font-size: 16px;
-  font-weight: bold;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  width: 100%;
-  text-align: center;
-}
-
-.enviar-whatsapp-button:hover {
-  background-color: #1ebe5b; /* Verde más oscuro al pasar el mouse */
-}
-
-
-.carrito-total-opcion2 {
-  margin-top: 1.5rem;
-  background: #f5faff;
-  border: 1px solid #b9e3f5;
-  padding: 1rem;
-  border-radius: 8px;
-  text-align: left;
-  font-size: 1rem;
-  line-height: 1.6;
-}
-
-.opcion2-titulo {
-  font-weight: bold;
-  color: #3498db;
-  margin-bottom: 0.5rem;
-}
-
-.opcion2-texto {
-  margin: 0;
+  flex: 1 1 60%;
+  font-size: 0.95rem;
   color: #333;
+  font-style: italic;
+  line-height: 1.5;
+  text-align: left;
 }
-
-.monto-clave {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-.beneficio-restriccion {
-  display: block;
-  margin-top: 1rem;
-  font-size: 0.9rem;
-  color: #aa2e00;
-  background-color: #fff5f2;
-  padding: 0.75rem;
-  border-left: 4px solid #d35400;
-  border-radius: 6px;
-  line-height: 1.4;
-}
-
-
 
 .info-contacto {
+  flex: 1 1 35%;
+  font-size: 0.95rem;
   text-align: right;
+  color: #222;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+/* NUEVA SECCIÓN: Total visualmente atractivo */
+.carrito-total-box {
+  display: flex;
+  align-items: center;
+  background: #ffffffcc;
+  border: 2px solid #007bff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.carrito-total-icono {
+  font-size: 2.8rem;
+  color: #007bff;
+  margin-left: 0.5rem;
+}
+
+.carrito-total-contenido {
+  flex: 1;
+  min-width: 220px;
+}
+
+.carrito-total-titulo {
+  margin: 0 0 0.5rem;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #004080;
+}
+
+.carrito-total-monto {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #000;
+  margin: 0.5rem 0;
+}
+
+.carrito-total-envio {
+  font-size: 0.95rem;
+  color: #444;
 }

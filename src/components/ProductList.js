@@ -237,7 +237,7 @@ function ProductList({ grcat }) {
 
                         {enCarrito && (
                           <span className="etiqueta-presupuesto">
-                            <span className="tilde-verde">✔</span> Agregado al presupuesto
+                            <span className="tilde-verde">✔</span> Agregado al pedido
                           </span>
                         )}
 
@@ -260,7 +260,7 @@ function ProductList({ grcat }) {
                           </div>
 
                           <button className="btn-vermas" onClick={() => abrirModal(producto)}>
-                            Ver ficha
+                            Ficha
                           </button>
                         </div>
                       </div>

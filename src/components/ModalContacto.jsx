@@ -59,7 +59,7 @@ const ModalContacto = ({ carrito, onCerrar }) => {
     <div className="modal-contacto-overlay">
       <div className="modal-contacto-contenido">
         <button className="cerrar-modal" onClick={onCerrar}>×</button>
-        <h2>¿Cómo querés enviar tu presupuesto?</h2>
+        <h2>¿Cómo querés enviar tu nota de pedido?</h2>
 
         <div className="opciones-envio">
           <label>

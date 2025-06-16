@@ -7,7 +7,7 @@ const CarritoLink = () => {
 
   return (
     <Link to="/carrito" className="carrito-link">
-      Ver presupuesto ({carrito.length})
+      Ver tu pedido ({carrito.length})
     </Link>
   );
 };
