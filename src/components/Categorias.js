@@ -11,8 +11,6 @@ const Categorias = () => {
   useEffect(() => {
     const fetchCategorias = async () => {
       try {
-
-
         const res = await fetch(`${config.API_URL}/api/categorias`);
         const data = await res.json();
         setCategorias(data);
@@ -37,7 +35,14 @@ const Categorias = () => {
           className={`categoria-boton ${categoriaActiva === cat.grcat ? 'activa' : ''}`}
           onClick={() => seleccionar(cat.grcat)}
         >
-          {cat.grandescategorias}
+          {cat.imagen_url && (
+            <img
+              src={cat.imagen_url}
+              alt={cat.grandescategorias}
+              className="categoria-imagen"
+            />
+          )}
+          <span className="categoria-nombre">{cat.grandescategorias}</span>
         </button>
       ))}
     </div>
