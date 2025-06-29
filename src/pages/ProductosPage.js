@@ -10,6 +10,15 @@ const ProductosPage = () => {
   const navigate = useNavigate();
   const [grcat, setGrcat] = useState('');
 
+  const clienteID = new URLSearchParams(location.search).get('clienteID');
+
+useEffect(() => {
+  if (clienteID) {
+    localStorage.setItem('clienteID', clienteID);
+  }
+}, [clienteID]);
+  
+
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const valor = params.get('grcat');

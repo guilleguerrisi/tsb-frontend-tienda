@@ -2,17 +2,23 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 const CarritoContext = createContext();
-
 export const useCarrito = () => useContext(CarritoContext);
 
 export const CarritoProvider = ({ children }) => {
   const [carrito, setCarrito] = useState([]);
   const [clienteID, setClienteID] = useState(null);
 
+  // 🔁 Leer clienteID desde la URL o localStorage al iniciar
   useEffect(() => {
-    const idGuardado = localStorage.getItem('clienteID');
-    if (idGuardado) {
-      setClienteID(idGuardado);
+    const params = new URLSearchParams(window.location.search);
+    const idURL = params.get('clienteID');
+    const idLocal = localStorage.getItem('clienteID');
+
+    if (idURL) {
+      setClienteID(idURL);
+      localStorage.setItem('clienteID', idURL);
+    } else if (idLocal) {
+      setClienteID(idLocal);
     } else {
       const nuevoID = uuidv4();
       localStorage.setItem('clienteID', nuevoID);
@@ -23,25 +29,30 @@ export const CarritoProvider = ({ children }) => {
     setCarrito(carritoGuardado);
   }, []);
 
+  // 💾 Guardar carrito en localStorage al modificarlo
   useEffect(() => {
     localStorage.setItem('carrito', JSON.stringify(carrito));
   }, [carrito]);
 
-    // Sincronizar entre pestañas con storage event
+  // 🔁 Sincronizar carrito y clienteID entre pestañas
   useEffect(() => {
     const handleStorageChange = (event) => {
       if (event.key === 'carrito') {
-        const carritoActualizado = JSON.parse(event.newValue || '[]');
-        setCarrito(carritoActualizado);
+        const nuevo = JSON.parse(event.newValue || '[]');
+        setCarrito((actual) => {
+          if (JSON.stringify(actual) !== JSON.stringify(nuevo)) {
+            return nuevo;
+          }
+          return actual;
+        });
+      }
+      if (event.key === 'clienteID') {
+        setClienteID(event.newValue || null);
       }
     };
-
     window.addEventListener('storage', handleStorageChange);
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
-
 
   const calcularPrecio = (producto) => {
     if (isNaN(producto.costosiniva)) return 0;
@@ -53,7 +64,6 @@ export const CarritoProvider = ({ children }) => {
   const agregarAlCarrito = (producto, cantidad = 1) => {
     setCarrito(prev => {
       const existente = prev.find(item => item.codigo_int === producto.codigo_int);
-
       if (existente) {
         const nuevaCantidad = existente.cantidad + cantidad;
         if (nuevaCantidad <= 0) {
@@ -65,48 +75,51 @@ export const CarritoProvider = ({ children }) => {
             : item
         );
       } else {
-        const productoConPrecio = {
-          ...producto,
-          price: calcularPrecio(producto),
-          cantidad: cantidad,
-        };
-        return [...prev, productoConPrecio];
+        return [
+          ...prev,
+          {
+            ...producto,
+            price: calcularPrecio(producto),
+            cantidad,
+          }
+        ];
       }
     });
   };
 
   const cambiarCantidad = (codigo_int, nuevaCantidad) => {
-    setCarrito(prev => {
-      if (nuevaCantidad <= 0) {
-        return prev.filter(item => item.codigo_int !== codigo_int);
-      }
-      return prev.map(item =>
-        item.codigo_int === codigo_int ? { ...item, cantidad: nuevaCantidad } : item
-      );
-    });
+    setCarrito(prev =>
+      nuevaCantidad <= 0
+        ? prev.filter(item => item.codigo_int !== codigo_int)
+        : prev.map(item =>
+            item.codigo_int === codigo_int
+              ? { ...item, cantidad: nuevaCantidad }
+              : item
+          )
+    );
   };
-
-
 
   const eliminarDelCarrito = (index) => {
     setCarrito(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const reemplazarCarrito = (nuevoCarrito) => {
+    setCarrito(nuevoCarrito);
   };
 
   const finalizarCompra = async () => {
     try {
       const response = await fetch('http://localhost:5000/api/finalizar-compra', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           carrito: carrito.map(item => ({
-            id: Number(item.id),               // ✅ ID como número
-            cantidad: item.cantidad || 1      // ✅ cantidad segura
+            id: Number(item.id),
+            cantidad: item.cantidad || 1
           })),
           clienteID,
         }),
-      }); // ⬅️ este paréntesis de cierre estaba faltando
+      });
 
       if (response.ok) {
         alert('Compra guardada en la base de datos');
@@ -121,16 +134,11 @@ export const CarritoProvider = ({ children }) => {
     }
   };
 
-  const reemplazarCarrito = (nuevoCarrito) => {
-  setCarrito(nuevoCarrito);
-};
-
-
-
   return (
     <CarritoContext.Provider
       value={{
         carrito,
+        clienteID,
         setCarrito,
         agregarAlCarrito,
         cambiarCantidad,
@@ -139,7 +147,6 @@ export const CarritoProvider = ({ children }) => {
         finalizarCompra,
       }}
     >
-
       {children}
     </CarritoContext.Provider>
   );

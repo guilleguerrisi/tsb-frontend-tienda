@@ -1,14 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import './Categorias.css';
 import config from '../config';
 
-const Categorias = () => {
+const Categorias = ({ onSeleccionarCategoria }) => {
   const [categorias, setCategorias] = useState([]);
-  const [categoriaActiva, setCategoriaActiva] = useState(null);
+  const [categoriaActiva] = useState(null);
   const [busqueda, setBusqueda] = useState('');
   const inputRef = useRef(null);
-  const navigate = useNavigate();
 
   const cargarTodas = async () => {
     try {
@@ -41,11 +39,6 @@ const Categorias = () => {
       buscarCategorias(busqueda);
     }
   }, [busqueda]);
-
-  const seleccionar = (grcat) => {
-    setCategoriaActiva(grcat);
-    navigate(`/productos?grcat=${encodeURIComponent(grcat)}`);
-  };
 
   return (
     <div className="categorias-container">
@@ -123,7 +116,10 @@ const Categorias = () => {
           <button
             key={index}
             className={`categoria-boton ${categoriaActiva === cat.grcat ? 'activa' : ''}`}
-            onClick={() => seleccionar(cat.grcat)}
+            onClick={() => {
+              const url = `/productos?grcat=${encodeURIComponent(cat.grcat)}`;
+              window.open(url, '_blank'); // 🔥 Esto abre la categoría en nueva pestaña
+            }}
           >
             {cat.imagen_url && (
               <img
@@ -135,6 +131,7 @@ const Categorias = () => {
             <span className="categoria-nombre">{cat.grandescategorias}</span>
           </button>
         ))
+
       )}
     </div>
   );
