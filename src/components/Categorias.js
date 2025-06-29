@@ -51,7 +51,7 @@ const Categorias = () => {
       <input
         type="text"
         className="input-busqueda"
-        placeholder="🔎 Buscar categoría..."
+        placeholder="🔎 Buscar producto..."
         value={busqueda}
         onChange={(e) => setBusqueda(e.target.value)}
         style={{
