@@ -9,10 +9,10 @@
 
 .product-card {
   background: white;
-  border-radius: 12px;
+  border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin: 10px;
-  padding: 14px;
+  margin: 4px; /* 🔹 Menor margen externo */
+  padding: 20px; /* 🔹 Mayor espacio interior */
   width: 100%;
   max-width: 100%;
   text-align: center;
@@ -22,6 +22,7 @@
   align-self: start;
   display: block;
 }
+
 
 .product-card:hover {
   transform: translateY(-5px);
@@ -93,9 +94,9 @@ p {
 }
 
 .btn-vermas {
-  background-color: #eeeeee;
-  color: #333;
-  border: 1px solid #ccc;
+  background-color: #007bff;
+  color: white;
+  border: none;
   padding: 12px 16px;
   cursor: pointer;
   margin-top: 0.5rem;
@@ -108,9 +109,10 @@ p {
 }
 
 .btn-vermas:hover {
-  background-color: #ddd;
+  background-color: #0069d9;
   transform: scale(1.02);
 }
+
 
 .etiqueta-presupuesto {
   color: #2ecc71;
@@ -215,14 +217,20 @@ p {
   .product-container {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center; /* Esto centra las tarjetas horizontalmente */
+    justify-content: center;
     gap: 12px;
     padding: 12px;
   }
 
   .product-card {
-    margin: 0 auto 16px auto; /* Centrado horizontal y separación inferior */
-    width: 90%;
-    max-width: 380px;
+    margin: 6px auto;
+    width: 95%;
+    padding: 20px;
+  }
+
+  .btn-vermas {
+    font-size: 1.1rem;
+    padding: 14px;
   }
 }
+
