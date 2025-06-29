@@ -54,7 +54,7 @@ const Categorias = () => {
           ref={inputRef}
           type="text"
           className="input-busqueda"
-          placeholder="🔎 Buscar categoría..."
+          placeholder="🔎 Buscar producto o marca..."
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
           style={{

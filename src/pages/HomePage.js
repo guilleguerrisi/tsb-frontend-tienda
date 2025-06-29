@@ -1,15 +1,17 @@
 import React from 'react';
 import Categorias from '../components/Categorias';
 import CarritoLink from '../components/CarritoLink';
-import { useNavigate } from 'react-router-dom';
 import { FaWhatsapp } from 'react-icons/fa';
 
 const HomePage = () => {
-  const navigate = useNavigate();
+ 
 
   const manejarSeleccionCategoria = (grcat) => {
-    navigate(`/productos?grcat=${encodeURIComponent(grcat)}`);
+    const clienteID = localStorage.getItem('clienteID');
+    const url = `/productos?grcat=${encodeURIComponent(grcat)}&clienteID=${clienteID}`;
+    window.open(url, '_blank');
   };
+
 
   return (
     <div className="App">

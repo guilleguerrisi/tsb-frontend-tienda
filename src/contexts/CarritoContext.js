@@ -27,6 +27,22 @@ export const CarritoProvider = ({ children }) => {
     localStorage.setItem('carrito', JSON.stringify(carrito));
   }, [carrito]);
 
+    // Sincronizar entre pestañas con storage event
+  useEffect(() => {
+    const handleStorageChange = (event) => {
+      if (event.key === 'carrito') {
+        const carritoActualizado = JSON.parse(event.newValue || '[]');
+        setCarrito(carritoActualizado);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
+
   const calcularPrecio = (producto) => {
     if (isNaN(producto.costosiniva)) return 0;
     return Math.round(
