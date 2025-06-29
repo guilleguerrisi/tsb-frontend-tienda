@@ -7,7 +7,7 @@ const Categorias = () => {
   const [categorias, setCategorias] = useState([]);
   const [categoriaActiva, setCategoriaActiva] = useState(null);
   const [busqueda, setBusqueda] = useState('');
-  const inputRef = useRef(null); // ✅ referencia al input
+  const inputRef = useRef(null);
   const navigate = useNavigate();
 
   const cargarTodas = async () => {
@@ -71,7 +71,7 @@ const Categorias = () => {
           <button
             onClick={() => {
               setBusqueda('');
-              setTimeout(() => inputRef.current?.focus(), 0); // ✅ restaurar foco
+              setTimeout(() => inputRef.current?.focus(), 0);
             }}
             style={{
               position: 'absolute',
@@ -91,22 +91,51 @@ const Categorias = () => {
         )}
       </div>
 
-      {categorias.map((cat, index) => (
-        <button
-          key={index}
-          className={`categoria-boton ${categoriaActiva === cat.grcat ? 'activa' : ''}`}
-          onClick={() => seleccionar(cat.grcat)}
-        >
-          {cat.imagen_url && (
-            <img
-              src={cat.imagen_url}
-              alt={cat.grandescategorias}
-              className="categoria-imagen"
-            />
-          )}
-          <span className="categoria-nombre">{cat.grandescategorias}</span>
-        </button>
-      ))}
+      {categorias.length === 0 && busqueda.trim() !== '' ? (
+        <div style={{ marginTop: '1.5rem', textAlign: 'center', color: '#333', padding: '1rem' }}>
+          <p style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>
+            ❌ No hemos encontrado el producto.
+          </p>
+          <a
+            href={`https://wa.me/5493875537070?text=${encodeURIComponent(
+              `Hola, no encontré "${busqueda}" en la página, ¿podrían ayudarme?`
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-block',
+              backgroundColor: '#25D366',
+              color: 'white',
+              padding: '10px 20px',
+              borderRadius: '25px',
+              fontWeight: 'bold',
+              textDecoration: 'none',
+              fontSize: '1rem',
+              boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+              transition: 'background-color 0.3s'
+            }}
+          >
+            📲 Toca aquí para consultar por WhatsApp
+          </a>
+        </div>
+      ) : (
+        categorias.map((cat, index) => (
+          <button
+            key={index}
+            className={`categoria-boton ${categoriaActiva === cat.grcat ? 'activa' : ''}`}
+            onClick={() => seleccionar(cat.grcat)}
+          >
+            {cat.imagen_url && (
+              <img
+                src={cat.imagen_url}
+                alt={cat.grandescategorias}
+                className="categoria-imagen"
+              />
+            )}
+            <span className="categoria-nombre">{cat.grandescategorias}</span>
+          </button>
+        ))
+      )}
     </div>
   );
 };
