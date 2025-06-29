@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Categorias.css';
 import config from '../config';
@@ -7,6 +7,7 @@ const Categorias = () => {
   const [categorias, setCategorias] = useState([]);
   const [categoriaActiva, setCategoriaActiva] = useState(null);
   const [busqueda, setBusqueda] = useState('');
+  const inputRef = useRef(null); // ✅ referencia al input
   const navigate = useNavigate();
 
   const cargarTodas = async () => {
@@ -50,6 +51,7 @@ const Categorias = () => {
     <div className="categorias-container">
       <div style={{ position: 'relative', width: '100%' }}>
         <input
+          ref={inputRef}
           type="text"
           className="input-busqueda"
           placeholder="🔎 Buscar categoría..."
@@ -67,7 +69,10 @@ const Categorias = () => {
 
         {busqueda && (
           <button
-            onClick={() => setBusqueda('')}
+            onClick={() => {
+              setBusqueda('');
+              setTimeout(() => inputRef.current?.focus(), 0); // ✅ restaurar foco
+            }}
             style={{
               position: 'absolute',
               right: '10px',
@@ -104,7 +109,6 @@ const Categorias = () => {
       ))}
     </div>
   );
-
 };
 
 export default Categorias;
