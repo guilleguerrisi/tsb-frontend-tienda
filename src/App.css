@@ -116,6 +116,17 @@ h1 {
   transform: scale(1.03);
 }
 
+.footer {
+  margin-top: 2rem;
+  text-align: center;
+  padding: 1.5rem;
+  color: #ffffff;
+  font-size: 0.9rem;
+  background: transparent;
+  font-family: 'Inter', sans-serif;
+}
+
+
 /* ✅ Responsive para celular */
 @media (max-width: 768px) {
   h3 {
