@@ -209,3 +209,20 @@ p {
   width: auto;
   margin-top: 1rem; /* 🔥 Esto es clave: separa el botón del bloque de cantidad */
 }
+
+
+@media (max-width: 768px) {
+  .product-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* Esto centra las tarjetas horizontalmente */
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .product-card {
+    margin: 0 auto 16px auto; /* Centrado horizontal y separación inferior */
+    width: 90%;
+    max-width: 380px;
+  }
+}
