@@ -48,22 +48,43 @@ const Categorias = () => {
 
   return (
     <div className="categorias-container">
-      <input
-        type="text"
-        className="input-busqueda"
-        placeholder="🔎 Buscar producto..."
-        value={busqueda}
-        onChange={(e) => setBusqueda(e.target.value)}
-        style={{
-          marginBottom: '1rem',
-          padding: '0.6rem 1rem',
-          borderRadius: '12px',
-          border: '1px solid #ccc',
-          fontSize: '1rem',
-          width: '100%',
-          maxWidth: '500px'
-        }}
-      />
+      <div style={{ position: 'relative', width: '100%' }}>
+        <input
+          type="text"
+          className="input-busqueda"
+          placeholder="🔎 Buscar categoría..."
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          style={{
+            padding: '0.6rem 1rem',
+            borderRadius: '30px',
+            border: '1px solid #ccc',
+            fontSize: '1rem',
+            width: '100%',
+            boxSizing: 'border-box'
+          }}
+        />
+
+        {busqueda && (
+          <button
+            onClick={() => setBusqueda('')}
+            style={{
+              position: 'absolute',
+              right: '10px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              background: 'transparent',
+              border: 'none',
+              fontSize: '1.2rem',
+              cursor: 'pointer',
+              color: '#aaa'
+            }}
+            title="Borrar búsqueda"
+          >
+            ✕
+          </button>
+        )}
+      </div>
 
       {categorias.map((cat, index) => (
         <button
@@ -83,6 +104,7 @@ const Categorias = () => {
       ))}
     </div>
   );
+
 };
 
 export default Categorias;
