@@ -103,8 +103,12 @@ export const CarritoProvider = ({ children }) => {
   };
 
   const crearPedidoEnBackend = async () => {
+    if (!clienteID) {
+      console.warn('🕓 Esperando clienteID para crear pedido...');
+      return null;
+    }
+
     try {
-      // Verifica si ya hay un pedido en la base para este cliente
       const buscarRes = await fetch(`${API_URL}/api/pedidos/cliente/${clienteID}`);
       const buscarData = await buscarRes.json();
 
@@ -143,8 +147,12 @@ export const CarritoProvider = ({ children }) => {
   };
 
   const agregarAlCarrito = async (producto, cantidad = 1) => {
-    let idPedido = pedidoID;
+    if (!clienteID) {
+      console.warn('❌ clienteID aún no está disponible. Espera a que se inicialice.');
+      return;
+    }
 
+    let idPedido = pedidoID;
     if (!idPedido) {
       idPedido = await crearPedidoEnBackend();
       if (!idPedido) return;
