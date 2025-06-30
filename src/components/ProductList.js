@@ -359,13 +359,18 @@ function ProductList({ grcat }) {
                 type="number"
                 min="0"
                 value={obtenerCantidad(productoSeleccionado.codigo_int)}
-                onFocus={(e) => {
-                  e.target.select();
-                }}
+                onFocus={(e) => e.target.select()}
                 onChange={(e) => {
                   const nueva = parseInt(e.target.value) || 0;
                   const actual = obtenerCantidad(productoSeleccionado.codigo_int);
-                  modificarCantidad(productoSeleccionado, nueva - actual);
+
+                  if (window.__timeoutCantidadFicha) {
+                    clearTimeout(window.__timeoutCantidadFicha);
+                  }
+
+                  window.__timeoutCantidadFicha = setTimeout(() => {
+                    modificarCantidad(productoSeleccionado, nueva - actual);
+                  }, 300);
                 }}
                 onBlur={(e) => {
                   if (e.target.value === '' || Number(e.target.value) < 1) {
@@ -374,6 +379,7 @@ function ProductList({ grcat }) {
                 }}
                 className="cantidad-input"
               />
+
 
               <button onClick={() => modificarCantidad(productoSeleccionado, 1)} className="btn-mas">+</button>
             </div>
