@@ -10,7 +10,7 @@ export const CarritoProvider = ({ children }) => {
   const [pedidoID, setPedidoID] = useState(null);
   const [carritoCargado, setCarritoCargado] = useState(false);
 
-  const API_URL = 'http://localhost:5000';
+  const API_URL = 'https://tu-dominio-o-ip:5000'; // Asegurate de usar tu URL real aquí
 
   useEffect(() => {
     const idLocal = localStorage.getItem('clienteID');
@@ -40,8 +40,8 @@ export const CarritoProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
+    if (!pedidoID) return;
     const recuperarCarritoDesdeBD = async () => {
-      if (!pedidoID) return;
       try {
         const res = await fetch(`${API_URL}/api/pedidos/${pedidoID}`);
         if (res.ok) {
@@ -53,7 +53,7 @@ export const CarritoProvider = ({ children }) => {
           }
         }
       } catch (error) {
-        console.error('❌ Error al recuperar carrito desde Supabase:', error);
+        console.error('❌ Error al recuperar carrito:', error);
       }
     };
     recuperarCarritoDesdeBD();
@@ -61,7 +61,6 @@ export const CarritoProvider = ({ children }) => {
 
   useEffect(() => {
     if (!pedidoID || !carritoCargado) return;
-
     fetch(`${API_URL}/api/pedidos/${pedidoID}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -84,7 +83,7 @@ export const CarritoProvider = ({ children }) => {
             }
           }
         } catch (error) {
-          console.error('🔄 Error al actualizar carrito al volver a pestaña:', error);
+          console.error('🔄 Error al actualizar carrito:', error);
         }
       }
     };
@@ -104,7 +103,7 @@ export const CarritoProvider = ({ children }) => {
 
   const crearPedidoEnBackend = async () => {
     if (!clienteID) {
-      console.warn('🕓 Esperando clienteID para crear pedido...');
+      console.error('❌ clienteID no definido al crear pedido');
       return null;
     }
 
@@ -141,18 +140,19 @@ export const CarritoProvider = ({ children }) => {
 
       return null;
     } catch (error) {
-      console.error('❌ Error al crear o buscar pedido:', error);
+      console.error('❌ Error al crear pedido:', error);
       return null;
     }
   };
 
   const agregarAlCarrito = async (producto, cantidad = 1) => {
     if (!clienteID) {
-      console.warn('❌ clienteID aún no está disponible. Espera a que se inicialice.');
+      console.warn('⏳ clienteID aún no está listo.');
       return;
     }
 
     let idPedido = pedidoID;
+
     if (!idPedido) {
       idPedido = await crearPedidoEnBackend();
       if (!idPedido) return;
@@ -188,7 +188,7 @@ export const CarritoProvider = ({ children }) => {
 
       setCarrito(carritoActual);
     } catch (err) {
-      console.error('Error sincronizando y guardando el carrito:', err);
+      console.error('❌ Error sincronizando carrito:', err);
     }
   };
 
@@ -234,7 +234,7 @@ export const CarritoProvider = ({ children }) => {
         alert('Error al guardar el carrito.');
       }
     } catch (error) {
-      console.error('Error al finalizar compra:', error);
+      console.error('❌ Error al finalizar compra:', error);
       alert('No se pudo conectar con el servidor');
     }
   };
