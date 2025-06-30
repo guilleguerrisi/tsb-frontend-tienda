@@ -112,28 +112,28 @@ const Categorias = ({ onSeleccionarCategoria }) => {
           </a>
         </div>
       ) : (
-        categorias.map((cat, index) => (
-          <button
-            key={index}
-            className={`categoria-boton ${categoriaActiva === cat.grcat ? 'activa' : ''}`}
-            onClick={() => {
-              const clienteID = localStorage.getItem('clienteID') || '';
-              const url = `/productos?grcat=${encodeURIComponent(cat.grcat)}&clienteID=${encodeURIComponent(clienteID)}`;
-              window.open(url, '_blank');
-            }}
-
-          >
-            {cat.imagen_url && (
-              <img
-                src={cat.imagen_url}
-                alt={cat.grandescategorias}
-                className="categoria-imagen"
-              />
-            )}
-            <span className="categoria-nombre">{cat.grandescategorias}</span>
-          </button>
-        ))
-
+        categorias.map((cat, index) => {
+          const clienteID = localStorage.getItem('clienteID') || '';
+          const url = `/productos?grcat=${encodeURIComponent(cat.grcat)}&clienteID=${encodeURIComponent(clienteID)}`;
+          return (
+            <a
+              key={index}
+              href={url}
+              className={`categoria-boton ${categoriaActiva === cat.grcat ? 'activa' : ''}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {cat.imagen_url && (
+                <img
+                  src={cat.imagen_url}
+                  alt={cat.grandescategorias}
+                  className="categoria-imagen"
+                />
+              )}
+              <span className="categoria-nombre">{cat.grandescategorias}</span>
+            </a>
+          );
+        })
       )}
     </div>
   );
