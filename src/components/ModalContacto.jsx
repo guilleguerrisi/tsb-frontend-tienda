@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import './ModalContacto.css';
+import { useCarrito } from '../contexts/CarritoContext';
 
 const ModalContacto = ({ carrito, onCerrar }) => {
   const [modo, setModo] = useState('whatsapp'); // 'whatsapp' o 'contacto'
   const [nombre, setNombre] = useState('');
   const [contacto, setContacto] = useState('');
   const [comentario, setComentario] = useState('');
+  const { pedidoID } = useCarrito();
 
   const handleEnviar = async () => {
     if (modo === 'contacto' && !contacto.trim()) {
@@ -13,46 +15,24 @@ const ModalContacto = ({ carrito, onCerrar }) => {
       return;
     }
 
-    const pedido = {
-      fecha_pedido: new Date().toISOString(),
-      cliente_tienda: 'cliente_web',
-      array_pedido: JSON.stringify(carrito),
-      contacto_cliente: contacto ? `${nombre} - ${contacto}` : '',
-      mensaje_cliente: comentario || ''
-
-    };
-
-    try {
-      const response = await fetch('https://tsb-backend-tienda-production.up.railway.app/api/pedidos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(pedido)
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || `Error HTTP ${response.status}`);
-      }
-
-      const idPedido = data.data.id;
-
-      const link = `https://www.bazaronlinesalta.com.ar/carrito?id=${idPedido}`;
-
-      if (modo === 'whatsapp') {
-        const mensaje = `Hola, quisiera solicitar un presupuesto: ${link}`;
-        const telefono = '5493875537070';
-        const url = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
-        window.open(url, '_blank');
-      } else {
-        alert('Gracias por tu mensaje. Te contactaremos a la brevedad.');
-      }
-
-      onCerrar();
-    } catch (err) {
-      console.error('❌ Error al guardar pedido:', err);
-      alert('Ocurrió un error al guardar el pedido.');
+    if (!pedidoID) {
+      alert('No se pudo identificar el pedido. Intentalo de nuevo más tarde.');
+      return;
     }
+
+    const link = `https://www.bazaronlinesalta.com.ar/carrito?id=${pedidoID}`;
+
+    if (modo === 'whatsapp') {
+      const mensaje = `Hola, quisiera solicitar un presupuesto: ${link}`;
+      const telefono = '5493875537070';
+      const url = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
+      window.open(url, '_blank');
+    } else {
+      alert('Gracias por tu mensaje. Te contactaremos a la brevedad.');
+      // (opcional) acá podrías enviar una notificación interna si lo deseas
+    }
+
+    onCerrar();
   };
 
   return (

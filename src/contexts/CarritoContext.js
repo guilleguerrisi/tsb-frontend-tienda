@@ -103,6 +103,7 @@ export const CarritoProvider = ({ children }) => {
     recuperarCarritoDesdeBD();
   }, [pedidoID]);
 
+  // 🔁 Guardar en Supabase al modificar carrito
   useEffect(() => {
     if (!pedidoID || !carritoCargado) return;
 
@@ -114,6 +115,31 @@ export const CarritoProvider = ({ children }) => {
       }),
     });
   }, [carrito, pedidoID, carritoCargado]);
+
+  // 🔄 ACTUALIZAR carrito al volver a pestaña visible
+  useEffect(() => {
+    const sincronizarAlVolver = async () => {
+      if (document.visibilityState === 'visible' && pedidoID) {
+        try {
+          const res = await fetch(`${API_URL}/api/pedidos/${pedidoID}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data?.array_pedido) {
+              const carritoActualizado = JSON.parse(data.array_pedido);
+              setCarrito(carritoActualizado);
+            }
+          }
+        } catch (error) {
+          console.error('🔄 Error al actualizar carrito al volver a pestaña:', error);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', sincronizarAlVolver);
+    return () => {
+      document.removeEventListener('visibilitychange', sincronizarAlVolver);
+    };
+  }, [pedidoID]);
 
   const calcularPrecio = (producto) => {
     if (isNaN(producto.costosiniva)) return 0;
@@ -147,9 +173,16 @@ export const CarritoProvider = ({ children }) => {
         });
       }
 
+      await fetch(`${API_URL}/api/pedidos/${pedidoID}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ array_pedido: JSON.stringify(carritoActual) }),
+      });
+
       setCarrito(carritoActual);
+
     } catch (err) {
-      console.error('Error sincronizando carrito desde DB:', err);
+      console.error('Error sincronizando y guardando el carrito:', err);
     }
   };
 
@@ -162,15 +195,15 @@ export const CarritoProvider = ({ children }) => {
       nuevaCantidad <= 0
         ? prev.filter((item) => item.codigo_int !== codigo_int)
         : prev.map((item) =>
-            item.codigo_int === codigo_int
-              ? { ...item, cantidad: nuevaCantidad }
-              : item
-          )
+          item.codigo_int === codigo_int
+            ? { ...item, cantidad: nuevaCantidad }
+            : item
+        )
     );
   };
 
   const eliminarDelCarrito = (producto) => {
-    actualizarCarritoDesdeDBYModificar(producto, -999);
+    setCarrito((prev) => prev.filter((item) => item.codigo_int !== producto.codigo_int));
   };
 
   const reemplazarCarrito = (nuevoCarrito) => {

@@ -101,7 +101,8 @@ const Carrito = () => {
               </div>
               <button
                 className="eliminar-button"
-                onClick={() => eliminarDelCarrito(index)}
+                onClick={() => eliminarDelCarrito(item)}
+
               >
                 Quitar
               </button>
