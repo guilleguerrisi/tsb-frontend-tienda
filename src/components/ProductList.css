@@ -285,6 +285,25 @@ input[type="number"] {
   font-size: 16px;
 }
 
+/* 🔧 Corrección de altura desigual en Android */
+.product-card {
+  align-items: stretch;
+  height: 100%;
+}
+
+.product-image {
+  align-self: stretch;
+  object-fit: contain;
+}
+
+.product-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1;
+}
+
+
 
 /* ✅ Responsive solo para móvil */
 @media (max-width: 768px) {
