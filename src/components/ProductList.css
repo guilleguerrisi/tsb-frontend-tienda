@@ -1,3 +1,6 @@
+
+/* Archivo CSS completo corregido con ajustes específicos para evitar desbordes en Android */
+
 .product-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -19,7 +22,8 @@
   font-family: 'Inter', sans-serif;
   box-sizing: border-box;
   align-self: start;
-  /* Elimina display:block para no sobreescribir la vista móvil */
+  align-items: stretch;
+  height: 100%;
 }
 
 .product-image {
@@ -30,6 +34,7 @@
   margin-bottom: 12px;
   cursor: pointer;
   border-radius: 8px;
+  align-self: stretch;
 }
 
 h3 {
@@ -234,6 +239,7 @@ button:disabled {
   border: 1px solid #ccc;
   border-radius: 6px;
   font-family: 'Inter', sans-serif;
+  box-sizing: border-box;
 }
 
 .modal-content .control-cantidad button {
@@ -280,32 +286,11 @@ button:disabled {
   transform: translateX(-50%) scale(0.97);
 }
 
-/* Prevenir zoom molesto en inputs de Android */
 input[type="number"] {
   font-size: 16px;
 }
 
-/* 🔧 Corrección de altura desigual en Android */
-.product-card {
-  align-items: stretch;
-  height: 100%;
-}
-
-.product-image {
-  align-self: stretch;
-  object-fit: contain;
-}
-
-.product-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  flex: 1;
-}
-
-
-
-/* ✅ Responsive solo para móvil */
+/* Responsive solo para móvil */
 @media (max-width: 768px) {
   .product-container {
     display: flex;
@@ -324,6 +309,7 @@ input[type="number"] {
     margin: 0 auto 6px auto;
     box-sizing: border-box;
     padding: 0.5rem;
+    min-height: 160px;
   }
 
   .product-card .product-image {
@@ -339,6 +325,8 @@ input[type="number"] {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    min-width: 0;
+    overflow: hidden;
   }
 
   .product-card h3 {
@@ -378,15 +366,15 @@ input[type="number"] {
     padding: 4px 6px;
     width: auto;
     align-self: flex-start;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    box-sizing: border-box;
   }
 
   .product-card .bottom-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
-    margin-top: 4px;
+    width: 100%;
+    flex-wrap: wrap;
   }
 }
-
-
