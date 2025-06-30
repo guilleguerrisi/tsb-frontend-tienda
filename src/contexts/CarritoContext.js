@@ -15,58 +15,79 @@ export const CarritoProvider = ({ children }) => {
 
   // ✅ 1. Crear clienteID y pedidoID si no existen
   useEffect(() => {
-    const idLocal = localStorage.getItem('clienteID');
-    const idPedido = localStorage.getItem('pedidoID');
+  const idLocal = localStorage.getItem('clienteID');
+  const idPedidoStorage = localStorage.getItem('pedidoID');
 
-    let nuevoClienteID = idLocal;
-    if (!idLocal) {
-      nuevoClienteID = uuidv4();
-      localStorage.setItem('clienteID', nuevoClienteID);
+  let nuevoClienteID = idLocal;
+  if (!idLocal) {
+    nuevoClienteID = uuidv4();
+    localStorage.setItem('clienteID', nuevoClienteID);
+  }
+  setClienteID(nuevoClienteID);
+
+  const verificarOPedidoExistente = async () => {
+    let idPedidoValido = null;
+
+    // Verificar si el pedidoID guardado en localStorage realmente existe
+    if (idPedidoStorage) {
+      try {
+        const res = await fetch(`${API_URL}/api/pedidos/${idPedidoStorage}`);
+        const data = await res.json();
+        if (res.ok && data?.array_pedido) {
+          idPedidoValido = idPedidoStorage;
+        } else {
+          localStorage.removeItem('pedidoID');
+        }
+      } catch (error) {
+        console.error('Error verificando pedido existente:', error);
+        localStorage.removeItem('pedidoID');
+      }
     }
-    setClienteID(nuevoClienteID);
 
-    const buscarPedidoExistente = async () => {
+    // Si no existe o no era válido, crear uno nuevo
+    if (!idPedidoValido) {
       try {
         const res = await fetch(`${API_URL}/api/pedidos/cliente/${nuevoClienteID}`);
         const data = await res.json();
+
         if (data?.id) {
           localStorage.setItem('pedidoID', data.id);
           setPedidoID(data.id);
           return;
         }
-      } catch (err) {
-        console.error('Error al buscar pedido existente:', err);
-      }
 
-      // Si no existe, crear nuevo pedido
-      const nuevoPedido = {
-        cliente_tienda: nuevoClienteID,
-        array_pedido: JSON.stringify([]),
-        fecha_pedido: new Date().toISOString(),
-        contacto_cliente: '',
-        mensaje_cliente: '',
-      };
+        // Si no hay pedido para este cliente, crear uno nuevo
+        const nuevoPedido = {
+          cliente_tienda: nuevoClienteID,
+          array_pedido: JSON.stringify([]),
+          fecha_pedido: new Date().toISOString(),
+          contacto_cliente: '',
+          mensaje_cliente: '',
+        };
 
-      fetch(`${API_URL}/api/pedidos`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(nuevoPedido),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data?.data?.id) {
-            localStorage.setItem('pedidoID', data.data.id);
-            setPedidoID(data.data.id);
-          }
+        const crearRes = await fetch(`${API_URL}/api/pedidos`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(nuevoPedido),
         });
-    };
 
-    if (!idPedido) {
-      buscarPedidoExistente();
+        const crearData = await crearRes.json();
+        if (crearData?.data?.id) {
+          localStorage.setItem('pedidoID', crearData.data.id);
+          setPedidoID(crearData.data.id);
+        }
+
+      } catch (error) {
+        console.error('Error al crear nuevo pedido:', error);
+      }
     } else {
-      setPedidoID(idPedido);
+      setPedidoID(idPedidoValido);
     }
-  }, []);
+  };
+
+  verificarOPedidoExistente();
+}, []);
+
 
 
   // ✅ 2. Recuperar carrito desde Supabase al iniciar
