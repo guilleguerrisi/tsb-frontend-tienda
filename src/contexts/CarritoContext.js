@@ -16,14 +16,18 @@ export const CarritoProvider = ({ children }) => {
   const [carritoCargado, setCarritoCargado] = useState(false);
 
   useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const clienteIDFromURL = urlParams.get('clienteID');
     const idLocal = localStorage.getItem('clienteID');
     const idPedidoStorage = localStorage.getItem('pedidoID');
 
-    let nuevoClienteID = idLocal;
-    if (!idLocal) {
+    let nuevoClienteID = clienteIDFromURL || idLocal;
+
+    if (!nuevoClienteID) {
       nuevoClienteID = uuidv4();
-      localStorage.setItem('clienteID', nuevoClienteID);
     }
+
+    localStorage.setItem('clienteID', nuevoClienteID);
     setClienteID(nuevoClienteID);
 
     if (idPedidoStorage) {
