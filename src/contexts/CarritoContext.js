@@ -68,7 +68,9 @@ export const CarritoProvider = ({ children }) => {
   }, [pedidoID]);
 
   useEffect(() => {
-    if (!pedidoID || !carritoCargado) return;
+  if (!pedidoID || !carritoCargado) return;
+
+  const delaySync = setTimeout(() => {
     fetch(`${API_URL}/api/pedidos/${pedidoID}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -76,7 +78,11 @@ export const CarritoProvider = ({ children }) => {
         array_pedido: JSON.stringify(carrito),
       }),
     });
-  }, [carrito, pedidoID, carritoCargado]);
+  }, 600); // espera 600ms antes de sincronizar
+
+  return () => clearTimeout(delaySync); // cancela si se vuelve a disparar antes de tiempo
+}, [carrito, pedidoID, carritoCargado]);
+
 
   useEffect(() => {
     const sincronizarAlVolver = async () => {
