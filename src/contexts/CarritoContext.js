@@ -7,7 +7,8 @@ export const useCarrito = () => useContext(CarritoContext);
 const API_URL =
   window.location.hostname === 'localhost'
     ? 'http://localhost:5000'
-    : 'https://www.bazaronlinesalta.com.ar';
+    : 'https://tsb-backend-tienda-production.up.railway.app';
+
 
 export const CarritoProvider = ({ children }) => {
   const [carrito, setCarrito] = useState([]);
