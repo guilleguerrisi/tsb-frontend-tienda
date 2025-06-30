@@ -117,9 +117,11 @@ const Categorias = ({ onSeleccionarCategoria }) => {
             key={index}
             className={`categoria-boton ${categoriaActiva === cat.grcat ? 'activa' : ''}`}
             onClick={() => {
-              const url = `/productos?grcat=${encodeURIComponent(cat.grcat)}`;
-              window.open(url, '_blank'); // 🔥 Esto abre la categoría en nueva pestaña
+              const clienteID = localStorage.getItem('clienteID') || '';
+              const url = `/productos?grcat=${encodeURIComponent(cat.grcat)}&clienteID=${encodeURIComponent(clienteID)}`;
+              window.open(url, '_blank');
             }}
+
           >
             {cat.imagen_url && (
               <img

@@ -29,6 +29,14 @@ export const CarritoProvider = ({ children }) => {
     setCarrito(carritoGuardado);
   }, []);
 
+  useEffect(() => {
+  if (clienteID) {
+    const carritoGuardado = JSON.parse(localStorage.getItem('carrito')) || [];
+    setCarrito(carritoGuardado);
+  }
+}, [clienteID]);
+
+
   // 💾 Guardar carrito en localStorage al modificarlo
   useEffect(() => {
     localStorage.setItem('carrito', JSON.stringify(carrito));
