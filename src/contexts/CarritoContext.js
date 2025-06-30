@@ -17,11 +17,11 @@ export const CarritoProvider = ({ children }) => {
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const clienteIDFromURL = urlParams.get('clienteID');
+    const clienteIDParam = urlParams.get('clienteID');
     const idLocal = localStorage.getItem('clienteID');
     const idPedidoStorage = localStorage.getItem('pedidoID');
 
-    let nuevoClienteID = clienteIDFromURL || idLocal;
+    let nuevoClienteID = clienteIDParam || idLocal;
 
     if (!nuevoClienteID) {
       nuevoClienteID = uuidv4();
