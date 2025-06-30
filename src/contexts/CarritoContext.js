@@ -103,30 +103,43 @@ export const CarritoProvider = ({ children }) => {
   };
 
   const crearPedidoEnBackend = async () => {
-    const nuevoPedido = {
-      cliente_tienda: clienteID,
-      array_pedido: JSON.stringify([]),
-      fecha_pedido: new Date().toISOString(),
-      contacto_cliente: '',
-      mensaje_cliente: '',
-    };
-
     try {
-      const res = await fetch(`${API_URL}/api/pedidos`, {
+      // Verifica si ya hay un pedido en la base para este cliente
+      const buscarRes = await fetch(`${API_URL}/api/pedidos/cliente/${clienteID}`);
+      const buscarData = await buscarRes.json();
+
+      if (buscarData?.id) {
+        localStorage.setItem('pedidoID', buscarData.id);
+        setPedidoID(buscarData.id);
+        return buscarData.id;
+      }
+
+      const nuevoPedido = {
+        cliente_tienda: clienteID,
+        array_pedido: JSON.stringify([]),
+        fecha_pedido: new Date().toISOString(),
+        contacto_cliente: '',
+        mensaje_cliente: '',
+      };
+
+      const crearRes = await fetch(`${API_URL}/api/pedidos`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(nuevoPedido),
       });
-      const data = await res.json();
-      if (data?.data?.id) {
-        localStorage.setItem('pedidoID', data.data.id);
-        setPedidoID(data.data.id);
-        return data.data.id;
+
+      const crearData = await crearRes.json();
+      if (crearData?.data?.id) {
+        localStorage.setItem('pedidoID', crearData.data.id);
+        setPedidoID(crearData.data.id);
+        return crearData.data.id;
       }
+
+      return null;
     } catch (error) {
-      console.error('❌ Error al crear nuevo pedido:', error);
+      console.error('❌ Error al crear o buscar pedido:', error);
+      return null;
     }
-    return null;
   };
 
   const agregarAlCarrito = async (producto, cantidad = 1) => {

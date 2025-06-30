@@ -9,15 +9,15 @@ const ProductosPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [grcat, setGrcat] = useState('');
+  const [nombreCategoria, setNombreCategoria] = useState('');
 
   const clienteID = new URLSearchParams(location.search).get('clienteID');
 
-useEffect(() => {
-  if (clienteID) {
-    localStorage.setItem('clienteID', clienteID);
-  }
-}, [clienteID]);
-  
+  useEffect(() => {
+    if (clienteID) {
+      localStorage.setItem('clienteID', clienteID);
+    }
+  }, [clienteID]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -28,7 +28,20 @@ useEffect(() => {
     } else {
       setGrcat(valor);
     }
+
+    // Capturar el nombre de la categoría desde location.state
+    const nombre = location.state?.nombreCategoria;
+    if (nombre) {
+      setNombreCategoria(nombre);
+    }
+
   }, [location, navigate]);
+
+  useEffect(() => {
+    if (nombreCategoria) {
+      document.title = `Bazar - ${nombreCategoria}`;
+    }
+  }, [nombreCategoria]);
 
   if (!grcat) {
     return <div style={{ padding: '2rem', color: '#333' }}>Cargando categoría...</div>;
