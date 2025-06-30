@@ -4,13 +4,16 @@ import { v4 as uuidv4 } from 'uuid';
 const CarritoContext = createContext();
 export const useCarrito = () => useContext(CarritoContext);
 
+const API_URL =
+  window.location.hostname === 'localhost'
+    ? 'http://localhost:5000'
+    : 'https://www.bazaronlinesalta.com.ar';
+
 export const CarritoProvider = ({ children }) => {
   const [carrito, setCarrito] = useState([]);
   const [clienteID, setClienteID] = useState(null);
   const [pedidoID, setPedidoID] = useState(null);
   const [carritoCargado, setCarritoCargado] = useState(false);
-
-  const API_URL = 'https://tu-dominio-o-ip:5000'; // Asegurate de usar tu URL real aquí
 
   useEffect(() => {
     const idLocal = localStorage.getItem('clienteID');
@@ -47,8 +50,8 @@ export const CarritoProvider = ({ children }) => {
         if (res.ok) {
           const data = await res.json();
           if (data?.array_pedido) {
-            const carritoRecuperado = JSON.parse(data.array_pedido);
-            setCarrito(carritoRecuperado);
+            const carritoRecuperado = JSON.parse(data.array_pedido || '[]');
+            setCarrito(Array.isArray(carritoRecuperado) ? carritoRecuperado : []);
             setCarritoCargado(true);
           }
         }
@@ -77,10 +80,8 @@ export const CarritoProvider = ({ children }) => {
           const res = await fetch(`${API_URL}/api/pedidos/${pedidoID}`);
           if (res.ok) {
             const data = await res.json();
-            if (data?.array_pedido) {
-              const carritoActualizado = JSON.parse(data.array_pedido);
-              setCarrito(carritoActualizado);
-            }
+            const carritoActualizado = JSON.parse(data.array_pedido || '[]');
+            setCarrito(Array.isArray(carritoActualizado) ? carritoActualizado : []);
           }
         } catch (error) {
           console.error('🔄 Error al actualizar carrito:', error);
@@ -102,10 +103,7 @@ export const CarritoProvider = ({ children }) => {
   };
 
   const crearPedidoEnBackend = async () => {
-    if (!clienteID) {
-      console.error('❌ clienteID no definido al crear pedido');
-      return null;
-    }
+    if (!clienteID) return null;
 
     try {
       const buscarRes = await fetch(`${API_URL}/api/pedidos/cliente/${clienteID}`);
@@ -147,12 +145,11 @@ export const CarritoProvider = ({ children }) => {
 
   const agregarAlCarrito = async (producto, cantidad = 1) => {
     if (!clienteID) {
-      console.warn('⏳ clienteID aún no está listo.');
+      console.warn('⏳ Esperando clienteID...');
       return;
     }
 
     let idPedido = pedidoID;
-
     if (!idPedido) {
       idPedido = await crearPedidoEnBackend();
       if (!idPedido) return;
@@ -161,9 +158,14 @@ export const CarritoProvider = ({ children }) => {
     try {
       const res = await fetch(`${API_URL}/api/pedidos/${idPedido}`);
       const data = await res.json();
-      let carritoActual = Array.isArray(data?.array_pedido)
-        ? data.array_pedido
-        : JSON.parse(data.array_pedido || '[]');
+      let carritoActual = [];
+      try {
+        carritoActual = Array.isArray(data?.array_pedido)
+          ? data.array_pedido
+          : JSON.parse(data.array_pedido || '[]');
+      } catch (e) {
+        carritoActual = [];
+      }
 
       const index = carritoActual.findIndex(p => p.codigo_int === producto.codigo_int);
 
