@@ -23,63 +23,20 @@ export const CarritoProvider = ({ children }) => {
     }
     setClienteID(nuevoClienteID);
 
-    const verificarOPedidoExistente = async () => {
-      let idPedidoValido = null;
-
-      if (idPedidoStorage) {
-        try {
-          const res = await fetch(`${API_URL}/api/pedidos/${idPedidoStorage}`);
-          const data = await res.json();
-          if (res.ok && data?.array_pedido) {
-            idPedidoValido = idPedidoStorage;
+    if (idPedidoStorage) {
+      fetch(`${API_URL}/api/pedidos/${idPedidoStorage}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data?.array_pedido) {
+            setPedidoID(idPedidoStorage);
           } else {
             localStorage.removeItem('pedidoID');
           }
-        } catch (error) {
-          console.error('Error verificando pedido existente:', error);
+        })
+        .catch(() => {
           localStorage.removeItem('pedidoID');
-        }
-      }
-
-      if (!idPedidoValido) {
-        try {
-          const res = await fetch(`${API_URL}/api/pedidos/cliente/${nuevoClienteID}`);
-          const data = await res.json();
-
-          if (data?.id) {
-            localStorage.setItem('pedidoID', data.id);
-            setPedidoID(data.id);
-            return;
-          }
-
-          const nuevoPedido = {
-            cliente_tienda: nuevoClienteID,
-            array_pedido: JSON.stringify([]),
-            fecha_pedido: new Date().toISOString(),
-            contacto_cliente: '',
-            mensaje_cliente: '',
-          };
-
-          const crearRes = await fetch(`${API_URL}/api/pedidos`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(nuevoPedido),
-          });
-
-          const crearData = await crearRes.json();
-          if (crearData?.data?.id) {
-            localStorage.setItem('pedidoID', crearData.data.id);
-            setPedidoID(crearData.data.id);
-          }
-        } catch (error) {
-          console.error('Error al crear nuevo pedido:', error);
-        }
-      } else {
-        setPedidoID(idPedidoValido);
-      }
-    };
-
-    verificarOPedidoExistente();
+        });
+    }
   }, []);
 
   useEffect(() => {
@@ -99,11 +56,9 @@ export const CarritoProvider = ({ children }) => {
         console.error('❌ Error al recuperar carrito desde Supabase:', error);
       }
     };
-
     recuperarCarritoDesdeBD();
   }, [pedidoID]);
 
-  // 🔁 Guardar en Supabase al modificar carrito
   useEffect(() => {
     if (!pedidoID || !carritoCargado) return;
 
@@ -116,7 +71,6 @@ export const CarritoProvider = ({ children }) => {
     });
   }, [carrito, pedidoID, carritoCargado]);
 
-  // 🔄 ACTUALIZAR carrito al volver a pestaña visible
   useEffect(() => {
     const sincronizarAlVolver = async () => {
       if (document.visibilityState === 'visible' && pedidoID) {
@@ -148,11 +102,43 @@ export const CarritoProvider = ({ children }) => {
     ) * 100;
   };
 
-  const actualizarCarritoDesdeDBYModificar = async (producto, cantidad = 1) => {
-    if (!pedidoID) return;
+  const crearPedidoEnBackend = async () => {
+    const nuevoPedido = {
+      cliente_tienda: clienteID,
+      array_pedido: JSON.stringify([]),
+      fecha_pedido: new Date().toISOString(),
+      contacto_cliente: '',
+      mensaje_cliente: '',
+    };
 
     try {
-      const res = await fetch(`${API_URL}/api/pedidos/${pedidoID}`);
+      const res = await fetch(`${API_URL}/api/pedidos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(nuevoPedido),
+      });
+      const data = await res.json();
+      if (data?.data?.id) {
+        localStorage.setItem('pedidoID', data.data.id);
+        setPedidoID(data.data.id);
+        return data.data.id;
+      }
+    } catch (error) {
+      console.error('❌ Error al crear nuevo pedido:', error);
+    }
+    return null;
+  };
+
+  const agregarAlCarrito = async (producto, cantidad = 1) => {
+    let idPedido = pedidoID;
+
+    if (!idPedido) {
+      idPedido = await crearPedidoEnBackend();
+      if (!idPedido) return;
+    }
+
+    try {
+      const res = await fetch(`${API_URL}/api/pedidos/${idPedido}`);
       const data = await res.json();
       let carritoActual = Array.isArray(data?.array_pedido)
         ? data.array_pedido
@@ -173,21 +159,16 @@ export const CarritoProvider = ({ children }) => {
         });
       }
 
-      await fetch(`${API_URL}/api/pedidos/${pedidoID}`, {
+      await fetch(`${API_URL}/api/pedidos/${idPedido}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ array_pedido: JSON.stringify(carritoActual) }),
       });
 
       setCarrito(carritoActual);
-
     } catch (err) {
       console.error('Error sincronizando y guardando el carrito:', err);
     }
-  };
-
-  const agregarAlCarrito = (producto, cantidad = 1) => {
-    actualizarCarritoDesdeDBYModificar(producto, cantidad);
   };
 
   const cambiarCantidad = (codigo_int, nuevaCantidad) => {
@@ -195,10 +176,10 @@ export const CarritoProvider = ({ children }) => {
       nuevaCantidad <= 0
         ? prev.filter((item) => item.codigo_int !== codigo_int)
         : prev.map((item) =>
-          item.codigo_int === codigo_int
-            ? { ...item, cantidad: nuevaCantidad }
-            : item
-        )
+            item.codigo_int === codigo_int
+              ? { ...item, cantidad: nuevaCantidad }
+              : item
+          )
     );
   };
 

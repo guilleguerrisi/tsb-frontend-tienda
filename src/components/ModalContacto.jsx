@@ -3,7 +3,7 @@ import './ModalContacto.css';
 import { useCarrito } from '../contexts/CarritoContext';
 
 const ModalContacto = ({ carrito, onCerrar }) => {
-  const [modo, setModo] = useState('whatsapp'); // 'whatsapp' o 'contacto'
+  const [modo, setModo] = useState('whatsapp');
   const [nombre, setNombre] = useState('');
   const [contacto, setContacto] = useState('');
   const [comentario, setComentario] = useState('');
@@ -20,16 +20,32 @@ const ModalContacto = ({ carrito, onCerrar }) => {
       return;
     }
 
-    const link = `https://www.bazaronlinesalta.com.ar/carrito?id=${pedidoID}`;
+    // ⬇️ Si el usuario eligió "contacto", guardamos comentario y contacto
+    if (modo === 'contacto') {
+      try {
+        await fetch(`https://tsb-backend-tienda-production.up.railway.app/api/pedidos/${pedidoID}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contacto_cliente: `${nombre} - ${contacto}`,
+            mensaje_cliente: comentario,
+          }),
+        });
+      } catch (err) {
+        console.error('❌ Error al actualizar datos de contacto del pedido:', err);
+        alert('No se pudo guardar tu mensaje, pero el pedido sigue registrado.');
+      }
 
-    if (modo === 'whatsapp') {
+      alert('Gracias por tu mensaje. Te contactaremos a la brevedad.');
+    } else {
+      // Modo WhatsApp
+      const link = `https://www.bazaronlinesalta.com.ar/carrito?id=${pedidoID}`;
       const mensaje = `Hola, quisiera solicitar un presupuesto: ${link}`;
       const telefono = '5493875537070';
       const url = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
       window.open(url, '_blank');
-    } else {
-      alert('Gracias por tu mensaje. Te contactaremos a la brevedad.');
-      // (opcional) acá podrías enviar una notificación interna si lo deseas
     }
 
     onCerrar();
