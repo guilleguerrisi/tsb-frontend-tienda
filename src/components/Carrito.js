@@ -15,8 +15,6 @@ const Carrito = () => {
 
   // 🔄 Si accedemos con /carrito?id=XX, cargamos ese carrito desde el backend
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'auto' });
-
     const cargarPedido = async () => {
       if (!idPedido) return;
 
@@ -73,7 +71,11 @@ const Carrito = () => {
                     <button
                       type="button"
                       className="btn-cantidad"
-                      onClick={() => cambiarCantidad(item.codigo_int, item.cantidad - 1)}
+                      onClick={() => {
+                        setTimeout(() => {
+                          cambiarCantidad(item.codigo_int, item.cantidad - 1);
+                        }, 100);
+                      }}
                     >
                       –
                     </button>
@@ -81,15 +83,30 @@ const Carrito = () => {
                       type="number"
                       min="1"
                       value={item.cantidad || 1}
-                      onChange={(e) =>
-                        cambiarCantidad(item.codigo_int, parseInt(e.target.value) || 1)
-                      }
+                      onFocus={(e) => e.target.select()}
+                      onChange={(e) => {
+                        const nuevaCantidad = parseInt(e.target.value);
+                        if (!isNaN(nuevaCantidad)) {
+                          setTimeout(() => {
+                            cambiarCantidad(item.codigo_int, nuevaCantidad);
+                          }, 200);
+                        }
+                      }}
+                      onBlur={(e) => {
+                        if (e.target.value === '' || Number(e.target.value) < 1) {
+                          cambiarCantidad(item.codigo_int, 1);
+                        }
+                      }}
                       className="cantidad-input"
                     />
                     <button
                       type="button"
                       className="btn-cantidad"
-                      onClick={() => cambiarCantidad(item.codigo_int, item.cantidad + 1)}
+                      onClick={() => {
+                        setTimeout(() => {
+                          cambiarCantidad(item.codigo_int, item.cantidad + 1);
+                        }, 100);
+                      }}
                     >
                       +
                     </button>
@@ -102,7 +119,6 @@ const Carrito = () => {
               <button
                 className="eliminar-button"
                 onClick={() => eliminarDelCarrito(item)}
-
               >
                 Quitar
               </button>

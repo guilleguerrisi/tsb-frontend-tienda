@@ -249,13 +249,22 @@ function ProductList({ grcat }) {
                               type="number"
                               min="0"
                               value={obtenerCantidad(producto.codigo_int)}
+                              onFocus={(e) => {
+                                e.target.select(); // selecciona todo el número
+                              }}
                               onChange={(e) => {
                                 const nueva = parseInt(e.target.value) || 0;
                                 const actual = obtenerCantidad(producto.codigo_int);
                                 modificarCantidad(producto, nueva - actual);
                               }}
+                              onBlur={(e) => {
+                                if (e.target.value === '' || Number(e.target.value) < 1) {
+                                  modificarCantidad(producto, 1 - obtenerCantidad(producto.codigo_int));
+                                }
+                              }}
                               className="cantidad-input"
                             />
+
                             <button onClick={() => modificarCantidad(producto, 1)} className="btn-mas">+</button>
                           </div>
 
@@ -350,13 +359,22 @@ function ProductList({ grcat }) {
                 type="number"
                 min="0"
                 value={obtenerCantidad(productoSeleccionado.codigo_int)}
+                onFocus={(e) => {
+                  e.target.select();
+                }}
                 onChange={(e) => {
                   const nueva = parseInt(e.target.value) || 0;
                   const actual = obtenerCantidad(productoSeleccionado.codigo_int);
                   modificarCantidad(productoSeleccionado, nueva - actual);
                 }}
+                onBlur={(e) => {
+                  if (e.target.value === '' || Number(e.target.value) < 1) {
+                    modificarCantidad(productoSeleccionado, 1 - obtenerCantidad(productoSeleccionado.codigo_int));
+                  }
+                }}
                 className="cantidad-input"
               />
+
               <button onClick={() => modificarCantidad(productoSeleccionado, 1)} className="btn-mas">+</button>
             </div>
 
