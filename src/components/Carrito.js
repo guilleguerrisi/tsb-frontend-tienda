@@ -1,25 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import './Carrito.css';
 import { useCarrito } from '../contexts/CarritoContext';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import ModalContacto from './ModalContacto';
 import config from '../config';
 
 const Carrito = () => {
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'auto' });
-  }, []);
   const { carrito, cambiarCantidad, eliminarDelCarrito, reemplazarCarrito } = useCarrito();
-
-
   const [mostrarModal, setMostrarModal] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
   const idPedido = params.get("id");
 
   // 🔄 Si accedemos con /carrito?id=XX, cargamos ese carrito desde el backend
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+
     const cargarPedido = async () => {
       if (!idPedido) return;
 
@@ -30,21 +27,19 @@ const Carrito = () => {
         if (res.ok && data.array_pedido) {
           const carritoCargado = JSON.parse(data.array_pedido);
           reemplazarCarrito(carritoCargado);
-
         } else {
-          alert('No se pudo cargar el presupuesto.');
+          alert('El pedido no existe o fue eliminado. Se generará uno nuevo.');
+          navigate('/carrito', { replace: true });
         }
       } catch (error) {
         console.error('Error al cargar pedido desde carrito:', error);
         alert('Error al conectar con el servidor.');
+        navigate('/carrito', { replace: true });
       }
     };
 
     cargarPedido();
-  }, [idPedido, reemplazarCarrito]);
-
-
-
+  }, [idPedido, reemplazarCarrito, navigate]);
 
   const total = carrito.reduce(
     (acc, item) => acc + item.price * (item.cantidad || 1),
@@ -86,7 +81,9 @@ const Carrito = () => {
                       type="number"
                       min="1"
                       value={item.cantidad || 1}
-                      onChange={(e) => cambiarCantidad(item.codigo_int, parseInt(e.target.value) || 1)}
+                      onChange={(e) =>
+                        cambiarCantidad(item.codigo_int, parseInt(e.target.value) || 1)
+                      }
                       className="cantidad-input"
                     />
                     <button
@@ -101,7 +98,6 @@ const Carrito = () => {
                     Subtotal: ${new Intl.NumberFormat('es-AR').format(item.price * (item.cantidad || 1))}
                   </span>
                 </div>
-
               </div>
               <button
                 className="eliminar-button"
@@ -139,7 +135,6 @@ const Carrito = () => {
         </div>
       )}
 
-
       {mostrarModal && (
         <ModalContacto
           carrito={carrito}
@@ -166,9 +161,6 @@ const Carrito = () => {
           Lunes a Viernes de 10:30 a 13:30 y de 17:00 a 19:00 hs · Sábado cerrado
         </p>
       </div>
-
-
-
     </div>
   );
 };

@@ -25,9 +25,20 @@ export const CarritoProvider = ({ children }) => {
     }
     setClienteID(nuevoClienteID);
 
-    if (idPedido) {
-      setPedidoID(idPedido);
-    } else {
+    const buscarPedidoExistente = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/pedidos/cliente/${nuevoClienteID}`);
+        const data = await res.json();
+        if (data?.id) {
+          localStorage.setItem('pedidoID', data.id);
+          setPedidoID(data.id);
+          return;
+        }
+      } catch (err) {
+        console.error('Error al buscar pedido existente:', err);
+      }
+
+      // Si no existe, crear nuevo pedido
       const nuevoPedido = {
         cliente_tienda: nuevoClienteID,
         array_pedido: JSON.stringify([]),
@@ -48,8 +59,15 @@ export const CarritoProvider = ({ children }) => {
             setPedidoID(data.data.id);
           }
         });
+    };
+
+    if (!idPedido) {
+      buscarPedidoExistente();
+    } else {
+      setPedidoID(idPedido);
     }
   }, []);
+
 
   // ✅ 2. Recuperar carrito desde Supabase al iniciar
   useEffect(() => {
@@ -125,10 +143,10 @@ export const CarritoProvider = ({ children }) => {
       nuevaCantidad <= 0
         ? prev.filter((item) => item.codigo_int !== codigo_int)
         : prev.map((item) =>
-            item.codigo_int === codigo_int
-              ? { ...item, cantidad: nuevaCantidad }
-              : item
-          )
+          item.codigo_int === codigo_int
+            ? { ...item, cantidad: nuevaCantidad }
+            : item
+        )
     );
   };
 
