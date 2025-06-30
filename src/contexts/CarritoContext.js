@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -7,60 +8,84 @@ export const useCarrito = () => useContext(CarritoContext);
 export const CarritoProvider = ({ children }) => {
   const [carrito, setCarrito] = useState([]);
   const [clienteID, setClienteID] = useState(null);
+  const [pedidoID, setPedidoID] = useState(null);
+  const [carritoCargado, setCarritoCargado] = useState(false);
 
-  // 🔁 Leer clienteID desde la URL o localStorage al iniciar
+  const API_URL = 'http://localhost:5000'; // Cambiar si está en producción
+
+  // ✅ 1. Crear clienteID y pedidoID si no existen
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const idURL = params.get('clienteID');
     const idLocal = localStorage.getItem('clienteID');
+    const idPedido = localStorage.getItem('pedidoID');
 
-    if (idURL) {
-      setClienteID(idURL);
-      localStorage.setItem('clienteID', idURL);
-    } else if (idLocal) {
-      setClienteID(idLocal);
-    } else {
-      const nuevoID = uuidv4();
-      localStorage.setItem('clienteID', nuevoID);
-      setClienteID(nuevoID);
+    let nuevoClienteID = idLocal;
+    if (!idLocal) {
+      nuevoClienteID = uuidv4();
+      localStorage.setItem('clienteID', nuevoClienteID);
     }
+    setClienteID(nuevoClienteID);
 
-    const carritoGuardado = JSON.parse(localStorage.getItem('carrito')) || [];
-    setCarrito(carritoGuardado);
+    if (idPedido) {
+      setPedidoID(idPedido);
+    } else {
+      const nuevoPedido = {
+        cliente_tienda: nuevoClienteID,
+        array_pedido: JSON.stringify([]),
+        fecha_pedido: new Date().toISOString(),
+        contacto_cliente: '',
+        mensaje_cliente: '',
+      };
+
+      fetch(`${API_URL}/api/pedidos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(nuevoPedido),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.data?.id) {
+            localStorage.setItem('pedidoID', data.data.id);
+            setPedidoID(data.data.id);
+          }
+        });
+    }
   }, []);
 
+  // ✅ 2. Recuperar carrito desde Supabase al iniciar
   useEffect(() => {
-  if (clienteID) {
-    const carritoGuardado = JSON.parse(localStorage.getItem('carrito')) || [];
-    setCarrito(carritoGuardado);
-  }
-}, [clienteID]);
+    const recuperarCarritoDesdeBD = async () => {
+      if (!pedidoID) return;
 
-
-  // 💾 Guardar carrito en localStorage al modificarlo
-  useEffect(() => {
-    localStorage.setItem('carrito', JSON.stringify(carrito));
-  }, [carrito]);
-
-  // 🔁 Sincronizar carrito y clienteID entre pestañas
-  useEffect(() => {
-    const handleStorageChange = (event) => {
-      if (event.key === 'carrito') {
-        const nuevo = JSON.parse(event.newValue || '[]');
-        setCarrito((actual) => {
-          if (JSON.stringify(actual) !== JSON.stringify(nuevo)) {
-            return nuevo;
+      try {
+        const res = await fetch(`${API_URL}/api/pedidos/${pedidoID}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.array_pedido) {
+            const carritoRecuperado = JSON.parse(data.array_pedido);
+            setCarrito(carritoRecuperado);
+            setCarritoCargado(true);
           }
-          return actual;
-        });
-      }
-      if (event.key === 'clienteID') {
-        setClienteID(event.newValue || null);
+        }
+      } catch (error) {
+        console.error('❌ Error al recuperar carrito desde Supabase:', error);
       }
     };
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+
+    recuperarCarritoDesdeBD();
+  }, [pedidoID]);
+
+  // ✅ 3. Al modificar carrito, actualizar en la base de datos
+  useEffect(() => {
+    if (!pedidoID || !carritoCargado) return;
+
+    fetch(`${API_URL}/api/pedidos/${pedidoID}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        array_pedido: JSON.stringify(carrito),
+      }),
+    });
+  }, [carrito, pedidoID, carritoCargado]);
 
   const calcularPrecio = (producto) => {
     if (isNaN(producto.costosiniva)) return 0;
@@ -70,14 +95,14 @@ export const CarritoProvider = ({ children }) => {
   };
 
   const agregarAlCarrito = (producto, cantidad = 1) => {
-    setCarrito(prev => {
-      const existente = prev.find(item => item.codigo_int === producto.codigo_int);
+    setCarrito((prev) => {
+      const existente = prev.find((item) => item.codigo_int === producto.codigo_int);
       if (existente) {
         const nuevaCantidad = existente.cantidad + cantidad;
         if (nuevaCantidad <= 0) {
-          return prev.filter(item => item.codigo_int !== producto.codigo_int);
+          return prev.filter((item) => item.codigo_int !== producto.codigo_int);
         }
-        return prev.map(item =>
+        return prev.map((item) =>
           item.codigo_int === producto.codigo_int
             ? { ...item, cantidad: nuevaCantidad }
             : item
@@ -89,17 +114,17 @@ export const CarritoProvider = ({ children }) => {
             ...producto,
             price: calcularPrecio(producto),
             cantidad,
-          }
+          },
         ];
       }
     });
   };
 
   const cambiarCantidad = (codigo_int, nuevaCantidad) => {
-    setCarrito(prev =>
+    setCarrito((prev) =>
       nuevaCantidad <= 0
-        ? prev.filter(item => item.codigo_int !== codigo_int)
-        : prev.map(item =>
+        ? prev.filter((item) => item.codigo_int !== codigo_int)
+        : prev.map((item) =>
             item.codigo_int === codigo_int
               ? { ...item, cantidad: nuevaCantidad }
               : item
@@ -108,7 +133,7 @@ export const CarritoProvider = ({ children }) => {
   };
 
   const eliminarDelCarrito = (index) => {
-    setCarrito(prev => prev.filter((_, i) => i !== index));
+    setCarrito((prev) => prev.filter((_, i) => i !== index));
   };
 
   const reemplazarCarrito = (nuevoCarrito) => {
@@ -117,13 +142,13 @@ export const CarritoProvider = ({ children }) => {
 
   const finalizarCompra = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/finalizar-compra', {
+      const response = await fetch(`${API_URL}/api/finalizar-compra`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          carrito: carrito.map(item => ({
+          carrito: carrito.map((item) => ({
             id: Number(item.id),
-            cantidad: item.cantidad || 1
+            cantidad: item.cantidad || 1,
           })),
           clienteID,
         }),
@@ -147,6 +172,7 @@ export const CarritoProvider = ({ children }) => {
       value={{
         carrito,
         clienteID,
+        pedidoID,
         setCarrito,
         agregarAlCarrito,
         cambiarCantidad,
