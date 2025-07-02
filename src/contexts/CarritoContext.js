@@ -1,7 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
+
+
 const CarritoContext = createContext();
+
+
 export const useCarrito = () => useContext(CarritoContext);
 
 const API_URL =
@@ -86,38 +90,40 @@ export const CarritoProvider = ({ children }) => {
   }, [carrito, pedidoID, carritoCargado]);
 
 
- useEffect(() => {
-  const sincronizarAlVolver = async () => {
-    if (document.visibilityState === 'visible' && pedidoID) {
-      try {
-        const res = await fetch(`${API_URL}/api/pedidos/${pedidoID}`);
-        if (!res.ok) return;
+  useEffect(() => {
+    const sincronizarAlVolver = async () => {
+      const estaEnCarrito = window.location.pathname.includes('/carrito');
+      if (document.visibilityState === 'visible' && pedidoID && !estaEnCarrito) {
+        try {
+          const res = await fetch(`${API_URL}/api/pedidos/${pedidoID}`);
+          if (!res.ok) return;
 
-        const data = await res.json();
-        const carritoBackend = JSON.parse(data.array_pedido || '[]');
+          const data = await res.json();
+          const carritoBackend = JSON.parse(data.array_pedido || '[]');
 
-        const carritoActualString = JSON.stringify(carrito);
-        const carritoBackendString = JSON.stringify(carritoBackend);
+          const carritoActualString = JSON.stringify(carrito);
+          const carritoBackendString = JSON.stringify(carritoBackend);
 
-        // Previene sobrescritura si el carrito fue modificado recientemente
-        const tiempoDesdeUltModificacion = Date.now() - timestampModificacion;
-        const hayDiferencias = carritoBackendString !== carritoActualString;
+          const tiempoDesdeUltModificacion = Date.now() - timestampModificacion;
+          const hayDiferencias = carritoBackendString !== carritoActualString;
 
-        if (hayDiferencias && tiempoDesdeUltModificacion > 5000) {
-          setCarrito(Array.isArray(carritoBackend) ? carritoBackend : []);
+          if (hayDiferencias && tiempoDesdeUltModificacion > 5000) {
+            setCarrito(Array.isArray(carritoBackend) ? carritoBackend : []);
+          }
+
+        } catch (error) {
+          console.error('🔄 Error al actualizar carrito:', error);
         }
-
-      } catch (error) {
-        console.error('🔄 Error al actualizar carrito:', error);
       }
-    }
-  };
+    };
 
-  document.addEventListener('visibilitychange', sincronizarAlVolver);
-  return () => {
-    document.removeEventListener('visibilitychange', sincronizarAlVolver);
-  };
-}, [pedidoID, carrito, timestampModificacion]);
+    document.addEventListener('visibilitychange', sincronizarAlVolver);
+    return () => {
+      document.removeEventListener('visibilitychange', sincronizarAlVolver);
+    };
+  }, [pedidoID, carrito, timestampModificacion]);
+
+
 
 
 
