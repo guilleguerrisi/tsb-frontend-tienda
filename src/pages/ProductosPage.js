@@ -22,6 +22,7 @@ const ProductosPage = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const valor = params.get('grcat');
+    const nombre = params.get('nombre'); // ✅ desde la URL, no state
 
     if (!valor) {
       navigate('/');
@@ -29,19 +30,14 @@ const ProductosPage = () => {
       setGrcat(valor);
     }
 
-    // Capturar el nombre de la categoría desde location.state
-    const nombre = location.state?.nombreCategoria;
     if (nombre) {
-      setNombreCategoria(nombre);
+      const nombreDecodificado = decodeURIComponent(nombre);
+      setNombreCategoria(nombreDecodificado);
+      document.title = `Bazar - ${nombreDecodificado}`; // ✅ actualiza el título
+    } else {
+      document.title = 'Bazar - Productos';
     }
-
   }, [location, navigate]);
-
-  useEffect(() => {
-    if (nombreCategoria) {
-      document.title = `Bazar - ${nombreCategoria}`;
-    }
-  }, [nombreCategoria]);
 
   if (!grcat) {
     return <div style={{ padding: '2rem', color: '#333' }}>Cargando categoría...</div>;
