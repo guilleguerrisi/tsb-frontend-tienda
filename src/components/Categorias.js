@@ -114,7 +114,7 @@ const Categorias = ({ onSeleccionarCategoria }) => {
       ) : (
         categorias.map((cat, index) => {
           const clienteID = localStorage.getItem('clienteID') || '';
-          const url = `/productos?grcat=${encodeURIComponent(cat.grcat)}&clienteID=${encodeURIComponent(clienteID)}`;
+          const url = `/productos?grcat=${encodeURIComponent(cat.grcat)}&clienteID=${encodeURIComponent(clienteID)}&nombre=${encodeURIComponent(cat.grandescategorias)}`;
           return (
             <a
               key={index}
