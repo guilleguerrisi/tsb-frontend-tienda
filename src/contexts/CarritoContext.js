@@ -19,7 +19,9 @@ export const CarritoProvider = ({ children }) => {
   const [clienteID, setClienteID] = useState(null);
   const [pedidoID, setPedidoID] = useState(null);
   const [carritoCargado, setCarritoCargado] = useState(false);
-  const [carritoEditadoManualmente, setCarritoEditadoManualmente] = useState(false);
+  const [carritoEditadoManualmente, setCarritoEditadoManualmente] = useState(() => {
+    return localStorage.getItem('carritoEditadoManualmente') === 'true';
+  });
 
 
 
@@ -233,6 +235,8 @@ export const CarritoProvider = ({ children }) => {
 
       setCarrito(carritoActual);
       setCarritoEditadoManualmente(true);
+      localStorage.setItem('carritoEditadoManualmente', 'true');
+
     } catch (err) {
       console.error('❌ Error sincronizando carrito:', err);
     }
@@ -264,37 +268,40 @@ export const CarritoProvider = ({ children }) => {
   };
 
   const reemplazarCarrito = (nuevoCarrito) => {
-    setCarritoEditadoManualmente(false); // Desactivamos el flag porque se está reemplazando desde backend
+    setCarritoEditadoManualmente(false);
+    localStorage.setItem('carritoEditadoManualmente', 'false');
     setCarrito(nuevoCarrito);
   };
 
 
-  const finalizarCompra = async () => {
-    try {
-      const response = await fetch(`${API_URL}/api/finalizar-compra`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          carrito: carrito.map((item) => ({
-            id: Number(item.id),
-            cantidad: item.cantidad || 1,
-          })),
-          clienteID,
-        }),
-      });
+ const finalizarCompra = async () => {
+  try {
+    const response = await fetch(`${API_URL}/api/finalizar-compra`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        carrito: carrito.map((item) => ({
+          id: Number(item.id),
+          cantidad: item.cantidad || 1,
+        })),
+        clienteID,
+      }),
+    });
 
-      if (response.ok) {
-        alert('Compra guardada en la base de datos');
-        setCarrito([]);
-        localStorage.removeItem('carrito');
-      } else {
-        alert('Error al guardar el carrito.');
-      }
-    } catch (error) {
-      console.error('❌ Error al finalizar compra:', error);
-      alert('No se pudo conectar con el servidor');
+    if (response.ok) {
+      alert('Compra guardada en la base de datos');
+      setCarritoEditadoManualmente(false);
+      localStorage.setItem('carritoEditadoManualmente', 'false');
+      localStorage.removeItem('carrito');
+    } else {
+      alert('Error al guardar el carrito.');
     }
-  };
+  } catch (error) {
+    console.error('❌ Error al finalizar compra:', error);
+    alert('No se pudo conectar con el servidor');
+  }
+};
+
 
   return (
     <CarritoContext.Provider
