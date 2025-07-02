@@ -56,32 +56,35 @@ export const CarritoProvider = ({ children }) => {
     }
   }, []);
 
-useEffect(() => {
-  if (!pedidoID) return;
+  const cantidadEnCarrito = carrito?.length || 0;
 
-  const carritoGuardadoManualmente = localStorage.getItem('carritoEditadoManualmente') === 'true';
+  useEffect(() => {
+    if (!pedidoID) return;
 
-  // Solo evitar cargar si ya fue editado y hay algo en el carrito
-  if (carritoGuardadoManualmente && carrito.length > 0) return;
+    const carritoGuardadoManualmente = localStorage.getItem('carritoEditadoManualmente') === 'true';
 
-  const recuperarCarritoDesdeBD = async () => {
-    try {
-      const res = await fetch(`${API_URL}/api/pedidos/${pedidoID}`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data?.array_pedido) {
-          const carritoRecuperado = JSON.parse(data.array_pedido || '[]');
-          setCarrito(Array.isArray(carritoRecuperado) ? carritoRecuperado : []);
-          setCarritoCargado(true);
+    if (carritoGuardadoManualmente && cantidadEnCarrito > 0) return;
+
+    const recuperarCarritoDesdeBD = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/pedidos/${pedidoID}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.array_pedido) {
+            const carritoRecuperado = JSON.parse(data.array_pedido || '[]');
+            setCarrito(Array.isArray(carritoRecuperado) ? carritoRecuperado : []);
+            setCarritoCargado(true);
+          }
         }
+      } catch (error) {
+        console.error('❌ Error al recuperar carrito:', error);
       }
-    } catch (error) {
-      console.error('❌ Error al recuperar carrito:', error);
-    }
-  };
+    };
 
-  recuperarCarritoDesdeBD();
-}, [pedidoID, carrito]);
+    recuperarCarritoDesdeBD();
+  }, [pedidoID, cantidadEnCarrito]);
+
+
 
 
 
@@ -280,33 +283,33 @@ useEffect(() => {
   };
 
 
- const finalizarCompra = async () => {
-  try {
-    const response = await fetch(`${API_URL}/api/finalizar-compra`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        carrito: carrito.map((item) => ({
-          id: Number(item.id),
-          cantidad: item.cantidad || 1,
-        })),
-        clienteID,
-      }),
-    });
+  const finalizarCompra = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/finalizar-compra`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          carrito: carrito.map((item) => ({
+            id: Number(item.id),
+            cantidad: item.cantidad || 1,
+          })),
+          clienteID,
+        }),
+      });
 
-    if (response.ok) {
-      alert('Compra guardada en la base de datos');
-      setCarritoEditadoManualmente(false);
-      localStorage.setItem('carritoEditadoManualmente', 'false');
-      localStorage.removeItem('carrito');
-    } else {
-      alert('Error al guardar el carrito.');
+      if (response.ok) {
+        alert('Compra guardada en la base de datos');
+        setCarritoEditadoManualmente(false);
+        localStorage.setItem('carritoEditadoManualmente', 'false');
+        localStorage.removeItem('carrito');
+      } else {
+        alert('Error al guardar el carrito.');
+      }
+    } catch (error) {
+      console.error('❌ Error al finalizar compra:', error);
+      alert('No se pudo conectar con el servidor');
     }
-  } catch (error) {
-    console.error('❌ Error al finalizar compra:', error);
-    alert('No se pudo conectar con el servidor');
-  }
-};
+  };
 
 
   return (
