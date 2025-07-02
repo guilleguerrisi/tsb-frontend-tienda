@@ -40,11 +40,18 @@ const BotonFlotante = () => {
       <button className="flotante-boton secundaria" onClick={() => navigate('/')}>
         ← Categorías
       </button>
-      <button className="flotante-boton primaria" onClick={() => navigate('/carrito')}>
+      <button
+        className="flotante-boton primaria"
+        onClick={() => {
+          const pedidoID = localStorage.getItem('pedidoID');
+          navigate(`/carrito${pedidoID ? `?id=${pedidoID}` : ''}`);
+        }}
+      >
         Ver tu pedido
       </button>
     </div>
   );
+
 };
 
 export default BotonFlotante;
