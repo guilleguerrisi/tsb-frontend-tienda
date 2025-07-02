@@ -55,7 +55,8 @@ export const CarritoProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    if (!pedidoID) return;
+    if (!pedidoID || carritoEditadoManualmente) return;
+
     const recuperarCarritoDesdeBD = async () => {
       try {
         const res = await fetch(`${API_URL}/api/pedidos/${pedidoID}`);
@@ -71,8 +72,10 @@ export const CarritoProvider = ({ children }) => {
         console.error('❌ Error al recuperar carrito:', error);
       }
     };
+
     recuperarCarritoDesdeBD();
-  }, [pedidoID]);
+  }, [pedidoID, carritoEditadoManualmente]);
+
 
   useEffect(() => {
     if (!pedidoID || !carritoCargado) return;
@@ -91,36 +94,36 @@ export const CarritoProvider = ({ children }) => {
   }, [carrito, pedidoID, carritoCargado]);
 
 
- useEffect(() => {
-  const sincronizarAlVolver = async () => {
-    const estaEnCarrito = window.location.pathname.includes('/carrito');
-    if (document.visibilityState === 'visible' && pedidoID && !estaEnCarrito) {
-      try {
-        const res = await fetch(`${API_URL}/api/pedidos/${pedidoID}`);
-        if (!res.ok) return;
+  useEffect(() => {
+    const sincronizarAlVolver = async () => {
+      const estaEnCarrito = window.location.pathname.includes('/carrito');
+      if (document.visibilityState === 'visible' && pedidoID && !estaEnCarrito) {
+        try {
+          const res = await fetch(`${API_URL}/api/pedidos/${pedidoID}`);
+          if (!res.ok) return;
 
-        const data = await res.json();
-        const carritoBackend = JSON.parse(data.array_pedido || '[]');
+          const data = await res.json();
+          const carritoBackend = JSON.parse(data.array_pedido || '[]');
 
-        const carritoActualString = JSON.stringify(carrito);
-        const carritoBackendString = JSON.stringify(carritoBackend);
+          const carritoActualString = JSON.stringify(carrito);
+          const carritoBackendString = JSON.stringify(carritoBackend);
 
-        const hayDiferencias = carritoBackendString !== carritoActualString;
+          const hayDiferencias = carritoBackendString !== carritoActualString;
 
-        if (hayDiferencias && !carritoEditadoManualmente) {
-          setCarrito(Array.isArray(carritoBackend) ? carritoBackend : []);
+          if (hayDiferencias && !carritoEditadoManualmente) {
+            setCarrito(Array.isArray(carritoBackend) ? carritoBackend : []);
+          }
+        } catch (error) {
+          console.error('🔄 Error al actualizar carrito:', error);
         }
-      } catch (error) {
-        console.error('🔄 Error al actualizar carrito:', error);
       }
-    }
-  };
+    };
 
-  document.addEventListener('visibilitychange', sincronizarAlVolver);
-  return () => {
-    document.removeEventListener('visibilitychange', sincronizarAlVolver);
-  };
-}, [pedidoID, carrito, carritoEditadoManualmente]);
+    document.addEventListener('visibilitychange', sincronizarAlVolver);
+    return () => {
+      document.removeEventListener('visibilitychange', sincronizarAlVolver);
+    };
+  }, [pedidoID, carrito, carritoEditadoManualmente]);
 
 
 
@@ -189,15 +192,22 @@ export const CarritoProvider = ({ children }) => {
     }
 
     try {
-      const res = await fetch(`${API_URL}/api/pedidos/${idPedido}`);
-      const data = await res.json();
       let carritoActual = [];
-      try {
-        carritoActual = Array.isArray(data?.array_pedido)
-          ? data.array_pedido
-          : JSON.parse(data.array_pedido || '[]');
-      } catch (e) {
-        carritoActual = [];
+
+      // Solo hacemos fetch si el carrito no fue editado manualmente
+      if (!carritoEditadoManualmente) {
+        const res = await fetch(`${API_URL}/api/pedidos/${idPedido}`);
+        const data = await res.json();
+
+        try {
+          carritoActual = Array.isArray(data?.array_pedido)
+            ? data.array_pedido
+            : JSON.parse(data.array_pedido || '[]');
+        } catch (e) {
+          carritoActual = [];
+        }
+      } else {
+        carritoActual = [...carrito];
       }
 
       const index = carritoActual.findIndex(p => p.codigo_int === producto.codigo_int);
@@ -222,10 +232,12 @@ export const CarritoProvider = ({ children }) => {
       });
 
       setCarrito(carritoActual);
+      setCarritoEditadoManualmente(true);
     } catch (err) {
       console.error('❌ Error sincronizando carrito:', err);
     }
   };
+
 
   const cambiarCantidad = (codigo_int, nuevaCantidad) => {
     setCarrito((prev) => {
