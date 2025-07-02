@@ -29,9 +29,11 @@ const ModalContacto = ({ carrito, onCerrar }) => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            contacto_cliente: `${nombre} - ${contacto}`,
-            mensaje_cliente: comentario,
+            nombre_cliente: nombre.trim() || null,
+            contacto_cliente: contacto.trim() || null,
+            mensaje_cliente: comentario.trim() || null,
           }),
+
         });
       } catch (err) {
         console.error('❌ Error al actualizar datos de contacto del pedido:', err);
