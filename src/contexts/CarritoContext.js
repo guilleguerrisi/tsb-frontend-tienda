@@ -15,6 +15,8 @@ export const CarritoProvider = ({ children }) => {
   const [clienteID, setClienteID] = useState(null);
   const [pedidoID, setPedidoID] = useState(null);
   const [carritoCargado, setCarritoCargado] = useState(false);
+  const [timestampModificacion, setTimestampModificacion] = useState(Date.now());
+
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -84,35 +86,39 @@ export const CarritoProvider = ({ children }) => {
   }, [carrito, pedidoID, carritoCargado]);
 
 
-  useEffect(() => {
-    const sincronizarAlVolver = async () => {
-      if (document.visibilityState === 'visible' && pedidoID) {
-        try {
-          const res = await fetch(`${API_URL}/api/pedidos/${pedidoID}`);
-          if (!res.ok) return;
+ useEffect(() => {
+  const sincronizarAlVolver = async () => {
+    if (document.visibilityState === 'visible' && pedidoID) {
+      try {
+        const res = await fetch(`${API_URL}/api/pedidos/${pedidoID}`);
+        if (!res.ok) return;
 
-          const data = await res.json();
-          const carritoBackend = JSON.parse(data.array_pedido || '[]');
+        const data = await res.json();
+        const carritoBackend = JSON.parse(data.array_pedido || '[]');
 
-          // Comparar con el carrito actual y solo actualizar si son distintos
-          const carritoActualString = JSON.stringify(carrito);
-          const carritoBackendString = JSON.stringify(carritoBackend);
+        const carritoActualString = JSON.stringify(carrito);
+        const carritoBackendString = JSON.stringify(carritoBackend);
 
-          if (carritoBackendString !== carritoActualString) {
-            setCarrito(Array.isArray(carritoBackend) ? carritoBackend : []);
-          }
+        // Previene sobrescritura si el carrito fue modificado recientemente
+        const tiempoDesdeUltModificacion = Date.now() - timestampModificacion;
+        const hayDiferencias = carritoBackendString !== carritoActualString;
 
-        } catch (error) {
-          console.error('🔄 Error al actualizar carrito:', error);
+        if (hayDiferencias && tiempoDesdeUltModificacion > 5000) {
+          setCarrito(Array.isArray(carritoBackend) ? carritoBackend : []);
         }
-      }
-    };
 
-    document.addEventListener('visibilitychange', sincronizarAlVolver);
-    return () => {
-      document.removeEventListener('visibilitychange', sincronizarAlVolver);
-    };
-  }, [pedidoID, carrito]);
+      } catch (error) {
+        console.error('🔄 Error al actualizar carrito:', error);
+      }
+    }
+  };
+
+  document.addEventListener('visibilitychange', sincronizarAlVolver);
+  return () => {
+    document.removeEventListener('visibilitychange', sincronizarAlVolver);
+  };
+}, [pedidoID, carrito, timestampModificacion]);
+
 
 
   const calcularPrecio = (producto) => {
@@ -215,22 +221,29 @@ export const CarritoProvider = ({ children }) => {
   };
 
   const cambiarCantidad = (codigo_int, nuevaCantidad) => {
-    setCarrito((prev) =>
-      nuevaCantidad <= 0
+    setCarrito((prev) => {
+      const nuevo = nuevaCantidad <= 0
         ? prev.filter((item) => item.codigo_int !== codigo_int)
         : prev.map((item) =>
           item.codigo_int === codigo_int
             ? { ...item, cantidad: nuevaCantidad }
             : item
-        )
-    );
+        );
+      setTimestampModificacion(Date.now());
+      return nuevo;
+    });
   };
 
   const eliminarDelCarrito = (producto) => {
-    setCarrito((prev) => prev.filter((item) => item.codigo_int !== producto.codigo_int));
+    setCarrito((prev) => {
+      const nuevo = prev.filter((item) => item.codigo_int !== producto.codigo_int);
+      setTimestampModificacion(Date.now());
+      return nuevo;
+    });
   };
 
   const reemplazarCarrito = (nuevoCarrito) => {
+    setTimestampModificacion(Date.now());
     setCarrito(nuevoCarrito);
   };
 
