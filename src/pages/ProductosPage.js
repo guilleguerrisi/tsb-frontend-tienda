@@ -9,7 +9,7 @@ const ProductosPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [grcat, setGrcat] = useState('');
-  const [nombreCategoria, setNombreCategoria] = useState('');
+
 
   const clienteID = new URLSearchParams(location.search).get('clienteID');
 
@@ -32,11 +32,11 @@ const ProductosPage = () => {
 
     if (nombre) {
       const nombreDecodificado = decodeURIComponent(nombre);
-      setNombreCategoria(nombreDecodificado);
-      document.title = `Bazar - ${nombreDecodificado}`; // ✅ actualiza el título
+      document.title = `Bazar - ${nombreDecodificado}`;
     } else {
       document.title = 'Bazar - Productos';
     }
+
   }, [location, navigate]);
 
   if (!grcat) {
