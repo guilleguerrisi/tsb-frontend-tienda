@@ -56,27 +56,33 @@ export const CarritoProvider = ({ children }) => {
     }
   }, []);
 
-  useEffect(() => {
-    if (!pedidoID || carritoEditadoManualmente) return;
+useEffect(() => {
+  if (!pedidoID) return;
 
-    const recuperarCarritoDesdeBD = async () => {
-      try {
-        const res = await fetch(`${API_URL}/api/pedidos/${pedidoID}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data?.array_pedido) {
-            const carritoRecuperado = JSON.parse(data.array_pedido || '[]');
-            setCarrito(Array.isArray(carritoRecuperado) ? carritoRecuperado : []);
-            setCarritoCargado(true);
-          }
+  const carritoGuardadoManualmente = localStorage.getItem('carritoEditadoManualmente') === 'true';
+
+  // Solo evitar cargar si ya fue editado y hay algo en el carrito
+  if (carritoGuardadoManualmente && carrito.length > 0) return;
+
+  const recuperarCarritoDesdeBD = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/pedidos/${pedidoID}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.array_pedido) {
+          const carritoRecuperado = JSON.parse(data.array_pedido || '[]');
+          setCarrito(Array.isArray(carritoRecuperado) ? carritoRecuperado : []);
+          setCarritoCargado(true);
         }
-      } catch (error) {
-        console.error('❌ Error al recuperar carrito:', error);
       }
-    };
+    } catch (error) {
+      console.error('❌ Error al recuperar carrito:', error);
+    }
+  };
 
-    recuperarCarritoDesdeBD();
-  }, [pedidoID, carritoEditadoManualmente]);
+  recuperarCarritoDesdeBD();
+}, [pedidoID, carrito]);
+
 
 
   useEffect(() => {
