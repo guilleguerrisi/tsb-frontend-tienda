@@ -308,6 +308,7 @@ export const CarritoProvider = ({ children }) => {
         reemplazarCarrito,
         eliminarDelCarrito,
         finalizarCompra,
+        carritoEditadoManualmente,
       }}
     >
       {children}
