@@ -68,20 +68,20 @@ export const CarritoProvider = ({ children }) => {
   }, [pedidoID]);
 
   useEffect(() => {
-  if (!pedidoID || !carritoCargado) return;
+    if (!pedidoID || !carritoCargado) return;
 
-  const delaySync = setTimeout(() => {
-    fetch(`${API_URL}/api/pedidos/${pedidoID}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        array_pedido: JSON.stringify(carrito),
-      }),
-    });
-  }, 600); // espera 600ms antes de sincronizar
+    const delaySync = setTimeout(() => {
+      fetch(`${API_URL}/api/pedidos/${pedidoID}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          array_pedido: JSON.stringify(carrito),
+        }),
+      });
+    }, 600); // espera 600ms antes de sincronizar
 
-  return () => clearTimeout(delaySync); // cancela si se vuelve a disparar antes de tiempo
-}, [carrito, pedidoID, carritoCargado]);
+    return () => clearTimeout(delaySync); // cancela si se vuelve a disparar antes de tiempo
+  }, [carrito, pedidoID, carritoCargado]);
 
 
   useEffect(() => {
@@ -89,11 +89,19 @@ export const CarritoProvider = ({ children }) => {
       if (document.visibilityState === 'visible' && pedidoID) {
         try {
           const res = await fetch(`${API_URL}/api/pedidos/${pedidoID}`);
-          if (res.ok) {
-            const data = await res.json();
-            const carritoActualizado = JSON.parse(data.array_pedido || '[]');
-            setCarrito(Array.isArray(carritoActualizado) ? carritoActualizado : []);
+          if (!res.ok) return;
+
+          const data = await res.json();
+          const carritoBackend = JSON.parse(data.array_pedido || '[]');
+
+          // Comparar con el carrito actual y solo actualizar si son distintos
+          const carritoActualString = JSON.stringify(carrito);
+          const carritoBackendString = JSON.stringify(carritoBackend);
+
+          if (carritoBackendString !== carritoActualString) {
+            setCarrito(Array.isArray(carritoBackend) ? carritoBackend : []);
           }
+
         } catch (error) {
           console.error('🔄 Error al actualizar carrito:', error);
         }
@@ -104,7 +112,8 @@ export const CarritoProvider = ({ children }) => {
     return () => {
       document.removeEventListener('visibilitychange', sincronizarAlVolver);
     };
-  }, [pedidoID]);
+  }, [pedidoID, carrito]);
+
 
   const calcularPrecio = (producto) => {
     if (isNaN(producto.costosiniva)) return 0;
@@ -210,10 +219,10 @@ export const CarritoProvider = ({ children }) => {
       nuevaCantidad <= 0
         ? prev.filter((item) => item.codigo_int !== codigo_int)
         : prev.map((item) =>
-            item.codigo_int === codigo_int
-              ? { ...item, cantidad: nuevaCantidad }
-              : item
-          )
+          item.codigo_int === codigo_int
+            ? { ...item, cantidad: nuevaCantidad }
+            : item
+        )
     );
   };
 
