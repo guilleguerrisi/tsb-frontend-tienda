@@ -20,6 +20,8 @@ export const CarritoProvider = ({ children }) => {
   const [pedidoID, setPedidoID] = useState(null);
   const [carritoCargado, setCarritoCargado] = useState(false);
   const [timestampModificacion, setTimestampModificacion] = useState(Date.now());
+  const [carritoEditadoManualmente, setCarritoEditadoManualmente] = useState(false);
+
 
 
   useEffect(() => {
@@ -107,9 +109,10 @@ export const CarritoProvider = ({ children }) => {
           const tiempoDesdeUltModificacion = Date.now() - timestampModificacion;
           const hayDiferencias = carritoBackendString !== carritoActualString;
 
-          if (hayDiferencias && tiempoDesdeUltModificacion > 5000) {
+          if (!carritoEditadoManualmente && hayDiferencias && tiempoDesdeUltModificacion > 5000) {
             setCarrito(Array.isArray(carritoBackend) ? carritoBackend : []);
           }
+
 
         } catch (error) {
           console.error('🔄 Error al actualizar carrito:', error);
@@ -121,7 +124,7 @@ export const CarritoProvider = ({ children }) => {
     return () => {
       document.removeEventListener('visibilitychange', sincronizarAlVolver);
     };
-  }, [pedidoID, carrito, timestampModificacion]);
+  }, [pedidoID, carrito, timestampModificacion, carritoEditadoManualmente]);
 
 
 
@@ -236,6 +239,8 @@ export const CarritoProvider = ({ children }) => {
             : item
         );
       setTimestampModificacion(Date.now());
+      setCarritoEditadoManualmente(true);
+
       return nuevo;
     });
   };
@@ -244,14 +249,18 @@ export const CarritoProvider = ({ children }) => {
     setCarrito((prev) => {
       const nuevo = prev.filter((item) => item.codigo_int !== producto.codigo_int);
       setTimestampModificacion(Date.now());
+      setCarritoEditadoManualmente(true);
+
       return nuevo;
     });
   };
 
   const reemplazarCarrito = (nuevoCarrito) => {
     setTimestampModificacion(Date.now());
+    setCarritoEditadoManualmente(false); // Desactivamos el flag porque se está reemplazando desde backend
     setCarrito(nuevoCarrito);
   };
+
 
   const finalizarCompra = async () => {
     try {
