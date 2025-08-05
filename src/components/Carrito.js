@@ -46,7 +46,7 @@ const Carrito = () => {
 
   const enviarPorWhatsApp = () => {
     const mensaje = encodeURIComponent(
-      `Hola, quisiera confirmar mi pedido:\n\n${carrito
+      `Hola, quisiera consultar por estos items:\n\n${carrito
         .map(item => `${item.descripcion_corta} x${item.cantidad} - $${new Intl.NumberFormat('es-AR').format(item.price * item.cantidad)}`)
         .join('\n')}\n\nTotal: $${new Intl.NumberFormat('es-AR').format(total)}`
     );
