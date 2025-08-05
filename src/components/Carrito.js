@@ -45,11 +45,12 @@ const Carrito = () => {
   );
 
   const enviarPorWhatsApp = () => {
-    const mensaje = encodeURIComponent(
-      `Hola, quisiera consultar por estos items:\n\n${carrito
-        .map(item => `${item.descripcion_corta} x${item.cantidad} - $${new Intl.NumberFormat('es-AR').format(item.price * item.cantidad)}`)
-        .join('\n')}\n\nTotal: $${new Intl.NumberFormat('es-AR').format(total)}`
-    );
+    if (!idPedido) {
+      alert("No se encontró el ID del pedido.");
+      return;
+    }
+    const linkPedido = `${window.location.origin}/carrito?id=${idPedido}`;
+    const mensaje = encodeURIComponent(`Hola, quisiera consultar por estos productos: ${linkPedido}`);
     window.open(`https://wa.me/5493875537070?text=${mensaje}`, '_blank');
   };
 
