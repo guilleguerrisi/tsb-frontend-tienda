@@ -174,6 +174,59 @@
   background-color: #0056b3;
 }
 
+/* 🔹 NUEVA SECCIÓN DE BOTONES DE CONTACTO */
+.botones-contacto {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 1rem;
+}
+
+.botones-contacto button,
+.botones-contacto a {
+  display: inline-block;
+  width: 100%;
+  padding: 14px 20px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  text-align: center;
+  border-radius: 8px;
+  color: white;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.3s ease;
+}
+
+.botones-contacto button:hover,
+.botones-contacto a:hover {
+  transform: scale(1.02);
+}
+
+/* Botón WhatsApp */
+.boton-whatsapp {
+  background-color: #25d366;
+}
+.boton-whatsapp:hover {
+  background-color: #1ebe5d;
+}
+
+/* Botón Llamar */
+.boton-llamar {
+  background-color: #007bff;
+}
+.boton-llamar:hover {
+  background-color: #0060cc;
+}
+
+/* Botón Contactar */
+.boton-contactar {
+  background-color: #ff9800;
+}
+.boton-contactar:hover {
+  background-color: #e68900;
+}
+
 .volver-contenedor {
   display: flex;
   justify-content: flex-end;

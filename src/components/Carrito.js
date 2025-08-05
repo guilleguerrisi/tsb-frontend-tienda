@@ -6,7 +6,7 @@ import ModalContacto from './ModalContacto';
 import config from '../config';
 
 const Carrito = () => {
-const { carrito, cambiarCantidad, eliminarDelCarrito, reemplazarCarrito, carritoEditadoManualmente } = useCarrito();
+  const { carrito, cambiarCantidad, eliminarDelCarrito, reemplazarCarrito, carritoEditadoManualmente } = useCarrito();
   const [mostrarModal, setMostrarModal] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -14,36 +14,44 @@ const { carrito, cambiarCantidad, eliminarDelCarrito, reemplazarCarrito, carrito
   const idPedido = params.get("id");
 
   // 🔄 Si accedemos con /carrito?id=XX, cargamos ese carrito desde el backend
- useEffect(() => {
-  const cargarPedido = async () => {
-    if (!idPedido || carritoEditadoManualmente) return;
+  useEffect(() => {
+    const cargarPedido = async () => {
+      if (!idPedido || carritoEditadoManualmente) return;
 
-    try {
-      const res = await fetch(`${config.API_URL}/api/pedidos/${idPedido}`);
-      const data = await res.json();
+      try {
+        const res = await fetch(`${config.API_URL}/api/pedidos/${idPedido}`);
+        const data = await res.json();
 
-      if (res.ok && data.array_pedido) {
-        const carritoCargado = JSON.parse(data.array_pedido);
-        reemplazarCarrito(carritoCargado);
-      } else {
-        alert('El pedido no existe o fue eliminado. Se generará uno nuevo.');
+        if (res.ok && data.array_pedido) {
+          const carritoCargado = JSON.parse(data.array_pedido);
+          reemplazarCarrito(carritoCargado);
+        } else {
+          alert('El pedido no existe o fue eliminado. Se generará uno nuevo.');
+          navigate('/carrito', { replace: true });
+        }
+      } catch (error) {
+        console.error('Error al cargar pedido desde carrito:', error);
+        alert('Error al conectar con el servidor.');
         navigate('/carrito', { replace: true });
       }
-    } catch (error) {
-      console.error('Error al cargar pedido desde carrito:', error);
-      alert('Error al conectar con el servidor.');
-      navigate('/carrito', { replace: true });
-    }
-  };
+    };
 
-  cargarPedido();
-}, [idPedido, carritoEditadoManualmente, reemplazarCarrito, navigate]);
-
+    cargarPedido();
+  }, [idPedido, carritoEditadoManualmente, reemplazarCarrito, navigate]);
 
   const total = carrito.reduce(
     (acc, item) => acc + item.price * (item.cantidad || 1),
     0
   );
+
+  const enviarPorWhatsApp = () => {
+    const mensaje = encodeURIComponent(
+      `Hola, quisiera confirmar mi pedido:\n\n${carrito
+        .map(item => `${item.descripcion_corta} x${item.cantidad} - $${new Intl.NumberFormat('es-AR').format(item.price * item.cantidad)}`)
+        .join('\n')}\n\nTotal: $${new Intl.NumberFormat('es-AR').format(total)}`
+    );
+    window.open(`https://wa.me/5493875537070?text=${mensaje}`, '_blank');
+  };
 
   return (
     <div className="carrito-container">
@@ -144,12 +152,17 @@ const { carrito, cambiarCantidad, eliminarDelCarrito, reemplazarCarrito, carrito
             </div>
           </div>
 
-          <button
-            className="enviar-whatsapp-button"
-            onClick={() => setMostrarModal(true)}
-          >
-            📩 Solicitar revisión de pedido
-          </button>
+          <div className="botones-contacto">
+            <button className="boton-whatsapp" onClick={enviarPorWhatsApp}>
+              🟢 WhatsApp
+            </button>
+            <a href="tel:+543875537070" className="boton-llamar">
+              📞 Llamar
+            </a>
+            <button className="boton-contactar" onClick={() => setMostrarModal(true)}>
+              ✉️ Contactar
+            </button>
+          </div>
         </div>
       )}
 
