@@ -147,8 +147,7 @@ const Carrito = () => {
                 ${new Intl.NumberFormat('es-AR').format(total)}
               </p>
               <p className="carrito-total-envio">
-                Envío sin cargo en Salta Capital para pedidos desde $80.000.<br />
-                Pedidos menores, solo se abona $3.000 de envío.
+                El costo de envío oscila entre $5.000 y $15.000 dependiendo el destino. Hacemos Envíos locales con servicio de mensajeria.<br />
               </p>
             </div>
           </div>

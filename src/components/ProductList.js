@@ -16,7 +16,7 @@ function ProductList({ grcat }) {
     return item?.cantidad || 0;
   };
 
-  // 🔸 Siempre agrega usando precio online: envío un flag al carrito
+  // Siempre agrega usando precio online (20%)
   const modificarCantidad = (producto, delta) => {
     const prodConFlag = { ...producto, __usarPrecioOnline: true };
     agregarAlCarrito(prodConFlag, delta);
@@ -222,25 +222,24 @@ function ProductList({ grcat }) {
                         }
                       })()}
 
-                      {/* 👇 Bloque de precios dual en la tarjeta */}
-                      <div className="price-row">
-                        <div className="price-box online">
-                          <span className="price-label">Precio online</span>
-                          <span className="price-value">
-                            {precioOnline ? formatoAR(precioOnline) : 'No disponible'}
-                          </span>
-                        </div>
-                        <div className="price-box sucursal">
-                          <span className="price-label">Precio en sucursal</span>
-                          <span className="price-value">
-                            {precioSucursal ? formatoAR(precioSucursal) : 'No disponible'}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* 👇 Info del producto */}
+                      {/* 👇 AHORA los precios van DENTRO de .product-info (esto arregla mobile) */}
                       <div className="product-info">
-                        <p>{producto.descripcion_corta}</p>
+                        <div className="price-row">
+                          <div className="price-box online">
+                            <span className="price-label">Precio online</span>
+                            <span className="price-value">
+                              {precioOnline ? formatoAR(precioOnline) : 'No disponible'}
+                            </span>
+                          </div>
+                          <div className="price-box sucursal">
+                            <span className="price-label">Precio en sucursal</span>
+                            <span className="price-value">
+                              {precioSucursal ? formatoAR(precioSucursal) : 'No disponible'}
+                            </span>
+                          </div>
+                        </div>
+
+                        <p className="desc">{producto.descripcion_corta}</p>
                         <p><strong>Codigo:</strong> {producto.codigo_int}</p>
 
                         {enCarrito && (
@@ -249,7 +248,6 @@ function ProductList({ grcat }) {
                           </span>
                         )}
 
-                        {/* 🔥 Controles */}
                         <div className="bottom-row">
                           <div className="control-cantidad">
                             <button onClick={() => modificarCantidad(producto, -1)} className="btn-menos">−</button>
@@ -340,7 +338,7 @@ function ProductList({ grcat }) {
                 )}
               </div>
 
-              {/* 👇 Bloque de precios dual también en la ficha */}
+              {/* 👇 Precios también en la ficha */}
               <div className="price-row modal-prices">
                 <div className="price-box online">
                   <span className="price-label">Precio online</span>

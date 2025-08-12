@@ -1,4 +1,4 @@
-/* Archivo CSS completo con precios duales */
+/* Archivo CSS completo corregido con precios dentro de .product-info */
 
 .product-container {
   display: grid;
@@ -36,7 +36,7 @@
   align-self: stretch;
 }
 
-/* ====== Bloque de precios dual ====== */
+/* ====== Bloque de precios (ahora dentro de .product-info) ====== */
 .price-row {
   display: flex;
   gap: 12px;
@@ -70,8 +70,8 @@
 
 /* Online destacado */
 .price-box.online {
-  background: #eaf3fe;           /* celeste muy claro */
-  border: 2px solid #3498db;     /* acento */
+  background: #eaf3fe;
+  border: 2px solid #3498db;
 }
 
 .price-box.online .price-label {
@@ -101,12 +101,6 @@
   color: #444;
 }
 
-/* Para la ficha (modal) que lleva los mismos precios */
-.modal-content .price-row.modal-prices {
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
 /* ====== Fin precios ====== */
 
 h3 {
@@ -127,6 +121,11 @@ p {
   margin-top: 12px;
   margin-bottom: 16px;
   font-family: 'Inter', sans-serif;
+}
+
+.desc {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .btn-agregar,
@@ -374,7 +373,7 @@ input[type="number"] {
 
   .product-card {
     display: flex !important;
-    flex-direction: row;
+    flex-direction: row;            /* Imagen a la izquierda, contenido a la derecha */
     align-items: flex-start;
     gap: 10px;
     width: 100%;
@@ -392,9 +391,20 @@ input[type="number"] {
     flex-shrink: 0;
   }
 
+  .product-card .product-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;         /* Precios, luego texto, luego controles */
+    gap: 6px;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  /* Precios apilados en móvil, ancho completo del panel derecho */
   .price-row {
     flex-direction: column;
     gap: 6px;
+    width: 100%;
   }
 
   .price-box.online .price-value {
@@ -403,21 +413,6 @@ input[type="number"] {
 
   .price-box.sucursal .price-value {
     font-size: 0.95rem;
-  }
-
-  .product-card .product-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    min-width: 0;
-    overflow: hidden;
-  }
-
-  .product-card h3 {
-    font-size: 1rem;
-    margin: 2px 0;
-    text-align: left;
   }
 
   .product-card p {
