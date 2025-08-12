@@ -138,32 +138,54 @@ const Carrito = () => {
       </div>
 
       {carrito.length > 0 && (
-        <div className="carrito-summary">
-          <div className="carrito-total-box">
-            <div className="carrito-total-icono">🧾</div>
-            <div className="carrito-total-contenido">
-              <h2 className="carrito-total-titulo">Total nota de pedido:</h2>
-              <p className="carrito-total-monto">
-                ${new Intl.NumberFormat('es-AR').format(total)}
-              </p>
-              <p className="carrito-total-envio">
-                El costo de envío oscila entre $5.000 y $15.000 dependiendo el destino. Hacemos Envíos locales con servicio de mensajeria.<br />
-              </p>
+        <>
+          <div className="carrito-summary">
+            <div className="carrito-total-box">
+              <div className="carrito-total-icono">🧾</div>
+              <div className="carrito-total-contenido">
+                <h2 className="carrito-total-titulo">Total nota de pedido:</h2>
+                <p className="carrito-total-monto">
+                  ${new Intl.NumberFormat('es-AR').format(total)}
+                </p>
+                <p className="carrito-total-envio">
+                  El costo de envío oscila entre $5.000 y $15.000 dependiendo el destino. Hacemos Envíos locales con servicio de mensajeria.<br />
+                </p>
+              </div>
             </div>
           </div>
 
-          <div className="botones-contacto">
-            <button className="boton-whatsapp" onClick={enviarPorWhatsApp}>
-              🟢 WhatsApp
-            </button>
-            <a href="tel:+543875537070" className="boton-llamar">
-              📞 Llamar
-            </a>
-            <button className="boton-contactar" onClick={() => setMostrarModal(true)}>
-              ✉️ Contactar
-            </button>
-          </div>
-        </div>
+          {/* ✅ NUEVO: bloque de cierre y acciones */}
+          <section className="contacto-final">
+            <h3 className="contacto-title">¡Felicidades, tu pedido está listo!</h3>
+            <p className="contacto-subtitle">
+              Ahora solo infórmanos del mismo para poder avanzar. <br className="br-desktop"/>
+              <strong>¿Cómo deseas contactarnos?</strong>
+            </p>
+
+            <div className="contact-actions">
+              <button className="cta whatsapp" onClick={enviarPorWhatsApp}>
+                <span className="cta-icon">🟢</span>
+                <span className="cta-text">WhatsApp</span>
+              </button>
+
+              <a href="tel:+543875537070" className="cta call">
+                <span className="cta-icon">📞</span>
+                <span className="cta-text">Llamar</span>
+              </a>
+
+              <button className="cta email" onClick={() => setMostrarModal(true)}>
+                <span className="cta-icon">✉️</span>
+                <span className="cta-text">Contactar</span>
+              </button>
+            </div>
+
+            {idPedido && (
+              <p className="contacto-help">
+                Compartiremos tu nota de pedido <span className="chip">#{idPedido}</span> para continuar.
+              </p>
+            )}
+          </section>
+        </>
       )}
 
       {mostrarModal && (
