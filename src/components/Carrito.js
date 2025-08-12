@@ -156,9 +156,9 @@ const Carrito = () => {
 
           {/* ✅ NUEVO: bloque de cierre y acciones */}
           <section className="contacto-final">
-            <h3 className="contacto-title">¡Felicidades, tu pedido está listo!</h3>
+            <h3 className="contacto-title">¡Felicidades, tu Nota de pedido está lista!</h3>
             <p className="contacto-subtitle">
-              Ahora solo infórmanos del mismo para poder avanzar. <br className="br-desktop"/>
+              Ahora solo infórmanos de ella para poder avanzar. <br className="br-desktop"/>
               <strong>¿Cómo deseas contactarnos?</strong>
             </p>
 
@@ -181,7 +181,7 @@ const Carrito = () => {
 
             {idPedido && (
               <p className="contacto-help">
-                Compartiremos tu nota de pedido <span className="chip">#{idPedido}</span> para continuar.
+                Informanos este numero de pedido <span className="chip">#{idPedido}</span> para continuar.
               </p>
             )}
           </section>
@@ -204,7 +204,7 @@ const Carrito = () => {
       <div className="carrito-footer">
         <p className="leyenda-precio">
           ⚠️ La nota de pedido tiene carácter informativo y no implica compromiso de compra ni obligación de parte del vendedor.
-          Los precios incluyen IVA y están sujetos a confirmación junto con la disponibilidad de stock. La operación será válida
+          Los precios están sujetos a confirmación junto con la disponibilidad de stock. La operación será válida
           únicamente una vez confirmada por el vendedor.
         </p>
 
