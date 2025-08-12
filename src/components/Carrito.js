@@ -211,7 +211,7 @@ const Carrito = () => {
         <p className="info-contacto">
           TIENDA SALTA BAZAR · DEPÓSITO EN CASEROS 1041 - SALTA CAPITAL <br />
           (Entre calles Islas Malvinas y Jujuy) <br />
-          Lunes a Viernes de 10:30 a 13:30 y de 17:00 a 19:00 hs · Sábado cerrado
+          Lunes a Viernes de 10:00 a 13:30 · Sábado cerrado
         </p>
       </div>
     </div>
