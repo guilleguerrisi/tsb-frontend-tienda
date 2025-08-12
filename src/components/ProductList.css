@@ -1,5 +1,4 @@
-
-/* Archivo CSS completo corregido con ajustes específicos para evitar desbordes en Android */
+/* Archivo CSS completo con precios duales */
 
 .product-container {
   display: grid;
@@ -36,6 +35,79 @@
   border-radius: 8px;
   align-self: stretch;
 }
+
+/* ====== Bloque de precios dual ====== */
+.price-row {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+  justify-content: space-between;
+  margin-top: 6px;
+  margin-bottom: 8px;
+}
+
+.price-box {
+  flex: 1;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-sizing: border-box;
+}
+
+.price-box .price-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.price-box .price-value {
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+/* Online destacado */
+.price-box.online {
+  background: #eaf3fe;           /* celeste muy claro */
+  border: 2px solid #3498db;     /* acento */
+}
+
+.price-box.online .price-label {
+  color: #1d6fa5;
+}
+
+.price-box.online .price-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0d2b3e;
+}
+
+/* Sucursal discreto */
+.price-box.sucursal {
+  background: #f7f7f7;
+  border: 1px dashed #d0d0d0;
+  opacity: 0.8;
+}
+
+.price-box.sucursal .price-label {
+  color: #777;
+}
+
+.price-box.sucursal .price-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #444;
+}
+
+/* Para la ficha (modal) que lleva los mismos precios */
+.modal-content .price-row.modal-prices {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ====== Fin precios ====== */
 
 h3 {
   text-align: left;
@@ -318,6 +390,19 @@ input[type="number"] {
     object-fit: contain;
     border-radius: 8px;
     flex-shrink: 0;
+  }
+
+  .price-row {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .price-box.online .price-value {
+    font-size: 1.25rem;
+  }
+
+  .price-box.sucursal .price-value {
+    font-size: 0.95rem;
   }
 
   .product-card .product-info {

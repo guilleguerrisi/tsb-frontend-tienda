@@ -3,7 +3,6 @@ import './ProductList.css';
 import { useCarrito } from '../contexts/CarritoContext';
 import config from '../config'; // ✅
 
-
 function ProductList({ grcat }) {
   const { carrito, agregarAlCarrito } = useCarrito();
   const [mercaderia, setProductos] = useState([]);
@@ -12,21 +11,16 @@ function ProductList({ grcat }) {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
 
-
-
   const obtenerCantidad = (codigo_int) => {
     const item = carrito.find(p => p.codigo_int === codigo_int);
     return item?.cantidad || 0;
   };
 
+  // 🔸 Siempre agrega usando precio online: envío un flag al carrito
   const modificarCantidad = (producto, delta) => {
-    agregarAlCarrito(producto, delta);
+    const prodConFlag = { ...producto, __usarPrecioOnline: true };
+    agregarAlCarrito(prodConFlag, delta);
   };
-
-
-
-
-
 
   useEffect(() => {
     const fetchProductos = async () => {
@@ -35,10 +29,7 @@ function ProductList({ grcat }) {
         setError(null);
 
         let url = `${config.API_URL}/api/mercaderia`;
-
-        if (grcat) {
-          url += `?grcat=${encodeURIComponent(grcat)}`;
-        }
+        if (grcat) url += `?grcat=${encodeURIComponent(grcat)}`;
 
         const res = await fetch(url);
         const data = await res.json();
@@ -48,7 +39,6 @@ function ProductList({ grcat }) {
         } else {
           throw new Error('La respuesta no es un array');
         }
-
       } catch (err) {
         setError('No se pudieron cargar los productos.');
         setProductos([]);
@@ -80,7 +70,7 @@ function ProductList({ grcat }) {
 
     // 🟡 Extraer solo URLs válidas
     arrayImagenes = arrayImagenes
-      .map((img) => typeof img === 'string' ? img : img?.imagenamostrar)
+      .map((img) => (typeof img === 'string' ? img : img?.imagenamostrar))
       .filter((url) => typeof url === 'string' && url.trim() !== '');
 
     setProductoSeleccionado({
@@ -96,9 +86,6 @@ function ProductList({ grcat }) {
     setIndiceImagen(0);
     document.body.classList.add('modal-abierto');
   };
-
-
-
 
   const cerrarModal = () => {
     setProductoSeleccionado(null);
@@ -124,6 +111,23 @@ function ProductList({ grcat }) {
 
   if (error) return <div className="error">{error}</div>;
 
+  // Helpers de precio
+  const redondearCentena = (n) => Math.round(n / 100) * 100;
+  const formatoAR = (n) => `$ ${new Intl.NumberFormat('es-AR').format(n)}`;
+
+  const calcularPrecios = (p) => {
+    const base = Number(p.costosiniva);
+    const ivaFactor = 1 + (Number(p.iva || 0) / 100);
+    const margenDB = 1 + (Number(p.margen || 0) / 100);
+    const margenOnline = 1 + 0.20; // 20% fijo
+
+    if (!Number.isFinite(base)) return { precioOnline: 0, precioSucursal: 0 };
+
+    const precioOnline = redondearCentena(base * ivaFactor * margenOnline);
+    const precioSucursal = redondearCentena(base * ivaFactor * margenDB);
+    return { precioOnline, precioSucursal };
+  };
+
   return (
     <div>
       {mercaderia.length === 0 ? (
@@ -139,7 +143,7 @@ function ProductList({ grcat }) {
             return acc;
           }, {})
         ).map(([grupo, productos]) => {
-          // 🔽 Acá sí o sí forzamos el orden por fechaordengrupo
+          // 🔽 Forzar orden por fechaordengrupo (desc)
           const productosOrdenados = productos.sort((a, b) =>
             (b.fechaordengrupo || '').localeCompare(a.fechaordengrupo || '')
           );
@@ -148,14 +152,7 @@ function ProductList({ grcat }) {
               <h2 style={{ padding: "1rem", marginBottom: "0" }}>{grupo}</h2>
               <div className="product-container">
                 {productosOrdenados.map((producto, index) => {
-                  const precioCalculado = isNaN(producto.costosiniva)
-                    ? 0
-                    : Math.round(
-                      (producto.costosiniva *
-                        (1 + producto.iva / 100) *
-                        (1 + producto.margen / 100)) / 100
-                    ) * 100;
-
+                  const { precioOnline, precioSucursal } = calcularPrecios(producto);
                   const enCarrito = carrito.some(item => item.codigo_int === producto.codigo_int);
 
                   return (
@@ -225,13 +222,24 @@ function ProductList({ grcat }) {
                         }
                       })()}
 
-                      {/* 👇 SOLO UN BLOQUE DE product-info */}
+                      {/* 👇 Bloque de precios dual en la tarjeta */}
+                      <div className="price-row">
+                        <div className="price-box online">
+                          <span className="price-label">Precio online</span>
+                          <span className="price-value">
+                            {precioOnline ? formatoAR(precioOnline) : 'No disponible'}
+                          </span>
+                        </div>
+                        <div className="price-box sucursal">
+                          <span className="price-label">Precio en sucursal</span>
+                          <span className="price-value">
+                            {precioSucursal ? formatoAR(precioSucursal) : 'No disponible'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* 👇 Info del producto */}
                       <div className="product-info">
-                        <h3>
-                          {precioCalculado
-                            ? `$ ${new Intl.NumberFormat('es-AR').format(precioCalculado)}`
-                            : 'Precio no disponible'}
-                        </h3>
                         <p>{producto.descripcion_corta}</p>
                         <p><strong>Codigo:</strong> {producto.codigo_int}</p>
 
@@ -241,7 +249,7 @@ function ProductList({ grcat }) {
                           </span>
                         )}
 
-                        {/* 🔥 Contenedor nuevo para agrupar cantidad + botón en móviles */}
+                        {/* 🔥 Controles */}
                         <div className="bottom-row">
                           <div className="control-cantidad">
                             <button onClick={() => modificarCantidad(producto, -1)} className="btn-menos">−</button>
@@ -249,9 +257,7 @@ function ProductList({ grcat }) {
                               type="number"
                               min="0"
                               value={obtenerCantidad(producto.codigo_int)}
-                              onFocus={(e) => {
-                                e.target.select(); // selecciona todo el número
-                              }}
+                              onFocus={(e) => { e.target.select(); }}
                               onChange={(e) => {
                                 const nueva = parseInt(e.target.value) || 0;
                                 const actual = obtenerCantidad(producto.codigo_int);
@@ -264,7 +270,6 @@ function ProductList({ grcat }) {
                               }}
                               className="cantidad-input"
                             />
-
                             <button onClick={() => modificarCantidad(producto, 1)} className="btn-mas">+</button>
                           </div>
 
@@ -273,13 +278,8 @@ function ProductList({ grcat }) {
                           </button>
                         </div>
                       </div>
-
                     </div>
                   );
-
-
-
-
                 })}
               </div>
             </div>
@@ -287,115 +287,116 @@ function ProductList({ grcat }) {
         })
       )}
 
-      {productoSeleccionado && (
-        <div className="modal-overlay" onClick={cerrarModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="close-button" onClick={cerrarModal}>×</button>
-            <div className="carrusel-imagenes">
-              {productoSeleccionado.imagearray?.length > 1 && (
-                <button
-                  onClick={() =>
-                    setIndiceImagen((prev) =>
-                      prev === 0
-                        ? productoSeleccionado.imagearray.length - 1
-                        : prev - 1
-                    )
-                  }
-                  className="flecha-carrusel izquierda"
-                >
-                  ‹
-                </button>
-              )}
+      {productoSeleccionado && (() => {
+        const { precioOnline, precioSucursal } = calcularPrecios(productoSeleccionado);
+        return (
+          <div className="modal-overlay" onClick={cerrarModal}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <button className="close-button" onClick={cerrarModal}>×</button>
 
-              <img
-                src={
-                  productoSeleccionado.imagearray?.[indiceImagen] ||
-                  productoSeleccionado.imagen1 ||
-                  "/imagenes/no-disponible.jpg"
-                }
-                alt={productoSeleccionado.descripcion_corta}
-                className="modal-image"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = "/imagenes/no-disponible.jpg";
-                }}
-              />
+              <div className="carrusel-imagenes">
+                {productoSeleccionado.imagearray?.length > 1 && (
+                  <button
+                    onClick={() =>
+                      setIndiceImagen((prev) =>
+                        prev === 0
+                          ? productoSeleccionado.imagearray.length - 1
+                          : prev - 1
+                      )
+                    }
+                    className="flecha-carrusel izquierda"
+                  >
+                    ‹
+                  </button>
+                )}
 
-              {productoSeleccionado.imagearray?.length > 1 && (
-                <button
-                  onClick={() =>
-                    setIndiceImagen((prev) =>
-                      prev === productoSeleccionado.imagearray.length - 1
-                        ? 0
-                        : prev + 1
-                    )
+                <img
+                  src={
+                    productoSeleccionado.imagearray?.[indiceImagen] ||
+                    productoSeleccionado.imagen1 ||
+                    "/imagenes/no-disponible.jpg"
                   }
-                  className="flecha-carrusel derecha"
-                >
-                  ›
-                </button>
-              )}
+                  alt={productoSeleccionado.descripcion_corta}
+                  className="modal-image"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "/imagenes/no-disponible.jpg";
+                  }}
+                />
+
+                {productoSeleccionado.imagearray?.length > 1 && (
+                  <button
+                    onClick={() =>
+                      setIndiceImagen((prev) =>
+                        prev === productoSeleccionado.imagearray.length - 1
+                          ? 0
+                          : prev + 1
+                      )
+                    }
+                    className="flecha-carrusel derecha"
+                  >
+                    ›
+                  </button>
+                )}
+              </div>
+
+              {/* 👇 Bloque de precios dual también en la ficha */}
+              <div className="price-row modal-prices">
+                <div className="price-box online">
+                  <span className="price-label">Precio online</span>
+                  <span className="price-value">
+                    {precioOnline ? formatoAR(precioOnline) : 'No disponible'}
+                  </span>
+                </div>
+                <div className="price-box sucursal">
+                  <span className="price-label">Precio en sucursal</span>
+                  <span className="price-value">
+                    {precioSucursal ? formatoAR(precioSucursal) : 'No disponible'}
+                  </span>
+                </div>
+              </div>
+
+              <p>{productoSeleccionado.descripcion_corta}</p>
+              <p><strong>Codigo:</strong> {productoSeleccionado.codigo_int}</p>
+
+              <div className="control-cantidad" style={{ marginTop: '1rem' }}>
+                <button onClick={() => modificarCantidad(productoSeleccionado, -1)} className="btn-menos">−</button>
+                <input
+                  type="number"
+                  min="0"
+                  value={obtenerCantidad(productoSeleccionado.codigo_int)}
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) => {
+                    const nueva = parseInt(e.target.value) || 0;
+                    const actual = obtenerCantidad(productoSeleccionado.codigo_int);
+
+                    if (window.__timeoutCantidadFicha) {
+                      clearTimeout(window.__timeoutCantidadFicha);
+                    }
+
+                    window.__timeoutCantidadFicha = setTimeout(() => {
+                      modificarCantidad(productoSeleccionado, nueva - actual);
+                    }, 300);
+                  }}
+                  onBlur={(e) => {
+                    if (e.target.value === '' || Number(e.target.value) < 1) {
+                      modificarCantidad(productoSeleccionado, 1 - obtenerCantidad(productoSeleccionado.codigo_int));
+                    }
+                  }}
+                  className="cantidad-input"
+                />
+                <button onClick={() => modificarCantidad(productoSeleccionado, 1)} className="btn-mas">+</button>
+              </div>
+
+              <button className="btn-seguir" onClick={cerrarModal}>
+                ← Seguir viendo productos
+              </button>
             </div>
-
-            <h2>
-              <strong>
-                {isNaN(productoSeleccionado.costosiniva)
-                  ? 'Precio no disponible'
-                  : `$ ${new Intl.NumberFormat('es-AR').format(
-                    Math.round(
-                      (productoSeleccionado.costosiniva *
-                        (1 + productoSeleccionado.iva / 100) *
-                        (1 + productoSeleccionado.margen / 100)) / 100
-                    ) * 100
-                  )}`}
-              </strong>
-            </h2>
-            <p>{productoSeleccionado.descripcion_corta}</p>
-            <p><strong>Codigo:</strong> {productoSeleccionado.codigo_int}</p>
-
-            <div className="control-cantidad" style={{ marginTop: '1rem' }}>
-              <button onClick={() => modificarCantidad(productoSeleccionado, -1)} className="btn-menos">−</button>
-              <input
-                type="number"
-                min="0"
-                value={obtenerCantidad(productoSeleccionado.codigo_int)}
-                onFocus={(e) => e.target.select()}
-                onChange={(e) => {
-                  const nueva = parseInt(e.target.value) || 0;
-                  const actual = obtenerCantidad(productoSeleccionado.codigo_int);
-
-                  if (window.__timeoutCantidadFicha) {
-                    clearTimeout(window.__timeoutCantidadFicha);
-                  }
-
-                  window.__timeoutCantidadFicha = setTimeout(() => {
-                    modificarCantidad(productoSeleccionado, nueva - actual);
-                  }, 300);
-                }}
-                onBlur={(e) => {
-                  if (e.target.value === '' || Number(e.target.value) < 1) {
-                    modificarCantidad(productoSeleccionado, 1 - obtenerCantidad(productoSeleccionado.codigo_int));
-                  }
-                }}
-                className="cantidad-input"
-              />
-
-
-              <button onClick={() => modificarCantidad(productoSeleccionado, 1)} className="btn-mas">+</button>
-            </div>
-
-
-
-            <button className="btn-seguir" onClick={cerrarModal}>
-              ← Seguir viendo productos
-            </button>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
-
-
 }
 
 export default ProductList;

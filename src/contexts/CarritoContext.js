@@ -1,18 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
-
-
 const CarritoContext = createContext();
-
-
 export const useCarrito = () => useContext(CarritoContext);
 
 const API_URL =
   window.location.hostname === 'localhost'
     ? 'http://localhost:5000'
     : 'https://tsb-backend-tienda-production.up.railway.app';
-
 
 export const CarritoProvider = ({ children }) => {
   const [carrito, setCarrito] = useState([]);
@@ -22,8 +17,6 @@ export const CarritoProvider = ({ children }) => {
   const [carritoEditadoManualmente, setCarritoEditadoManualmente] = useState(() => {
     return localStorage.getItem('carritoEditadoManualmente') === 'true';
   });
-
-
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -62,7 +55,6 @@ export const CarritoProvider = ({ children }) => {
     if (!pedidoID) return;
 
     const carritoGuardadoManualmente = localStorage.getItem('carritoEditadoManualmente') === 'true';
-
     if (carritoGuardadoManualmente && cantidadEnCarrito > 0) return;
 
     const recuperarCarritoDesdeBD = async () => {
@@ -84,10 +76,6 @@ export const CarritoProvider = ({ children }) => {
     recuperarCarritoDesdeBD();
   }, [pedidoID, cantidadEnCarrito]);
 
-
-
-
-
   useEffect(() => {
     if (!pedidoID || !carritoCargado) return;
 
@@ -99,11 +87,10 @@ export const CarritoProvider = ({ children }) => {
           array_pedido: JSON.stringify(carrito),
         }),
       });
-    }, 600); // espera 600ms antes de sincronizar
+    }, 600);
 
-    return () => clearTimeout(delaySync); // cancela si se vuelve a disparar antes de tiempo
+    return () => clearTimeout(delaySync);
   }, [carrito, pedidoID, carritoCargado]);
-
 
   useEffect(() => {
     const sincronizarAlVolver = async () => {
@@ -136,17 +123,13 @@ export const CarritoProvider = ({ children }) => {
     };
   }, [pedidoID, carrito, carritoEditadoManualmente]);
 
-
-
-
-
-
-
+  // ✅ SIEMPRE precio online: costosiniva * (1 + iva/100) * (1 + 0.20)
   const calcularPrecio = (producto) => {
-    if (isNaN(producto.costosiniva)) return 0;
-    return Math.round(
-      (producto.costosiniva * (1 + producto.iva / 100) * (1 + producto.margen / 100)) / 100
-    ) * 100;
+    const base = Number(producto.costosiniva);
+    const ivaFactor = 1 + (Number(producto.iva || 0) / 100);
+    const margenOnline = 1 + 0.20; // 20%
+    if (!Number.isFinite(base)) return 0;
+    return Math.round((base * ivaFactor * margenOnline) / 100) * 100; // redondeo a centena
   };
 
   const crearPedidoEnBackend = async () => {
@@ -225,13 +208,17 @@ export const CarritoProvider = ({ children }) => {
 
       if (index !== -1) {
         carritoActual[index].cantidad += cantidad;
+
         if (carritoActual[index].cantidad <= 0) {
           carritoActual.splice(index, 1);
+        } else {
+          // 🔒 Aseguramos que el precio del carrito sea SIEMPRE el online
+          carritoActual[index].price = calcularPrecio(carritoActual[index]);
         }
       } else if (cantidad > 0) {
         carritoActual.push({
           ...producto,
-          price: calcularPrecio(producto),
+          price: calcularPrecio(producto), // ✅ precio online
           cantidad,
         });
       }
@@ -251,18 +238,16 @@ export const CarritoProvider = ({ children }) => {
     }
   };
 
-
   const cambiarCantidad = (codigo_int, nuevaCantidad) => {
     setCarrito((prev) => {
       const nuevo = nuevaCantidad <= 0
         ? prev.filter((item) => item.codigo_int !== codigo_int)
         : prev.map((item) =>
-          item.codigo_int === codigo_int
-            ? { ...item, cantidad: nuevaCantidad }
-            : item
-        );
+            item.codigo_int === codigo_int
+              ? { ...item, cantidad: nuevaCantidad }
+              : item
+          );
       setCarritoEditadoManualmente(true);
-
       return nuevo;
     });
   };
@@ -271,7 +256,6 @@ export const CarritoProvider = ({ children }) => {
     setCarrito((prev) => {
       const nuevo = prev.filter((item) => item.codigo_int !== producto.codigo_int);
       setCarritoEditadoManualmente(true);
-
       return nuevo;
     });
   };
@@ -281,7 +265,6 @@ export const CarritoProvider = ({ children }) => {
     localStorage.setItem('carritoEditadoManualmente', 'false');
     setCarrito(nuevoCarrito);
   };
-
 
   const finalizarCompra = async () => {
     try {
@@ -310,7 +293,6 @@ export const CarritoProvider = ({ children }) => {
       alert('No se pudo conectar con el servidor');
     }
   };
-
 
   return (
     <CarritoContext.Provider
