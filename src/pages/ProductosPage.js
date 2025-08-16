@@ -10,7 +10,6 @@ const ProductosPage = () => {
   const navigate = useNavigate();
   const [grcat, setGrcat] = useState('');
 
-
   const clienteID = new URLSearchParams(location.search).get('clienteID');
 
   useEffect(() => {
@@ -36,7 +35,6 @@ const ProductosPage = () => {
     } else {
       document.title = 'Bazar - Productos';
     }
-
   }, [location, navigate]);
 
   if (!grcat) {
@@ -49,6 +47,29 @@ const ProductosPage = () => {
         <h1>TIENDA SALTA BAZAR</h1>
         <CarritoLink />
       </header>
+
+      {/* ===== Instructivo arriba de las tarjetas ===== */}
+      <div className="pedido-instructivo">
+        <h3 className="pi-titulo">🛒 Cómo hacer tu pedido</h3>
+
+        <ol className="pi-lista">
+          <li>
+            <strong>Elegí tus productos</strong>
+            <span>Buscá por categoría o palabra y agregá al carrito lo que necesites.</span>
+          </li>
+          <li>
+            <strong>Revisá tu pedido</strong>
+            <span>Entrá a “Ver tu pedido” para confirmar cantidades y ver el total.</span>
+          </li>
+          <li>
+            <strong>Enviá tu solicitud</strong>
+            <span>
+              Mandanos tu nota de pedido por WhatsApp, llamada o contacto online.<br />
+              👉 El vendedor revisará <strong>precio y stock</strong> y luego <strong>vos podrás confirmar o no el pedido</strong>.
+            </span>
+          </li>
+        </ol>
+      </div>
 
       <ProductList grcat={grcat} />
 
