@@ -1,6 +1,26 @@
-import React, { useEffect, useState, useRef } from 'react';
+// src/components/Categorias.js
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import './Categorias.css';
 import config from '../config';
+
+/* ==== Helpers fuera del componente (estables) ==== */
+const valorOrden = (v) => {
+  if (v === null || v === undefined) return Number.POSITIVE_INFINITY;
+  const n = parseFloat(String(v).replace(',', '.'));
+  return Number.isFinite(n) ? n : Number.POSITIVE_INFINITY;
+};
+
+const ordenarCategorias = (arr) => {
+  return [...(Array.isArray(arr) ? arr : [])].sort((a, b) => {
+    const oa = valorOrden(a?.catcat);
+    const ob = valorOrden(b?.catcat);
+    if (oa !== ob) return oa - ob;
+    const na = (a?.grandescategorias ?? '').toString();
+    const nb = (b?.grandescategorias ?? '').toString();
+    return na.localeCompare(nb, 'es', { sensitivity: 'base' });
+  });
+};
+/* ================================================ */
 
 const Categorias = ({ onSeleccionarCategoria }) => {
   const [categorias, setCategorias] = useState([]);
@@ -8,37 +28,45 @@ const Categorias = ({ onSeleccionarCategoria }) => {
   const [busqueda, setBusqueda] = useState('');
   const inputRef = useRef(null);
 
-  const cargarTodas = async () => {
+  /* cargarTodas con useCallback */
+  const cargarTodas = useCallback(async () => {
     try {
       const res = await fetch(`${config.API_URL}/api/categorias`);
       const data = await res.json();
-      setCategorias(data);
+      setCategorias(ordenarCategorias(data));
     } catch (error) {
       console.error('Error al cargar todas las categorías:', error);
+      setCategorias([]);
     }
-  };
-
-  const buscarCategorias = async (texto) => {
-    try {
-      const res = await fetch(`${config.API_URL}/api/buscar-categorias?palabra=${encodeURIComponent(texto)}`);
-      const data = await res.json();
-      setCategorias(data);
-    } catch (error) {
-      console.error('Error al buscar categorías:', error);
-    }
-  };
-
-  useEffect(() => {
-    cargarTodas();
   }, []);
 
+  /* buscarCategorias con useCallback */
+  const buscarCategorias = useCallback(async (texto) => {
+    try {
+      const res = await fetch(
+        `${config.API_URL}/api/buscar-categorias?palabra=${encodeURIComponent(texto)}`
+      );
+      const data = await res.json();
+      setCategorias(ordenarCategorias(data));
+    } catch (error) {
+      console.error('Error al buscar categorías:', error);
+      setCategorias([]);
+    }
+  }, []);
+
+  /* Montaje inicial */
+  useEffect(() => {
+    cargarTodas();
+  }, [cargarTodas]);
+
+  /* Reacciona a cambios en 'busqueda' */
   useEffect(() => {
     if (busqueda.trim() === '') {
       cargarTodas();
     } else {
       buscarCategorias(busqueda);
     }
-  }, [busqueda]);
+  }, [busqueda, cargarTodas, buscarCategorias]);
 
   return (
     <div className="categorias-container">
@@ -56,7 +84,7 @@ const Categorias = ({ onSeleccionarCategoria }) => {
             border: '1px solid #ccc',
             fontSize: '1rem',
             width: '100%',
-            boxSizing: 'border-box'
+            boxSizing: 'border-box',
           }}
         />
 
@@ -75,7 +103,7 @@ const Categorias = ({ onSeleccionarCategoria }) => {
               border: 'none',
               fontSize: '1.2rem',
               cursor: 'pointer',
-              color: '#aaa'
+              color: '#aaa',
             }}
             title="Borrar búsqueda"
           >
@@ -85,7 +113,14 @@ const Categorias = ({ onSeleccionarCategoria }) => {
       </div>
 
       {categorias.length === 0 && busqueda.trim() !== '' ? (
-        <div style={{ marginTop: '1.5rem', textAlign: 'center', color: '#333', padding: '1rem' }}>
+        <div
+          style={{
+            marginTop: '1.5rem',
+            textAlign: 'center',
+            color: '#333',
+            padding: '1rem',
+          }}
+        >
           <p style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>
             ❌ No hemos encontrado el producto.
           </p>
@@ -105,7 +140,7 @@ const Categorias = ({ onSeleccionarCategoria }) => {
               textDecoration: 'none',
               fontSize: '1rem',
               boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-              transition: 'background-color 0.3s'
+              transition: 'background-color 0.3s',
             }}
           >
             📲 Toca aquí para consultar por WhatsApp
@@ -114,12 +149,19 @@ const Categorias = ({ onSeleccionarCategoria }) => {
       ) : (
         categorias.map((cat, index) => {
           const clienteID = localStorage.getItem('clienteID') || '';
-          const url = `/productos?grcat=${encodeURIComponent(cat.grcat)}&clienteID=${encodeURIComponent(clienteID)}&nombre=${encodeURIComponent(cat.grandescategorias)}`;
+          const url = `/productos?grcat=${encodeURIComponent(
+            cat.grcat
+          )}&clienteID=${encodeURIComponent(clienteID)}&nombre=${encodeURIComponent(
+            cat.grandescategorias
+          )}`;
+
           return (
             <a
-              key={index}
+              key={cat?.id || index}
               href={url}
-              className={`categoria-boton ${categoriaActiva === cat.grcat ? 'activa' : ''}`}
+              className={`categoria-boton ${
+                categoriaActiva === cat.grcat ? 'activa' : ''
+              }`}
               target="_blank"
               rel="noopener noreferrer"
             >
