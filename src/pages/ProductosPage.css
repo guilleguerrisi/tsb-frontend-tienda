@@ -217,8 +217,8 @@ p {
   margin: 1rem auto 1.25rem;
   max-width: 980px;
   padding: 0.75rem 1rem;
-  background: rgba(255, 255, 255, 0.20);        /* más transparente */
-  border: 1px solid rgba(255, 255, 255, 0.35);  /* borde muy suave */
+  background: rgba(255, 255, 255, 0.42);        /* más claro */
+  border: 1px solid rgba(255, 255, 255, 0.60);  /* borde un poco más visible */
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);       /* sombra mínima */
   backdrop-filter: blur(4px);
@@ -255,7 +255,7 @@ p {
 
 /* Separador sutil entre pasos */
 .pi-lista li + li {
-  border-top: 1px dashed rgba(17,24,39,0.15);
+  border-top: 1px dashed rgba(17,24,39,0.10);   /* más claro */
   padding-top: 0.55rem;
   margin-top: 0.25rem;
 }

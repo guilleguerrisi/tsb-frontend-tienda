@@ -44,8 +44,18 @@ const ProductosPage = () => {
 
   return (
     <div className="App">
-      <header className="header">
+      {/* ===== Header con botón de Categorías alineado a Carrito ===== */}
+      <header className="header header--with-cta">
+        <button
+          className="flotante-boton secundaria header-categorias-btn"
+          onClick={() => navigate('/')}
+          aria-label="Volver a categorías"
+        >
+          ← Categorías
+        </button>
+
         <h1>TIENDA SALTA BAZAR</h1>
+
         <CarritoLink />
       </header>
 
