@@ -3,63 +3,44 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import './Categorias.css';
 import config from '../config';
 
-/* ==== Helpers fuera del componente (estables) ==== */
-const valorOrden = (v) => {
-  if (v === null || v === undefined) return Number.POSITIVE_INFINITY;
-  const n = parseFloat(String(v).replace(',', '.'));
-  return Number.isFinite(n) ? n : Number.POSITIVE_INFINITY;
-};
-
-const ordenarCategorias = (arr) => {
-  return [...(Array.isArray(arr) ? arr : [])].sort((a, b) => {
-    const oa = valorOrden(a?.catcat);
-    const ob = valorOrden(b?.catcat);
-    if (oa !== ob) return oa - ob;
-    const na = (a?.grandescategorias ?? '').toString();
-    const nb = (b?.grandescategorias ?? '').toString();
-    return na.localeCompare(nb, 'es', { sensitivity: 'base' });
-  });
-};
-/* ================================================ */
-
 const Categorias = ({ onSeleccionarCategoria }) => {
   const [categorias, setCategorias] = useState([]);
   const [categoriaActiva] = useState(null);
   const [busqueda, setBusqueda] = useState('');
   const inputRef = useRef(null);
 
-  /* cargarTodas con useCallback */
+  // Carga todas las categorías (ordenadas por el backend por catcat ASC)
   const cargarTodas = useCallback(async () => {
     try {
       const res = await fetch(`${config.API_URL}/api/categorias`);
       const data = await res.json();
-      setCategorias(ordenarCategorias(data));
+      setCategorias(data); // ✅ confiar en el orden del backend
     } catch (error) {
       console.error('Error al cargar todas las categorías:', error);
       setCategorias([]);
     }
   }, []);
 
-  /* buscarCategorias con useCallback */
+  // Busca categorías (el backend también devuelve ordenadas por catcat ASC)
   const buscarCategorias = useCallback(async (texto) => {
     try {
       const res = await fetch(
         `${config.API_URL}/api/buscar-categorias?palabra=${encodeURIComponent(texto)}`
       );
       const data = await res.json();
-      setCategorias(ordenarCategorias(data));
+      setCategorias(data); // ✅ confiar en el orden del backend
     } catch (error) {
       console.error('Error al buscar categorías:', error);
       setCategorias([]);
     }
   }, []);
 
-  /* Montaje inicial */
+  // Montaje inicial
   useEffect(() => {
     cargarTodas();
   }, [cargarTodas]);
 
-  /* Reacciona a cambios en 'busqueda' */
+  // Reacciona a cambios en 'busqueda'
   useEffect(() => {
     if (busqueda.trim() === '') {
       cargarTodas();
@@ -159,9 +140,7 @@ const Categorias = ({ onSeleccionarCategoria }) => {
             <a
               key={cat?.id || index}
               href={url}
-              className={`categoria-boton ${
-                categoriaActiva === cat.grcat ? 'activa' : ''
-              }`}
+              className={`categoria-boton ${categoriaActiva === cat.grcat ? 'activa' : ''}`}
               target="_blank"
               rel="noopener noreferrer"
             >
