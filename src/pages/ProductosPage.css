@@ -212,22 +212,27 @@ p {
   margin-top: 1rem; /* 🔥 Esto es clave: separa el botón del bloque de cantidad */
 }
 
-/* ===== Instructivo de pedido ===== */
+/* ===== Instructivo de pedido (sutil) ===== */
 .pedido-instructivo {
-  margin: 1.5rem auto 2rem;
-  max-width: 1100px;
-  background: #eef1f9;              /* tono suave */
-  border: 2px solid #cfd9ff;
-  border-radius: 14px;
-  padding: 1rem 1.2rem;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+  margin: 1rem auto 1.25rem;
+  max-width: 980px;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.20);        /* más transparente */
+  border: 1px solid rgba(255, 255, 255, 0.35);  /* borde muy suave */
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);       /* sombra mínima */
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 .pi-titulo {
   text-align: center;
-  font-weight: 800;
-  margin: 0 0 0.6rem 0;
-  letter-spacing: 0.3px;
+  font-weight: 600;          /* antes 800 */
+  font-size: 1rem;           /* más chico */
+  margin: 0 0 0.5rem 0;
+  letter-spacing: 0.2px;
+  color: #111827;
+  opacity: 0.9;
 }
 
 .pi-lista {
@@ -235,26 +240,34 @@ p {
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 0.6rem;
+  gap: 0.4rem;               /* menos espacio entre items */
 }
 
+/* Cada ítem sin tarjeta blanca; contenido “plano” */
 .pi-lista li {
-  background: #fff;
-  border: 1px solid #e7ebff;
-  border-radius: 10px;
-  padding: 0.7rem 0.9rem;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0.45rem 0.5rem;
   line-height: 1.35;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  color: #111827;
 }
 
-/* 👉 Solo el título principal del paso va en block */
+/* Separador sutil entre pasos */
+.pi-lista li + li {
+  border-top: 1px dashed rgba(17,24,39,0.15);
+  padding-top: 0.55rem;
+  margin-top: 0.25rem;
+}
+
+/* Solo el título del paso va en block */
 .pi-lista > li > strong {
   display: block;
-  font-weight: 700;
+  font-weight: 600;
   margin-bottom: 2px;
 }
 
-/* 👉 Los strong dentro del texto van inline */
+/* Los strong dentro del texto quedan en línea */
 .pi-lista li span strong {
   display: inline;
   font-weight: 700;
@@ -263,7 +276,7 @@ p {
 .pi-lista li span {
   display: block;
   font-size: 0.95rem;
-  color: #444;
+  color: #1f2937;
 }
 
 @media (max-width: 768px) {
@@ -286,11 +299,6 @@ p {
     padding: 14px;
   }
 
-  .pedido-instructivo {
-    padding: 0.9rem; 
-  }
-
-  .pi-lista li { 
-    padding: 0.65rem 0.75rem;
-  }
+  .pedido-instructivo { padding: 0.7rem 0.85rem; }
+  .pi-lista li { padding: 0.45rem 0.25rem; }
 }
