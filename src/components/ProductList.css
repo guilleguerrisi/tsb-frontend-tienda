@@ -303,7 +303,9 @@ button:disabled {
 }
 
 .cantidad-input {
-  width: 3rem;
+  /* antes: width: 3rem; */
+  width: 6ch; min-width: 64px;          /* ✅ más ancho */
+  min-width: 72px;      /* asegura que no se achique */
   text-align: center;
   font-size: 1.2rem;
   padding: 4px 6px;
@@ -313,6 +315,7 @@ button:disabled {
   box-sizing: border-box;
 }
 
+
 .modal-content .control-cantidad button {
   font-size: 1rem;
   width: 28px;
@@ -321,11 +324,13 @@ button:disabled {
 }
 
 .modal-content .cantidad-input {
-  width: 40px;
+  /* antes: width: 40px; */
+  width: 64px;          /* ✅ más cómodo en la ficha */
   font-size: 1rem;
   height: 28px;
   text-align: center;
 }
+
 
 .modal-content .btn-seguir {
   font-size: 1rem;
@@ -436,10 +441,12 @@ input[type="number"] {
   }
 
   .control-cantidad input[type="number"] {
-    width: 30px;
-    font-size: 0.8rem;
-    text-align: center;
-  }
+  /* antes: width: 30px; font-size: 0.8rem; */
+  width: 56px;          /* ✅ más ancho en celular */
+  font-size: 0.95rem;
+  text-align: center;
+}
+
 
   .btn-vermas {
     font-size: 0.8rem;
