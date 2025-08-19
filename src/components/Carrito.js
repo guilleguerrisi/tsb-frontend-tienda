@@ -13,6 +13,29 @@ const Carrito = () => {
   const params = new URLSearchParams(location.search);
   const idPedido = params.get("id");
 
+  // 🧠 Buffer local para escribir cantidades sin "peleas" con el estado global
+  const [draftCarrito, setDraftCarrito] = useState({}); // { [codigo_int]: "texto" }
+
+  const getCantidadStr = (codigo, actual) =>
+    draftCarrito[codigo] ?? String(actual ?? 1);
+
+  const commitCantidad = (codigo, actual) => {
+    const raw = draftCarrito[codigo];
+    if (raw === undefined) return; // nada que confirmar
+
+    let n = parseInt(raw, 10);
+    if (isNaN(n)) n = actual ?? 1;
+    n = Math.max(1, n); // carrito: mínimo 1
+
+    if (n !== actual) cambiarCantidad(codigo, n);
+
+    setDraftCarrito(prev => {
+      const cp = { ...prev };
+      delete cp[codigo];
+      return cp;
+    });
+  };
+
   // 🔄 Si accedemos con /carrito?id=XX, cargamos ese carrito desde el backend
   useEffect(() => {
     const cargarPedido = async () => {
@@ -82,9 +105,11 @@ const Carrito = () => {
                       type="button"
                       className="btn-cantidad"
                       onClick={() => {
-                        setTimeout(() => {
-                          cambiarCantidad(item.codigo_int, item.cantidad - 1);
-                        }, 100);
+                        // Limpiamos draft antes de ajustar
+                        setDraftCarrito(prev => {
+                          const cp = { ...prev }; delete cp[item.codigo_int]; return cp;
+                        });
+                        cambiarCantidad(item.codigo_int, Math.max(1, (item.cantidad || 1) - 1));
                       }}
                     >
                       –
@@ -92,30 +117,26 @@ const Carrito = () => {
                     <input
                       type="number"
                       min="1"
-                      value={item.cantidad || 1}
+                      value={getCantidadStr(item.codigo_int, item.cantidad)}
                       onFocus={(e) => e.target.select()}
                       onChange={(e) => {
-                        const nuevaCantidad = parseInt(e.target.value);
-                        if (!isNaN(nuevaCantidad)) {
-                          setTimeout(() => {
-                            cambiarCantidad(item.codigo_int, nuevaCantidad);
-                          }, 200);
-                        }
+                        const v = e.target.value; // guardamos tal cual (incluye vacío)
+                        setDraftCarrito(prev => ({ ...prev, [item.codigo_int]: v }));
                       }}
-                      onBlur={(e) => {
-                        if (e.target.value === '' || Number(e.target.value) < 1) {
-                          cambiarCantidad(item.codigo_int, 1);
-                        }
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') commitCantidad(item.codigo_int, item.cantidad || 1);
                       }}
+                      onBlur={() => commitCantidad(item.codigo_int, item.cantidad || 1)}
                       className="cantidad-input"
                     />
                     <button
                       type="button"
                       className="btn-cantidad"
                       onClick={() => {
-                        setTimeout(() => {
-                          cambiarCantidad(item.codigo_int, item.cantidad + 1);
-                        }, 100);
+                        setDraftCarrito(prev => {
+                          const cp = { ...prev }; delete cp[item.codigo_int]; return cp;
+                        });
+                        cambiarCantidad(item.codigo_int, (item.cantidad || 1) + 1);
                       }}
                     >
                       +

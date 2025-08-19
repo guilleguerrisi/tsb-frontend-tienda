@@ -11,9 +11,39 @@ function ProductList({ grcat }) {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
 
+  // 🧠 Draft de cantidades por producto mientras el usuario escribe
+  const [draftCantidades, setDraftCantidades] = useState({});
+
   const obtenerCantidad = (codigo_int) => {
     const item = carrito.find(p => p.codigo_int === codigo_int);
     return item?.cantidad || 0;
+  };
+
+  // Devuelve el string a mostrar en el input: draft si existe, si no la cantidad real
+  const getCantidadStr = (codigo) =>
+    draftCantidades[codigo] ?? String(obtenerCantidad(codigo));
+
+  // Confirma el draft y lo vuelca al carrito (aplicando mínimo)
+  const commitCantidad = (producto, cantidadMin = 0) => {
+    const codigo = producto.codigo_int;
+    const raw = draftCantidades[codigo];
+
+    if (raw === undefined) return; // no hay nada que confirmar
+
+    const actual = obtenerCantidad(codigo);
+    let n = parseInt(raw, 10);
+    if (isNaN(n)) n = actual; // si quedó vacío o no numérico, mantenemos actual
+    if (typeof cantidadMin === 'number') n = Math.max(cantidadMin, n);
+
+    const delta = n - actual;
+    if (delta !== 0) modificarCantidad(producto, delta);
+
+    // limpiar draft del producto
+    setDraftCantidades(prev => {
+      const cp = { ...prev };
+      delete cp[codigo];
+      return cp;
+    });
   };
 
   // Siempre agrega usando precio online (20%)
@@ -250,25 +280,45 @@ function ProductList({ grcat }) {
 
                         <div className="bottom-row">
                           <div className="control-cantidad">
-                            <button onClick={() => modificarCantidad(producto, -1)} className="btn-menos">−</button>
+                            <button
+                              onClick={() => {
+                                setDraftCantidades(prev => {
+                                  const cp = { ...prev }; delete cp[producto.codigo_int]; return cp;
+                                });
+                                modificarCantidad(producto, -1);
+                              }}
+                              className="btn-menos"
+                            >
+                              −
+                            </button>
+
                             <input
                               type="number"
-                              min="0"
-                              value={obtenerCantidad(producto.codigo_int)}
+                              min="0" // tarjeta: mínimo 0
+                              value={getCantidadStr(producto.codigo_int)}
                               onFocus={(e) => { e.target.select(); }}
                               onChange={(e) => {
-                                const nueva = parseInt(e.target.value) || 0;
-                                const actual = obtenerCantidad(producto.codigo_int);
-                                modificarCantidad(producto, nueva - actual);
+                                const v = e.target.value; // guardamos string tal cual (incluye vacío)
+                                setDraftCantidades(prev => ({ ...prev, [producto.codigo_int]: v }));
                               }}
-                              onBlur={(e) => {
-                                if (e.target.value === '' || Number(e.target.value) < 1) {
-                                  modificarCantidad(producto, 1 - obtenerCantidad(producto.codigo_int));
-                                }
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') commitCantidad(producto, 0);
                               }}
+                              onBlur={() => commitCantidad(producto, 0)}
                               className="cantidad-input"
                             />
-                            <button onClick={() => modificarCantidad(producto, 1)} className="btn-mas">+</button>
+
+                            <button
+                              onClick={() => {
+                                setDraftCantidades(prev => {
+                                  const cp = { ...prev }; delete cp[producto.codigo_int]; return cp;
+                                });
+                                modificarCantidad(producto, 1);
+                              }}
+                              className="btn-mas"
+                            >
+                              +
+                            </button>
                           </div>
 
                           <button className="btn-vermas" onClick={() => abrirModal(producto)}>
@@ -358,32 +408,45 @@ function ProductList({ grcat }) {
               <p><strong>Codigo:</strong> {productoSeleccionado.codigo_int}</p>
 
               <div className="control-cantidad" style={{ marginTop: '1rem' }}>
-                <button onClick={() => modificarCantidad(productoSeleccionado, -1)} className="btn-menos">−</button>
+                <button
+                  onClick={() => {
+                    setDraftCantidades(prev => {
+                      const cp = { ...prev }; delete cp[productoSeleccionado.codigo_int]; return cp;
+                    });
+                    modificarCantidad(productoSeleccionado, -1);
+                  }}
+                  className="btn-menos"
+                >
+                  −
+                </button>
+
                 <input
                   type="number"
-                  min="0"
-                  value={obtenerCantidad(productoSeleccionado.codigo_int)}
+                  min="0" // modal: mínimo 0
+                  value={getCantidadStr(productoSeleccionado.codigo_int)}
                   onFocus={(e) => e.target.select()}
                   onChange={(e) => {
-                    const nueva = parseInt(e.target.value) || 0;
-                    const actual = obtenerCantidad(productoSeleccionado.codigo_int);
-
-                    if (window.__timeoutCantidadFicha) {
-                      clearTimeout(window.__timeoutCantidadFicha);
-                    }
-
-                    window.__timeoutCantidadFicha = setTimeout(() => {
-                      modificarCantidad(productoSeleccionado, nueva - actual);
-                    }, 300);
+                    const v = e.target.value; // guardamos string tal cual
+                    setDraftCantidades(prev => ({ ...prev, [productoSeleccionado.codigo_int]: v }));
                   }}
-                  onBlur={(e) => {
-                    if (e.target.value === '' || Number(e.target.value) < 1) {
-                      modificarCantidad(productoSeleccionado, 1 - obtenerCantidad(productoSeleccionado.codigo_int));
-                    }
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') commitCantidad(productoSeleccionado, 0);
                   }}
+                  onBlur={() => commitCantidad(productoSeleccionado, 0)}
                   className="cantidad-input"
                 />
-                <button onClick={() => modificarCantidad(productoSeleccionado, 1)} className="btn-mas">+</button>
+
+                <button
+                  onClick={() => {
+                    setDraftCantidades(prev => {
+                      const cp = { ...prev }; delete cp[productoSeleccionado.codigo_int]; return cp;
+                    });
+                    modificarCantidad(productoSeleccionado, 1);
+                  }}
+                  className="btn-mas"
+                >
+                  +
+                </button>
               </div>
 
               <button className="btn-seguir" onClick={cerrarModal}>
