@@ -7,10 +7,13 @@ const HomePage = () => {
  
 
   const manejarSeleccionCategoria = (grcat) => {
-    const clienteID = localStorage.getItem('clienteID');
-    const url = `/productos?grcat=${encodeURIComponent(grcat)}&clienteID=${clienteID}`;
-    window.open(url, '_blank');
-  };
+  const clienteID = localStorage.getItem('clienteID') || '';
+  const url =
+    `/productos?buscar=${encodeURIComponent(grcat)}` +
+    (clienteID ? `&clienteID=${encodeURIComponent(clienteID)}` : '');
+  window.open(url, '_blank');
+};
+
 
 
   return (

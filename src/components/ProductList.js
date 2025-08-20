@@ -58,31 +58,28 @@ useEffect(() => {
       setCargando(true);
       setError(null);
 
-      // Construcción de URL: puede llevar grcat, buscar o ambos
       const params = new URLSearchParams();
-      if (grcat && String(grcat).trim() !== '') {
-        params.set('grcat', String(grcat).trim());
-      }
       if (buscar && buscar.trim() !== '') {
+        // siempre priorizamos la búsqueda
         params.set('buscar', buscar.trim());
+      } else if (grcat && grcat.trim() !== '') {
+        // fallback: si solo vino grcat, lo usamos como texto de búsqueda
+        params.set('buscar', grcat.trim());
       }
 
       const url = `${config.API_URL}/api/mercaderia${params.toString() ? `?${params.toString()}` : ''}`;
 
       const res = await fetch(url);
-      if (!res.ok) {
-        const text = await res.text().catch(() => '');
-        throw new Error(`HTTP ${res.status} ${res.statusText} ${text}`);
-      }
-
       const data = await res.json();
-      if (!Array.isArray(data)) throw new Error('La respuesta no es un array');
 
-      setProductos(data);
+      if (Array.isArray(data)) {
+        setProductos(data);
+      } else {
+        throw new Error('La respuesta no es un array');
+      }
     } catch (err) {
-      console.error('fetchProductos error:', err);
-      setProductos([]);
       setError('No se pudieron cargar los productos.');
+      setProductos([]);
     } finally {
       setCargando(false);
     }
@@ -90,6 +87,7 @@ useEffect(() => {
 
   fetchProductos();
 }, [grcat, buscar]);
+
 
 
 
