@@ -464,4 +464,22 @@ input[type="number"] {
     width: 100%;
     flex-wrap: wrap;
   }
+
+   /* Ocultar control de cantidades y botón Ficha */
+  body.admin-print .control-cantidad,
+  body.admin-print .btn-vermas {
+    display: none !important;
+  }
+
+  /* (Opcional) Si hubiera un modal abierto, ocultarlo en impresión */
+  body.admin-print .modal-overlay {
+    display: none !important;
+  }
+
+  /* (Opcional) Estética de tarjeta al imprimir */
+  body.admin-print .product-card {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+    page-break-inside: avoid;
+  }
 }

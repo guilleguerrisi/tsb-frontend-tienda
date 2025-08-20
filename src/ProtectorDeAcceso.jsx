@@ -13,9 +13,7 @@ function ProtectorDeAcceso({ children }) {
       try {
         const response = await fetch(`${config.API_URL}/api/verificar-dispositivo`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ device_id: deviceId })
         });
 
@@ -39,6 +37,16 @@ function ProtectorDeAcceso({ children }) {
 
     verificarAcceso();
   }, []);
+
+  // ✅ Habilita reglas de impresión solo para admin (agrega/quita clase en <body>)
+  useEffect(() => {
+    if (autorizado === true) {
+      document.body.classList.add('admin-print');
+    } else {
+      document.body.classList.remove('admin-print');
+    }
+    return () => document.body.classList.remove('admin-print');
+  }, [autorizado]);
 
   if (config.modoDesarrollo && autorizado === false) {
     const linkWhatsApp = `https://wa.me/5493875537070?text=${encodeURIComponent(
