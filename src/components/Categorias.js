@@ -40,7 +40,7 @@ const Categorias = ({ onSeleccionarCategoria }) => {
     cargarTodas();
   }, [cargarTodas]);
 
-  // Reacciona a cambios en 'busqueda'
+  // Reacciona a cambios en 'busqueda' (filtrado en vivo)
   useEffect(() => {
     if (busqueda.trim() === '') {
       cargarTodas();
@@ -49,16 +49,16 @@ const Categorias = ({ onSeleccionarCategoria }) => {
     }
   }, [busqueda, cargarTodas, buscarCategorias]);
 
-  // ➕ Abrir resultados en nueva pestaña cuando se envía el buscador
+  // Abrir resultados en nueva pestaña cuando se envía el buscador
   const handleSubmitBusqueda = (e) => {
     e.preventDefault();
     const q = (busqueda || '').trim();
     if (!q) return;
 
     const clienteID = localStorage.getItem('clienteID') || '';
-    const url = `/productos?buscar=${encodeURIComponent(q)}${
-      clienteID ? `&clienteID=${encodeURIComponent(clienteID)}` : ''
-    }`;
+    const url =
+      `/productos?buscar=${encodeURIComponent(q)}` +
+      (clienteID ? `&clienteID=${encodeURIComponent(clienteID)}` : '');
 
     window.open(url, '_blank');
   };
@@ -172,11 +172,11 @@ const Categorias = ({ onSeleccionarCategoria }) => {
       ) : (
         categorias.map((cat, index) => {
           const clienteID = localStorage.getItem('clienteID') || '';
-          const url = `/productos?grcat=${encodeURIComponent(
-            cat.grcat
-          )}&clienteID=${encodeURIComponent(clienteID)}&nombre=${encodeURIComponent(
-            cat.grandescategorias
-          )}`;
+          // 🔄 Ahora abrimos con ?buscar=catXXXXX (consistente con el backend)
+          const url =
+            `/productos?buscar=${encodeURIComponent(cat.grcat)}` +
+            (clienteID ? `&clienteID=${encodeURIComponent(clienteID)}` : '') +
+            `&nombre=${encodeURIComponent(cat.grandescategorias)}`;
 
           return (
             <a
