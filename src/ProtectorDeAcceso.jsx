@@ -38,7 +38,7 @@ function ProtectorDeAcceso({ children }) {
     verificarAcceso();
   }, []);
 
-  // ✅ Habilita reglas de impresión solo para admin (agrega/quita clase en <body>)
+  // ✅ Clase en <body> para modo impresión de admin (no es estrictamente necesaria, pero la dejamos)
   useEffect(() => {
     if (autorizado === true) {
       document.body.classList.add('admin-print');
@@ -46,6 +46,39 @@ function ProtectorDeAcceso({ children }) {
       document.body.classList.remove('admin-print');
     }
     return () => document.body.classList.remove('admin-print');
+  }, [autorizado]);
+
+  // ✅ Inserta CSS de impresión en <head> SOLO si estás autenticado
+  useEffect(() => {
+    const STYLE_ID = 'admin-print-style';
+    // Limpia si ya existía
+    const prev = document.getElementById(STYLE_ID);
+    if (prev) prev.remove();
+
+    if (autorizado === true) {
+      const style = document.createElement('style');
+      style.id = STYLE_ID;
+      style.setAttribute('media', 'print');
+      style.textContent = `
+        /* Ocultar exactamente lo que pediste al imprimir */
+        .control-cantidad,
+        .btn-vermas,
+        .modal-overlay { display: none !important; }
+
+        /* Opcional: estética al imprimir */
+        .product-card {
+          box-shadow: none !important;
+          border: 1px solid #ddd !important;
+          page-break-inside: avoid;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    return () => {
+      const el = document.getElementById(STYLE_ID);
+      if (el) el.remove();
+    };
   }, [autorizado]);
 
   if (config.modoDesarrollo && autorizado === false) {
