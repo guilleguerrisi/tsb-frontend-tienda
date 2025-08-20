@@ -1,45 +1,56 @@
+// src/pages/ProductosPage.jsx
 import React, { useEffect, useState } from 'react';
 import ProductList from '../components/ProductList';
 import CarritoLink from '../components/CarritoLink';
 import BotonFlotante from '../components/BotonFlotante';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { FaWhatsapp } from 'react-icons/fa';  // ✅ Import para el ícono
+import { FaWhatsapp } from 'react-icons/fa';
 import './ProductosPage.css';
 
 const ProductosPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
+
   const [grcat, setGrcat] = useState('');
+  const [buscar, setBuscar] = useState(''); // ✅ nuevo: soporte de búsqueda
 
+  // Persistir clienteID si viene en la URL
   const clienteID = new URLSearchParams(location.search).get('clienteID');
-
   useEffect(() => {
     if (clienteID) {
       localStorage.setItem('clienteID', clienteID);
     }
   }, [clienteID]);
 
+  // Leer parámetros y setear título
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const valor = params.get('grcat');
-    const nombre = params.get('nombre'); // ✅ desde la URL, no state
+    const valorGrcat = params.get('grcat') || '';
+    const q = params.get('buscar') || '';
+    const nombre = params.get('nombre');
 
-    if (!valor) {
+    // Si no hay ni categoría ni búsqueda, volvemos al Home
+    if (!valorGrcat && !q) {
       navigate('/');
-    } else {
-      setGrcat(valor);
+      return;
     }
+
+    setGrcat(valorGrcat);
+    setBuscar(q);
 
     if (nombre) {
       const nombreDecodificado = decodeURIComponent(nombre);
       document.title = `Bazar - ${nombreDecodificado}`;
+    } else if (q) {
+      document.title = `Bazar - Resultados para "${q}"`;
     } else {
       document.title = 'Bazar - Productos';
     }
   }, [location, navigate]);
 
-  if (!grcat) {
-    return <div style={{ padding: '2rem', color: '#333' }}>Cargando categoría...</div>;
+  // Pequeño fallback mientras se parsean los params
+  if (!grcat && !buscar) {
+    return <div style={{ padding: '2rem', color: '#333' }}>Cargando productos...</div>;
   }
 
   return (
@@ -82,7 +93,8 @@ const ProductosPage = () => {
         </ol>
       </div>
 
-      <ProductList grcat={grcat} />
+      {/* ✅ Pasamos tanto grcat como buscar; ProductList prioriza grcat si viene */}
+      <ProductList grcat={grcat} buscar={buscar} />
 
       <BotonFlotante />
 

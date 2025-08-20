@@ -49,49 +49,91 @@ const Categorias = ({ onSeleccionarCategoria }) => {
     }
   }, [busqueda, cargarTodas, buscarCategorias]);
 
+  // ➕ Abrir resultados en nueva pestaña cuando se envía el buscador
+  const handleSubmitBusqueda = (e) => {
+    e.preventDefault();
+    const q = (busqueda || '').trim();
+    if (!q) return;
+
+    const clienteID = localStorage.getItem('clienteID') || '';
+    const url = `/productos?buscar=${encodeURIComponent(q)}${
+      clienteID ? `&clienteID=${encodeURIComponent(clienteID)}` : ''
+    }`;
+
+    window.open(url, '_blank');
+  };
+
   return (
     <div className="categorias-container">
-      <div style={{ position: 'relative', width: '100%' }}>
-        <input
-          ref={inputRef}
-          type="text"
-          className="input-busqueda"
-          placeholder="🔎 Buscar producto o marca..."
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
+      {/* Buscador con botón a la derecha */}
+      <form
+        onSubmit={handleSubmitBusqueda}
+        className="buscador-row"
+        style={{ display: 'flex', gap: '8px', width: '100%' }}
+      >
+        <div style={{ position: 'relative', flex: 1 }}>
+          <input
+            ref={inputRef}
+            type="text"
+            className="input-busqueda"
+            placeholder="🔎 Buscar producto o marca..."
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)} // ← sigue filtrando en vivo
+            style={{
+              padding: '0.6rem 1rem',
+              borderRadius: '30px',
+              border: '1px solid #ccc',
+              fontSize: '1rem',
+              width: '100%',
+              boxSizing: 'border-box',
+              paddingRight: '2.4rem', // espacio para la ✕
+            }}
+          />
+
+          {busqueda && (
+            <button
+              type="button" // no enviar el form
+              onClick={() => {
+                setBusqueda('');
+                setTimeout(() => inputRef.current?.focus(), 0);
+              }}
+              style={{
+                position: 'absolute',
+                right: '10px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'transparent',
+                border: 'none',
+                fontSize: '1.2rem',
+                cursor: 'pointer',
+                color: '#aaa',
+              }}
+              title="Borrar búsqueda"
+              aria-label="Borrar búsqueda"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+
+        <button
+          type="submit"
+          className="btn-buscar"
           style={{
             padding: '0.6rem 1rem',
             borderRadius: '30px',
-            border: '1px solid #ccc',
-            fontSize: '1rem',
-            width: '100%',
-            boxSizing: 'border-box',
+            border: '1px solid #3498db',
+            background: '#3498db',
+            color: '#fff',
+            fontWeight: 700,
+            cursor: 'pointer',
+            whiteSpace: 'nowrap',
           }}
-        />
-
-        {busqueda && (
-          <button
-            onClick={() => {
-              setBusqueda('');
-              setTimeout(() => inputRef.current?.focus(), 0);
-            }}
-            style={{
-              position: 'absolute',
-              right: '10px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              background: 'transparent',
-              border: 'none',
-              fontSize: '1.2rem',
-              cursor: 'pointer',
-              color: '#aaa',
-            }}
-            title="Borrar búsqueda"
-          >
-            ✕
-          </button>
-        )}
-      </div>
+          aria-label="Buscar"
+        >
+          Buscar
+        </button>
+      </form>
 
       {categorias.length === 0 && busqueda.trim() !== '' ? (
         <div

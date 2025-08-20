@@ -3,7 +3,7 @@ import './ProductList.css';
 import { useCarrito } from '../contexts/CarritoContext';
 import config from '../config'; // ✅
 
-function ProductList({ grcat }) {
+function ProductList({ grcat, buscar  }) {
   const { carrito, agregarAlCarrito } = useCarrito();
   const [mercaderia, setProductos] = useState([]);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
@@ -53,32 +53,40 @@ function ProductList({ grcat }) {
   };
 
   useEffect(() => {
-    const fetchProductos = async () => {
-      try {
-        setCargando(true);
-        setError(null);
+  const fetchProductos = async () => {
+    try {
+      setCargando(true);
+      setError(null);
 
-        let url = `${config.API_URL}/api/mercaderia`;
-        if (grcat) url += `?grcat=${encodeURIComponent(grcat)}`;
-
-        const res = await fetch(url);
-        const data = await res.json();
-
-        if (Array.isArray(data)) {
-          setProductos(data);
-        } else {
-          throw new Error('La respuesta no es un array');
-        }
-      } catch (err) {
-        setError('No se pudieron cargar los productos.');
-        setProductos([]);
-      } finally {
-        setCargando(false);
+      // 👇 Construcción robusta de la URL
+      const params = new URLSearchParams();
+      if (grcat) {
+        params.set('grcat', grcat);              // prioridad: categoría
+      } else if (buscar && buscar.trim() !== '') {
+        params.set('buscar', buscar.trim());     // si no hay grcat, usamos búsqueda
       }
-    };
 
-    fetchProductos();
-  }, [grcat]);
+      const url = `${config.API_URL}/api/mercaderia${params.toString() ? `?${params.toString()}` : ''}`;
+
+      const res = await fetch(url);
+      const data = await res.json();
+
+      if (Array.isArray(data)) {
+        setProductos(data);
+      } else {
+        throw new Error('La respuesta no es un array');
+      }
+    } catch (err) {
+      setError('No se pudieron cargar los productos.');
+      setProductos([]);
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  fetchProductos();
+}, [grcat, buscar]); // 👈 agregá 'buscar' a las dependencias
+
 
   const abrirModal = (producto) => {
     let arrayImagenes = [];
