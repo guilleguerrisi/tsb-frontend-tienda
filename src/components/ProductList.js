@@ -52,40 +52,45 @@ function ProductList({ grcat, buscar  }) {
     agregarAlCarrito(prodConFlag, delta);
   };
 
-  useEffect(() => {
+useEffect(() => {
   const fetchProductos = async () => {
     try {
       setCargando(true);
       setError(null);
 
-      // 👇 Construcción robusta de la URL
+      // Construcción de URL: puede llevar grcat, buscar o ambos
       const params = new URLSearchParams();
-      if (grcat) {
-        params.set('grcat', grcat);              // prioridad: categoría
-      } else if (buscar && buscar.trim() !== '') {
-        params.set('buscar', buscar.trim());     // si no hay grcat, usamos búsqueda
+      if (grcat && String(grcat).trim() !== '') {
+        params.set('grcat', String(grcat).trim());
+      }
+      if (buscar && buscar.trim() !== '') {
+        params.set('buscar', buscar.trim());
       }
 
       const url = `${config.API_URL}/api/mercaderia${params.toString() ? `?${params.toString()}` : ''}`;
 
       const res = await fetch(url);
-      const data = await res.json();
-
-      if (Array.isArray(data)) {
-        setProductos(data);
-      } else {
-        throw new Error('La respuesta no es un array');
+      if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        throw new Error(`HTTP ${res.status} ${res.statusText} ${text}`);
       }
+
+      const data = await res.json();
+      if (!Array.isArray(data)) throw new Error('La respuesta no es un array');
+
+      setProductos(data);
     } catch (err) {
-      setError('No se pudieron cargar los productos.');
+      console.error('fetchProductos error:', err);
       setProductos([]);
+      setError('No se pudieron cargar los productos.');
     } finally {
       setCargando(false);
     }
   };
 
   fetchProductos();
-}, [grcat, buscar]); // 👈 agregá 'buscar' a las dependencias
+}, [grcat, buscar]);
+
 
 
   const abrirModal = (producto) => {
