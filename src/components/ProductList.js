@@ -267,13 +267,13 @@ useEffect(() => {
                       <div className="product-info">
                         <div className="price-row">
                           <div className="price-box online">
-                            <span className="price-label">Precio online</span>
+                            <span className="price-label">Precio Mayorista</span>
                             <span className="price-value">
                               {precioOnline ? formatoAR(precioOnline) : 'No disponible'}
                             </span>
                           </div>
                           <div className="price-box sucursal">
-                            <span className="price-label">Precio en sucursal</span>
+                            <span className="price-label">Precio por Menor</span>
                             <span className="price-value">
                               {precioSucursal ? formatoAR(precioSucursal) : 'No disponible'}
                             </span>
@@ -402,13 +402,13 @@ useEffect(() => {
               {/* 👇 Precios también en la ficha */}
               <div className="price-row modal-prices">
                 <div className="price-box online">
-                  <span className="price-label">Precio online</span>
+                  <span className="price-label">Precio Mayorista</span>
                   <span className="price-value">
                     {precioOnline ? formatoAR(precioOnline) : 'No disponible'}
                   </span>
                 </div>
                 <div className="price-box sucursal">
-                  <span className="price-label">Precio en sucursal</span>
+                  <span className="price-label">Precio por Menor</span>
                   <span className="price-value">
                     {precioSucursal ? formatoAR(precioSucursal) : 'No disponible'}
                   </span>

@@ -169,7 +169,7 @@ const Carrito = () => {
                   ${new Intl.NumberFormat('es-AR').format(total)}
                 </p>
                 <p className="carrito-total-envio">
-                 * Los Precios Online aplican solo para pedidos mayoristas y se abonan en efectivo o trasnferencia. Si el total de la nota de pedido que estas viendo, es inferior a $300.000, aplica el precio en sucursal. De igual forma, solicita revision de tu pedido para confirmarlo.El costo de envío oscila entre $5.000 y $15.000 dependiendo el destino y volumen del pedido. Hacemos envíos locales con servicio de mensajeria o con el transporte que vos nos indiques si es para fuera de salta capital.<br />
+                 * Los precios mayoristas aplican a partir de los $300.000 a valor mayorista. De igual forma, solicita la revision de tu pedido para confirmarlo.El costo de envío oscila entre $5.000 y $15.000 dependiendo el destino y volumen del pedido. Hacemos envíos locales con servicio de mensajeria o con el transporte que vos nos indiques si es para fuera de salta capital.<br />
                 </p>
               </div>
             </div>
@@ -230,9 +230,9 @@ const Carrito = () => {
         </p>
 
         <p className="info-contacto">
-          TIENDA SALTA BAZAR · DEPÓSITO EN CASEROS 1041 - SALTA CAPITAL <br />
-          (Entre calles Islas Malvinas y Jujuy) <br />
-          Lunes a Viernes de 10:00 a 13:30 · Sábado cerrado
+          TIENDA SALTA BAZAR · VENTA ONLINE DE PRODUCTOS DE BAZAR GASTRONÓMICO PARA RESTAURANTES, CONFITERIAS Y HOGAR - SALTA CAPITAL <br />
+           <br />
+          Lunes a Viernes · Sábados y Domingos CERRADO
         </p>
       </div>
     </div>
