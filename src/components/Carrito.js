@@ -227,7 +227,7 @@ const Carrito = () => {
                   ${new Intl.NumberFormat('es-AR').format(total)}
                 </p>
                 <p className="carrito-total-envio">
-                 * Los precios mayoristas aplican a partir de los $300.000 a valor mayorista. De igual forma, solicita la revisión de tu pedido para confirmarlo. El costo de envío oscila entre $5.000 y $15.000 dependiendo el destino y volumen del pedido. Hacemos envíos locales con servicio de mensajería o con el transporte que vos nos indiques si es para fuera de Salta Capital.<br />
+                  * Los precios mayoristas aplican a partir de los $300.000 a valor mayorista. De igual forma, solicita la revisión de tu pedido para confirmarlo. El costo de envío oscila entre $5.000 y $15.000 dependiendo el destino y volumen del pedido. Hacemos envíos locales con servicio de mensajería o con el transporte que vos nos indiques si es para fuera de Salta Capital.<br />
                 </p>
               </div>
             </div>
@@ -237,7 +237,7 @@ const Carrito = () => {
           <section className="contacto-final">
             <h3 className="contacto-title">¡Felicidades, tu Nota de pedido está lista!</h3>
             <p className="contacto-subtitle">
-              <strong>¿A qué número de WhatsApp podemos enviarte el presupuesto?</strong><br className="br-desktop"/>
+              <strong>¿A qué número de WhatsApp podemos enviarte el presupuesto?</strong><br className="br-desktop" />
               Dejanos tu número y te lo mandamos en minutos.
             </p>
 
@@ -286,7 +286,7 @@ const Carrito = () => {
 
         <p className="info-contacto">
           TIENDA SALTA BAZAR · VENTA ONLINE DE PRODUCTOS DE BAZAR GASTRONÓMICO PARA RESTAURANTES, CONFITERÍAS Y HOGAR - SALTA CAPITAL <br />
-           <br />
+          <br />
           Lunes a Viernes · Sábados y Domingos CERRADO
         </p>
       </div>
