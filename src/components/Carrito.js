@@ -2,12 +2,10 @@ import React, { useState, useEffect } from 'react';
 import './Carrito.css';
 import { useCarrito } from '../contexts/CarritoContext';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import ModalContacto from './ModalContacto';
 import config from '../config';
 
 const Carrito = () => {
   const { carrito, cambiarCantidad, eliminarDelCarrito, reemplazarCarrito, carritoEditadoManualmente } = useCarrito();
-  const [mostrarModal, setMostrarModal] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
@@ -15,6 +13,11 @@ const Carrito = () => {
 
   // 🧠 Buffer local para escribir cantidades sin "peleas" con el estado global
   const [draftCarrito, setDraftCarrito] = useState({}); // { [codigo_int]: "texto" }
+
+  // 📞 Teléfono de contacto
+  const [telefono, setTelefono] = useState('');
+  const [guardandoTelefono, setGuardandoTelefono] = useState(false);
+  const [mensajeOk, setMensajeOk] = useState('');
 
   const getCantidadStr = (codigo, actual) =>
     draftCarrito[codigo] ?? String(actual ?? 1);
@@ -47,6 +50,8 @@ const Carrito = () => {
 
         if (res.ok && data.array_pedido) {
           const carritoCargado = JSON.parse(data.array_pedido);
+          // traer contacto si viene
+          if (data.contacto_cliente) setTelefono(String(data.contacto_cliente));
           reemplazarCarrito(carritoCargado);
         } else {
           alert('El pedido no existe o fue eliminado. Se generará uno nuevo.');
@@ -67,14 +72,68 @@ const Carrito = () => {
     0
   );
 
-  const enviarPorWhatsApp = () => {
-    if (!idPedido) {
-      alert("No se encontró el ID del pedido.");
-      return;
+  // 🔧 Normalización simple (opcional): quita espacios y mantiene +, dígitos
+  const normalizarTelefono = (t) => t.replace(/[^\d+]/g, '').trim();
+
+  const handleSolicitarPresupuesto = async () => {
+    try {
+      setMensajeOk('');
+      const t = normalizarTelefono(telefono);
+
+      if (!t) {
+        alert('Por favor, ingresá un número de WhatsApp.');
+        return;
+      }
+      if (t.length < 8) {
+        alert('El número parece demasiado corto. Revisalo, por favor.');
+        return;
+      }
+
+      setGuardandoTelefono(true);
+
+      const payload = {
+        contacto_cliente: t,
+        array_pedido: JSON.stringify(carrito),
+      };
+
+      // Si existe el pedido, actualizamos; si no, lo creamos
+      let nuevoId = idPedido;
+
+      if (idPedido) {
+        const res = await fetch(`${config.API_URL}/api/pedidos/${idPedido}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) {
+          const err = await res.text();
+          throw new Error(`PATCH /api/pedidos/${idPedido} -> ${err}`);
+        }
+      } else {
+        const res = await fetch(`${config.API_URL}/api/pedidos`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(`POST /api/pedidos -> ${JSON.stringify(data)}`);
+        }
+        // Soportar distintas respuestas (id directo o array)
+        nuevoId = data?.id ?? data?.[0]?.id ?? data?.nuevoId ?? null;
+        if (nuevoId) {
+          // Redirigimos para mantener el flujo actual (link compartible)
+          navigate(`/carrito?id=${nuevoId}`, { replace: true });
+        }
+      }
+
+      setMensajeOk('¡Listo! Guardamos tu número para enviarte el presupuesto por WhatsApp.');
+    } catch (e) {
+      console.error('Error al guardar teléfono del pedido:', e);
+      alert('No pudimos guardar el número. Intentá nuevamente en unos segundos.');
+    } finally {
+      setGuardandoTelefono(false);
     }
-    const linkPedido = `${window.location.origin}/carrito?id=${idPedido}`;
-    const mensaje = encodeURIComponent(`Hola, quisiera consultar por estos productos: ${linkPedido}`);
-    window.open(`https://wa.me/5493875537070?text=${mensaje}`, '_blank');
   };
 
   return (
@@ -105,7 +164,6 @@ const Carrito = () => {
                       type="button"
                       className="btn-cantidad"
                       onClick={() => {
-                        // Limpiamos draft antes de ajustar
                         setDraftCarrito(prev => {
                           const cp = { ...prev }; delete cp[item.codigo_int]; return cp;
                         });
@@ -120,7 +178,7 @@ const Carrito = () => {
                       value={getCantidadStr(item.codigo_int, item.cantidad)}
                       onFocus={(e) => e.target.select()}
                       onChange={(e) => {
-                        const v = e.target.value; // guardamos tal cual (incluye vacío)
+                        const v = e.target.value;
                         setDraftCarrito(prev => ({ ...prev, [item.codigo_int]: v }));
                       }}
                       onKeyDown={(e) => {
@@ -169,51 +227,48 @@ const Carrito = () => {
                   ${new Intl.NumberFormat('es-AR').format(total)}
                 </p>
                 <p className="carrito-total-envio">
-                 * Los precios mayoristas aplican a partir de los $300.000 a valor mayorista. De igual forma, solicita la revision de tu pedido para confirmarlo.El costo de envío oscila entre $5.000 y $15.000 dependiendo el destino y volumen del pedido. Hacemos envíos locales con servicio de mensajeria o con el transporte que vos nos indiques si es para fuera de salta capital.<br />
+                 * Los precios mayoristas aplican a partir de los $300.000 a valor mayorista. De igual forma, solicita la revisión de tu pedido para confirmarlo. El costo de envío oscila entre $5.000 y $15.000 dependiendo el destino y volumen del pedido. Hacemos envíos locales con servicio de mensajería o con el transporte que vos nos indiques si es para fuera de Salta Capital.<br />
                 </p>
               </div>
             </div>
           </div>
 
-          {/* ✅ NUEVO: bloque de cierre y acciones */}
+          {/* ✅ NUEVO: bloque de cierre y captura de WhatsApp */}
           <section className="contacto-final">
             <h3 className="contacto-title">¡Felicidades, tu Nota de pedido está lista!</h3>
             <p className="contacto-subtitle">
-              Ahora solo infórmanos de ella para poder avanzar. <br className="br-desktop"/>
-              <strong>¿Cómo deseas contactarnos?</strong>
+              <strong>¿A qué número de WhatsApp podemos enviarte el presupuesto?</strong><br className="br-desktop"/>
+              Dejanos tu número y te lo mandamos en minutos.
             </p>
 
-            <div className="contact-actions">
-              <button className="cta whatsapp" onClick={enviarPorWhatsApp}>
-                <span className="cta-icon">🟢</span>
-                <span className="cta-text">WhatsApp</span>
-              </button>
-
-              <a href="tel:+543875537070" className="cta call">
-                <span className="cta-icon">📞</span>
-                <span className="cta-text">Llamar</span>
-              </a>
-
-              <button className="cta email" onClick={() => setMostrarModal(true)}>
-                <span className="cta-icon">✉️</span>
-                <span className="cta-text">Contactar</span>
+            <div className="telefono-box">
+              <input
+                type="tel"
+                inputMode="tel"
+                placeholder="Ej: +54 387 5xx xxxx"
+                className="telefono-input"
+                value={telefono}
+                onChange={(e) => setTelefono(e.target.value)}
+              />
+              <button
+                className="telefono-btn"
+                onClick={handleSolicitarPresupuesto}
+                disabled={guardandoTelefono}
+                title={idPedido ? 'Guardar número en este pedido' : 'Crear pedido y guardar número'}
+              >
+                {guardandoTelefono ? 'Guardando…' : 'Solicitar presupuesto'}
               </button>
             </div>
 
             {idPedido && (
               <p className="contacto-help">
-                Informanos este numero de pedido <span className="chip">#{idPedido}</span> para continuar.
+                N° de pedido <span className="chip">#{idPedido}</span>
               </p>
             )}
+
+            {mensajeOk && <p className="ok-msg">{mensajeOk}</p>}
           </section>
         </>
-      )}
-
-      {mostrarModal && (
-        <ModalContacto
-          carrito={carrito}
-          onCerrar={() => setMostrarModal(false)}
-        />
       )}
 
       <div className="volver-contenedor">
@@ -230,7 +285,7 @@ const Carrito = () => {
         </p>
 
         <p className="info-contacto">
-          TIENDA SALTA BAZAR · VENTA ONLINE DE PRODUCTOS DE BAZAR GASTRONÓMICO PARA RESTAURANTES, CONFITERIAS Y HOGAR - SALTA CAPITAL <br />
+          TIENDA SALTA BAZAR · VENTA ONLINE DE PRODUCTOS DE BAZAR GASTRONÓMICO PARA RESTAURANTES, CONFITERÍAS Y HOGAR - SALTA CAPITAL <br />
            <br />
           Lunes a Viernes · Sábados y Domingos CERRADO
         </p>

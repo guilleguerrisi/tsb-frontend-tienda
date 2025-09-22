@@ -92,11 +92,9 @@
 }
 
 .cantidad-input {
-  /* ancho cómodo en desktop */
   width: 7ch;
   min-width: 64px;
   flex: 0 0 auto;
-
   height: 45px;
   text-align: center;
   font-size: 1.2rem;
@@ -203,7 +201,7 @@
   color: #444;
 }
 
-/* ==== NUEVO: Bloque final de contacto ==== */
+/* ==== Bloque final de contacto (teléfono) ==== */
 .contacto-final {
   margin-top: 1.25rem;
   background: #ffffffcc;
@@ -232,75 +230,57 @@
   display: none;
 }
 
-.contact-actions {
+.telefono-box {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr auto;
   gap: 12px;
+  max-width: 720px;
+  margin: 0 auto;
 }
 
-.cta {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 14px 18px;
+.telefono-input {
+  height: 54px;
+  font-size: 1.15rem;
+  border: 2px solid #cfe2ff;
   border-radius: 12px;
+  padding: 0 14px;
+  outline: none;
+}
+
+.telefono-input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 4px rgba(0, 123, 255, .12);
+}
+
+.telefono-btn {
+  height: 54px;
+  padding: 0 18px;
   font-weight: 800;
   font-size: 1.05rem;
-  border: 2px solid transparent;
-  text-decoration: none;
+  color: #fff;
+  background: #007bff;
+  border: none;
+  border-radius: 12px;
   cursor: pointer;
-  transition: transform .15s ease, box-shadow .2s ease, background-color .2s ease, border-color .2s ease;
-  user-select: none;
+  transition: background .2s ease, transform .15s ease;
 }
 
-.cta:active {
-  transform: translateY(1px);
-}
-
-.cta.whatsapp {
-  background: #e8f7ef;
-  border-color: #25d366;
-  color: #0b3d27;
-}
-
-.cta.whatsapp:hover {
-  box-shadow: 0 8px 16px rgba(37, 211, 102, .25);
-}
-
-.cta.call {
-  background: #eaf3fe;
-  border-color: #007bff;
-  color: #0d2b3e;
-}
-
-.cta.call:hover {
-  box-shadow: 0 8px 16px rgba(0, 123, 255, .25);
-}
-
-.cta.email {
-  background: #fff6e9;
-  border-color: #ff9800;
-  color: #5f3b00;
-}
-
-.cta.email:hover {
-  box-shadow: 0 8px 16px rgba(255, 152, 0, .25);
-}
-
-.cta-icon {
-  font-size: 1.1rem;
-}
-
-.cta-text {
-  line-height: 1;
-}
+.telefono-btn:hover { background: #0a63c6; }
+.telefono-btn:active { transform: translateY(1px); }
+.telefono-btn:disabled { opacity: .6; cursor: not-allowed; }
 
 .contacto-help {
   text-align: center;
   margin-top: 10px;
   color: #555;
   font-size: 0.95rem;
+}
+
+.ok-msg {
+  text-align: center;
+  color: #0a7a2a;
+  font-weight: 600;
+  margin-top: 8px;
 }
 
 .chip {
@@ -362,13 +342,7 @@
 
 /* ==== Responsive ==== */
 @media (max-width: 900px) {
-  .contact-actions {
-    grid-template-columns: 1fr;
-  }
-
-  .br-desktop {
-    display: inline;
-  }
+  .br-desktop { display: inline; }
 
   .carrito-title {
     font-size: 2.2rem;
@@ -378,10 +352,14 @@
     font-size: 1.8rem;
   }
 
-    .cantidad-input {
+  .cantidad-input {
     width: 64px;
     min-width: 64px;
     flex: 0 0 64px;
     font-size: 1.1rem;
+  }
+
+  .telefono-box {
+    grid-template-columns: 1fr;
   }
 }
