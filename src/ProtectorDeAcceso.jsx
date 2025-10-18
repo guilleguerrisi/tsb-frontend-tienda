@@ -6,19 +6,34 @@ function ProtectorDeAcceso({ children }) {
   const [autorizado, setAutorizado] = useState(null);
   const [deviceIdNoAutorizado, setDeviceIdNoAutorizado] = useState(null);
 
+  // ⏱️ helper con timeout para evitar quedarse “colgado”
+  const fetchConTimeout = (url, opts = {}, ms = 7000) => {
+    const ctrl = new AbortController();
+    const id = setTimeout(() => ctrl.abort(), ms);
+    return fetch(url, { ...opts, signal: ctrl.signal }).finally(() => clearTimeout(id));
+  };
+
   useEffect(() => {
     const verificarAcceso = async () => {
       const deviceId = obtenerDeviceId();
 
       try {
-        const response = await fetch(`${config.API_URL}/api/verificar-dispositivo`, {
+        const response = await fetchConTimeout(`${config.API_URL}/api/verificar-dispositivo`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          // podés seguir usando device_id (ya lo toleramos en el backend)
           body: JSON.stringify({ device_id: deviceId })
         });
 
-        const result = await response.json();
+        if (!response.ok) {
+          console.error('API respondió error:', response.status);
+          // 🔁 fallback: NO bloquees por error del backend
+          setAutorizado(true);
+          localStorage.setItem('usuario_admin', JSON.stringify({ autorizado: true }));
+          return;
+        }
 
+        const result = await response.json();
         if (result.autorizado === true) {
           setAutorizado(true);
           localStorage.setItem('usuario_admin', JSON.stringify({ autorizado: true }));
@@ -29,16 +44,16 @@ function ProtectorDeAcceso({ children }) {
         }
       } catch (error) {
         console.error('❌ Error al verificar acceso:', error);
-        setAutorizado(false);
-        setDeviceIdNoAutorizado(deviceId);
-        localStorage.setItem('usuario_admin', JSON.stringify({ autorizado: false }));
+        // 🔁 fallback: si hay CORS/timeout/red caída, mostramos la web
+        setAutorizado(true);
+        localStorage.setItem('usuario_admin', JSON.stringify({ autorizado: true }));
       }
     };
 
     verificarAcceso();
   }, []);
 
-  // ✅ Clase en <body> para modo impresión de admin (no es estrictamente necesaria, pero la dejamos)
+  // clase para impresión si está autorizado
   useEffect(() => {
     if (autorizado === true) {
       document.body.classList.add('admin-print');
@@ -48,10 +63,9 @@ function ProtectorDeAcceso({ children }) {
     return () => document.body.classList.remove('admin-print');
   }, [autorizado]);
 
-  // ✅ Inserta CSS de impresión en <head> SOLO si estás autenticado
+  // estilos de impresión si está autorizado
   useEffect(() => {
     const STYLE_ID = 'admin-print-style';
-    // Limpia si ya existía
     const prev = document.getElementById(STYLE_ID);
     if (prev) prev.remove();
 
@@ -60,12 +74,7 @@ function ProtectorDeAcceso({ children }) {
       style.id = STYLE_ID;
       style.setAttribute('media', 'print');
       style.textContent = `
-        /* Ocultar exactamente lo que pediste al imprimir */
-        .control-cantidad,
-        .btn-vermas,
-        .modal-overlay { display: none !important; }
-
-        /* Opcional: estética al imprimir */
+        .control-cantidad, .btn-vermas, .modal-overlay { display: none !important; }
         .product-card {
           box-shadow: none !important;
           border: 1px solid #ddd !important;
@@ -81,6 +90,7 @@ function ProtectorDeAcceso({ children }) {
     };
   }, [autorizado]);
 
+  // pantalla mantenimiento SOLO si decidís bloquear (modoDesarrollo + NO autorizado explícito)
   if (config.modoDesarrollo && autorizado === false) {
     const linkWhatsApp = `https://wa.me/5493875537070?text=${encodeURIComponent(
       `Hola, quisiera hacer una consulta,\nCódigo: ${deviceIdNoAutorizado}`
