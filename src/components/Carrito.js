@@ -241,7 +241,7 @@ const Carrito = () => {
               Dejanos tu número y te lo mandamos en minutos.
             </p>
 
-            <div className="telefono-box">
+            <div className="telefono-box"> 
               <input
                 type="tel"
                 inputMode="tel"
