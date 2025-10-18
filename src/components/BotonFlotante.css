@@ -79,7 +79,7 @@
   }
 }
 
-/* ✅ Ocultar botones flotantes si hay modal abierto */
+/* ✅ Ocultar botones flotantes si hay modal abiert */
 body.modal-abierto .boton-flotante-container {
   display: none !important;
 }
