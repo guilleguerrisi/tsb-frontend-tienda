@@ -187,7 +187,7 @@ const Categorias = ({ onSeleccionarCategoria }) => {
               rel="noopener noreferrer"
             >
               {cat.imagen_url && (
-                <img
+                <img                  
                   src={cat.imagen_url}
                   alt={cat.grandescategorias}
                   className="categoria-imagen"
