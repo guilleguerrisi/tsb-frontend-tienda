@@ -127,7 +127,7 @@ const Carrito = () => {
         }
       }
 
-      setMensajeOk('¡Listo! Guardamos tu número para enviarte el presupuesto por WhatsApp.');
+      setMensajeOk('¡Listo! Te contactaremos lo antes posible para coordinar detalles del presupuesto');
     } catch (e) {
       console.error('Error al guardar teléfono del pedido:', e);
       alert('No pudimos guardar el número. Intentá nuevamente en unos segundos.');
