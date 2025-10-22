@@ -12,7 +12,8 @@ const ProductosPage = () => {
   const navigate = useNavigate();
 
   const [grcat, setGrcat] = useState('');
-  const [buscar, setBuscar] = useState(''); // ✅ nuevo: soporte de búsqueda
+  const [buscar, setBuscar] = useState('');
+  const [copiado, setCopiado] = useState(false);
 
   // Persistir clienteID si viene en la URL
   const clienteID = new URLSearchParams(location.search).get('clienteID');
@@ -48,29 +49,53 @@ const ProductosPage = () => {
     }
   }, [location, navigate]);
 
-  // Pequeño fallback mientras se parsean los params
+  // Construir el link limpio
+  const linkCategoria = (() => {
+    const valor = (buscar || grcat || '').trim();
+    if (!valor) return '';
+    const base = window.location.origin;
+    return `${base}/productos?buscar=${encodeURIComponent(valor)}`;
+  })();
+
+  const copiarAlPortapapeles = async () => {
+    if (!linkCategoria) return;
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(linkCategoria);
+      } else {
+        const el = document.createElement('textarea');
+        el.value = linkCategoria;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+      }
+      setCopiado(true);
+      setTimeout(() => setCopiado(false), 2000);
+    } catch (e) {
+      console.error('No se pudo copiar el link:', e);
+    }
+  };
+
   if (!grcat && !buscar) {
     return <div style={{ padding: '2rem', color: '#333' }}>Cargando productos...</div>;
   }
 
   return (
     <div className="App">
-      {/* ===== Header con botón de Categorías alineado a Carrito ===== */}
+      {/* ===== Header ===== */}
       <header className="header header--with-cta">
         <button
           className="flotante-boton secundaria header-categorias-btn"
           onClick={() => navigate('/')}
-          aria-label="Volver a categorías"
         >
           ← Categorías
         </button>
-
         <h1>TIENDA SALTA BAZAR</h1>
-
         <CarritoLink />
       </header>
 
-      {/* ===== Instructivo arriba de las tarjetas ===== */}
+      {/* ===== Instructivo ===== */}
       <div className="pedido-instructivo">
         <h3 className="pi-titulo">🛒 Cómo hacer tu pedido</h3>
 
@@ -91,15 +116,49 @@ const ProductosPage = () => {
             </span>
           </li>
         </ol>
+
+        {/* === Botón de copiar link (visible para todos) === */}
+        {linkCategoria && (
+          <div style={{ marginTop: '12px' }}>
+            <button
+              onClick={copiarAlPortapapeles}
+              style={{
+                padding: '10px 18px',
+                borderRadius: '30px',
+                border: 'none',
+                background: '#3DAAFF',
+                color: '#fff',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                boxShadow: '0 3px 6px rgba(0,0,0,0.2)',
+              }}
+            >
+              🔗 Copiar link de categoría
+            </button>
+
+            {copiado && (
+              <div
+                style={{
+                  marginTop: '8px',
+                  color: '#2ecc71',
+                  fontWeight: 600,
+                  fontSize: '0.95rem',
+                }}
+              >
+                ✅ Link copiado al portapapeles
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* ✅ Pasamos tanto grcat como buscar; ProductList prioriza grcat si viene */}
+      {/* ===== Productos ===== */}
       <ProductList grcat={grcat} buscar={buscar} />
 
       <BotonFlotante />
 
+      {/* ===== Footer ===== */}
       <div className="footer" style={{ textAlign: 'center', padding: '2rem', color: 'white' }}>
-        {/* Botón destacado de WhatsApp ARRIBA del texto del footer */}
         <a
           href="https://wa.me/5493875537070"
           target="_blank"
@@ -116,15 +175,6 @@ const ProductosPage = () => {
             fontWeight: 'bold',
             fontSize: '1rem',
             boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-            transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.transform = 'scale(1.05)';
-            e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.25)';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.transform = 'scale(1)';
-            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
           }}
         >
           📲 Contactar por WhatsApp
