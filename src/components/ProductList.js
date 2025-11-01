@@ -3,7 +3,7 @@ import './ProductList.css';
 import { useCarrito } from '../contexts/CarritoContext';
 import config from '../config'; // ✅
 
-function ProductList({ grcat, buscar  }) {
+function ProductList({ grcat, buscar }) {
   const { carrito, agregarAlCarrito } = useCarrito();
   const [mercaderia, setProductos] = useState([]);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
@@ -46,50 +46,73 @@ function ProductList({ grcat, buscar  }) {
     });
   };
 
-  // Siempre agrega usando precio online (20%)
+  // ===== Carga de productos =====
+  useEffect(() => {
+    const fetchProductos = async () => {
+      try {
+        setCargando(true);
+        setError(null);
+
+        const params = new URLSearchParams();
+        if (buscar && buscar.trim() !== '') {
+          // siempre priorizamos la búsqueda
+          params.set('buscar', buscar.trim());
+        } else if (grcat && grcat.trim() !== '') {
+          // fallback: si solo vino grcat, lo usamos como texto de búsqueda
+          params.set('buscar', grcat.trim());
+        }
+
+        const url = `${config.API_URL}/api/mercaderia${params.toString() ? `?${params.toString()}` : ''}`;
+
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (Array.isArray(data)) {
+          setProductos(data);
+        } else {
+          throw new Error('La respuesta no es un array');
+        }
+      } catch (err) {
+        setError('No se pudieron cargar los productos.');
+        setProductos([]);
+      } finally {
+        setCargando(false);
+      }
+    };
+
+    fetchProductos();
+  }, [grcat, buscar]);
+
+  // ===== Helpers de precio: UN SOLO PRECIO por margen DB =====
+  const redondearCentena = (n) => Math.round(n / 100) * 100;
+  const formatoAR = (n) => `$ ${new Intl.NumberFormat('es-AR').format(n)}`;
+
+  /**
+   * Precio ÚNICO (minorista) = costo sin IVA * (1 + IVA/100) * (1 + margen/100)
+   * Se redondea a la centena más cercana.
+   */
+  const calcularPrecioMinorista = (p) => {
+    const base = Number(p.costosiniva);
+    const ivaFactor = 1 + (Number(p.iva || 0) / 100);
+    const margenDB = 1 + (Number(p.margen || 0) / 100);
+    if (!Number.isFinite(base)) return 0;
+    return redondearCentena(base * ivaFactor * margenDB);
+  };
+
+  // Siempre agrega usando el precio ÚNICO (minorista por margen DB)
   const modificarCantidad = (producto, delta) => {
-    const prodConFlag = { ...producto, __usarPrecioOnline: true };
-    agregarAlCarrito(prodConFlag, delta);
+    const precioMinorista = calcularPrecioMinorista(producto);
+
+    // Enviamos el precio explícito para que el carrito lo tome tal cual.
+    const prodConPrecio = {
+      ...producto,
+      __usarPrecioOnline: false,   // compatibilidad con lógica vieja (opcional)
+      __usarPrecioMinorista: true, // pista opcional
+      price: precioMinorista       // 🔑 el carrito usa item.price
+    };
+
+    agregarAlCarrito(prodConPrecio, delta);
   };
-
-useEffect(() => {
-  const fetchProductos = async () => {
-    try {
-      setCargando(true);
-      setError(null);
-
-      const params = new URLSearchParams();
-      if (buscar && buscar.trim() !== '') {
-        // siempre priorizamos la búsqueda
-        params.set('buscar', buscar.trim());
-      } else if (grcat && grcat.trim() !== '') {
-        // fallback: si solo vino grcat, lo usamos como texto de búsqueda
-        params.set('buscar', grcat.trim());
-      }
-
-      const url = `${config.API_URL}/api/mercaderia${params.toString() ? `?${params.toString()}` : ''}`;
-
-      const res = await fetch(url);
-      const data = await res.json();
-
-      if (Array.isArray(data)) {
-        setProductos(data);
-      } else {
-        throw new Error('La respuesta no es un array');
-      }
-    } catch (err) {
-      setError('No se pudieron cargar los productos.');
-      setProductos([]);
-    } finally {
-      setCargando(false);
-    }
-  };
-
-  fetchProductos();
-}, [grcat, buscar]);
-
-
-
 
   const abrirModal = (producto) => {
     let arrayImagenes = [];
@@ -152,23 +175,6 @@ useEffect(() => {
 
   if (error) return <div className="error">{error}</div>;
 
-  // Helpers de precio
-  const redondearCentena = (n) => Math.round(n / 100) * 100;
-  const formatoAR = (n) => `$ ${new Intl.NumberFormat('es-AR').format(n)}`;
-
-  const calcularPrecios = (p) => {
-    const base = Number(p.costosiniva);
-    const ivaFactor = 1 + (Number(p.iva || 0) / 100);
-    const margenDB = 1 + (Number(p.margen || 0) / 100);
-    const margenOnline = 1 + 0.40; // 20% fijo
-
-    if (!Number.isFinite(base)) return { precioOnline: 0, precioSucursal: 0 };
-
-    const precioOnline = redondearCentena(base * ivaFactor * margenOnline);
-    const precioSucursal = redondearCentena(base * ivaFactor * margenDB);
-    return { precioOnline, precioSucursal };
-  };
-
   return (
     <div>
       {mercaderia.length === 0 ? (
@@ -193,7 +199,7 @@ useEffect(() => {
               <h2 style={{ padding: "1rem", marginBottom: "0" }}>{grupo}</h2>
               <div className="product-container">
                 {productosOrdenados.map((producto, index) => {
-                  const { precioOnline, precioSucursal } = calcularPrecios(producto);
+                  const precio = calcularPrecioMinorista(producto);
                   const enCarrito = carrito.some(item => item.codigo_int === producto.codigo_int);
 
                   return (
@@ -263,21 +269,13 @@ useEffect(() => {
                         }
                       })()}
 
-                      {/* 👇 AHORA los precios van DENTRO de .product-info (esto arregla mobile) */}
+                      {/* ✅ PRECIO ÚNICO */}
                       <div className="product-info">
-                        <div className="price-row">
-                          <div className="price-box online">
-                            <span className="price-label">Precio Mayorista</span>
-                            <span className="price-value">
-                              {precioOnline ? formatoAR(precioOnline) : 'No disponible'}
-                            </span>
-                          </div>
-                          <div className="price-box sucursal">
-                            <span className="price-label">Precio por Menor</span>
-                            <span className="price-value">
-                              {precioSucursal ? formatoAR(precioSucursal) : 'No disponible'}
-                            </span>
-                          </div>
+                        <div className="price-single">
+                          <span className="price-label">Precio</span>
+                          <span className="price-value">
+                            {precio ? formatoAR(precio) : 'No disponible'}
+                          </span>
                         </div>
 
                         <p className="desc">{producto.descripcion_corta}</p>
@@ -347,7 +345,7 @@ useEffect(() => {
       )}
 
       {productoSeleccionado && (() => {
-        const { precioOnline, precioSucursal } = calcularPrecios(productoSeleccionado);
+        const precioFicha = calcularPrecioMinorista(productoSeleccionado);
         return (
           <div className="modal-overlay" onClick={cerrarModal}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -399,20 +397,12 @@ useEffect(() => {
                 )}
               </div>
 
-              {/* 👇 Precios también en la ficha */}
-              <div className="price-row modal-prices">
-                <div className="price-box online">
-                  <span className="price-label">Precio Mayorista</span>
-                  <span className="price-value">
-                    {precioOnline ? formatoAR(precioOnline) : 'No disponible'}
-                  </span>
-                </div>
-                <div className="price-box sucursal">
-                  <span className="price-label">Precio por Menor</span>
-                  <span className="price-value">
-                    {precioSucursal ? formatoAR(precioSucursal) : 'No disponible'}
-                  </span>
-                </div>
+              {/* ✅ PRECIO ÚNICO EN FICHA */}
+              <div className="price-single modal-price">
+                <span className="price-label">Precio</span>
+                <span className="price-value">
+                  {precioFicha ? formatoAR(precioFicha) : 'No disponible'}
+                </span>
               </div>
 
               <p>{productoSeleccionado.descripcion_corta}</p>
