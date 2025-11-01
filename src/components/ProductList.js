@@ -23,6 +23,22 @@ function ProductList({ grcat, buscar }) {
   const getCantidadStr = (codigo) =>
     draftCantidades[codigo] ?? String(obtenerCantidad(codigo));
 
+  // ===== Helpers de precio: UN SOLO PRECIO por margen DB =====
+  const redondearCentena = (n) => Math.round(n / 100) * 100;
+  const formatoAR = (n) => `$ ${new Intl.NumberFormat('es-AR').format(n)}`;
+
+  /**
+   * Precio ÚNICO (minorista) = costo sin IVA * (1 + IVA/100) * (1 + margen/100)
+   * Se redondea a la centena más cercana.
+   */
+  const calcularPrecioMinorista = (p) => {
+    const base = Number(p.costosiniva);
+    const ivaFactor = 1 + (Number(p.iva || 0) / 100);
+    const margenDB = 1 + (Number(p.margen || 0) / 100);
+    if (!Number.isFinite(base)) return 0;
+    return redondearCentena(base * ivaFactor * margenDB);
+  };
+
   // Confirma el draft y lo vuelca al carrito (aplicando mínimo)
   const commitCantidad = (producto, cantidadMin = 0) => {
     const codigo = producto.codigo_int;
@@ -83,32 +99,17 @@ function ProductList({ grcat, buscar }) {
     fetchProductos();
   }, [grcat, buscar]);
 
-  // ===== Helpers de precio: UN SOLO PRECIO por margen DB =====
-  const redondearCentena = (n) => Math.round(n / 100) * 100;
-  const formatoAR = (n) => `$ ${new Intl.NumberFormat('es-AR').format(n)}`;
-
-  /**
-   * Precio ÚNICO (minorista) = costo sin IVA * (1 + IVA/100) * (1 + margen/100)
-   * Se redondea a la centena más cercana.
-   */
-  const calcularPrecioMinorista = (p) => {
-    const base = Number(p.costosiniva);
-    const ivaFactor = 1 + (Number(p.iva || 0) / 100);
-    const margenDB = 1 + (Number(p.margen || 0) / 100);
-    if (!Number.isFinite(base)) return 0;
-    return redondearCentena(base * ivaFactor * margenDB);
-  };
-
   // Siempre agrega usando el precio ÚNICO (minorista por margen DB)
+  // Enviamos el price ya calculado y además metadatos para evitar recálculos externos.
   const modificarCantidad = (producto, delta) => {
     const precioMinorista = calcularPrecioMinorista(producto);
 
-    // Enviamos el precio explícito para que el carrito lo tome tal cual.
     const prodConPrecio = {
       ...producto,
-      __usarPrecioOnline: false,   // compatibilidad con lógica vieja (opcional)
-      __usarPrecioMinorista: true, // pista opcional
-      price: precioMinorista       // 🔑 el carrito usa item.price
+      __usarPrecioOnline: false,        // compat con lógica vieja
+      __usarPrecioMinorista: true,      // pista opcional
+      __noRecalcularPrecio: true,       // pista opcional
+      price: precioMinorista            // 🔑 el carrito debería usar este valor
     };
 
     agregarAlCarrito(prodConPrecio, delta);
@@ -269,13 +270,16 @@ function ProductList({ grcat, buscar }) {
                         }
                       })()}
 
-                      {/* ✅ PRECIO ÚNICO */}
+                      {/* ✅ PRECIO ÚNICO (nuevo layout) */}
                       <div className="product-info">
-                        <div className="price-single">
-                          <span className="price-label">Precio</span>
-                          <span className="price-value">
+                        <div className="price-block">
+                          <div className="price-title">PRECIO</div>
+                          <div className="price-amount">
                             {precio ? formatoAR(precio) : 'No disponible'}
-                          </span>
+                          </div>
+                          <div className="price-legend">
+                            *Consultá precio según cantidad.
+                          </div>
                         </div>
 
                         <p className="desc">{producto.descripcion_corta}</p>
@@ -397,12 +401,15 @@ function ProductList({ grcat, buscar }) {
                 )}
               </div>
 
-              {/* ✅ PRECIO ÚNICO EN FICHA */}
-              <div className="price-single modal-price">
-                <span className="price-label">Precio</span>
-                <span className="price-value">
+              {/* ✅ PRECIO ÚNICO EN FICHA (nuevo layout) */}
+              <div className="price-block modal-price">
+                <div className="price-title">PRECIO</div>
+                <div className="price-amount">
                   {precioFicha ? formatoAR(precioFicha) : 'No disponible'}
-                </span>
+                </div>
+                <div className="price-legend">
+                  *Consultá precio según cantidad.
+                </div>
               </div>
 
               <p>{productoSeleccionado.descripcion_corta}</p>

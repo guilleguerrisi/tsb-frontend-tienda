@@ -24,9 +24,7 @@
   height: 100%;
 }
 
-.product-card:hover {
-  transform: translateY(-3px);
-}
+.product-card:hover { transform: translateY(-3px); }
 
 .product-image {
   width: 100%;
@@ -39,11 +37,11 @@
   align-self: stretch;
 }
 
-/* ====== PRECIO ÚNICO ====== */
-.price-single {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 10px;
+/* ====== PRECIO ÚNICO (nuevo layout) ====== */
+.price-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   margin: 6px 0 10px 0;
   background: #eaf3fe;
   border: 2px solid #3498db;
@@ -51,25 +49,29 @@
   padding: 10px 12px;
 }
 
-.price-single .price-label {
+.price-block .price-title {
   font-size: 0.8rem;
   font-weight: 700;
-  text-transform: uppercase;
   letter-spacing: 0.4px;
   color: #1d6fa5;
 }
 
-.price-single .price-value {
-  font-size: 1.5rem;
+.price-block .price-amount {
+  font-size: 1.6rem;
   font-weight: 800;
   color: #0d2b3e;
   line-height: 1.1;
   white-space: nowrap;
 }
 
-.modal-price .price-value {
-  font-size: 1.7rem;
+.price-block .price-legend {
+  font-size: 0.85rem;
+  color: #334155;
+  opacity: 0.9;
 }
+
+/* En el modal un toque más grande */
+.modal-price .price-amount { font-size: 1.8rem; }
 
 /* ====== Tipografía y descripciones ====== */
 h3 {
@@ -92,10 +94,7 @@ p {
   font-family: 'Inter', sans-serif;
 }
 
-.desc {
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+.desc { overflow: hidden; text-overflow: ellipsis; }
 
 /* ====== Botonería general ====== */
 .btn-agregar,
@@ -109,34 +108,12 @@ p {
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.1s ease;
 }
-
-.btn-agregar {
-  background-color: #3498db;
-  color: white;
-}
-
-.btn-agregar:hover {
-  background-color: #2980b9;
-}
-
-.btn-quitar {
-  background-color: #ff6b6b;
-  color: white;
-}
-
-.btn-quitar:hover {
-  background-color: #d94d4d;
-}
-
-.btn-agregar:active,
-.btn-quitar:active {
-  transform: scale(0.95);
-}
-
-button:disabled {
-  background-color: #bdc3c7;
-  cursor: not-allowed;
-}
+.btn-agregar { background-color: #3498db; color: white; }
+.btn-agregar:hover { background-color: #2980b9; }
+.btn-quitar { background-color: #ff6b6b; color: white; }
+.btn-quitar:hover { background-color: #d94d4d; }
+.btn-agregar:active, .btn-quitar:active { transform: scale(0.95); }
+button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
 
 .btn-vermas {
   background-color: #eeeeee;
@@ -152,11 +129,7 @@ button:disabled {
   width: 100%;
   display: block;
 }
-
-.btn-vermas:hover {
-  background-color: #ddd;
-  transform: scale(1.02);
-}
+.btn-vermas:hover { background-color: #ddd; transform: scale(1.02); }
 
 /* ====== Estados/etiquetas ====== */
 .etiqueta-presupuesto {
@@ -170,11 +143,7 @@ button:disabled {
   justify-content: flex-start;
   text-align: left;
 }
-
-.tilde-verde {
-  font-size: 1.2rem;
-  color: #2ecc71;
-}
+.tilde-verde { font-size: 1.2rem; color: #2ecc71; }
 
 .loading-centered {
   display: flex;
@@ -193,7 +162,6 @@ button:disabled {
   padding-bottom: 0.5rem;
   border-bottom: 1px solid #ddd;
 }
-
 .grupo-productos h2 {
   font-family: 'Poppins', sans-serif;
   font-size: 1.6rem;
@@ -212,7 +180,6 @@ button:disabled {
   align-items: center;
   margin-bottom: 1rem;
 }
-
 .flecha-carrusel {
   position: absolute;
   top: 50%;
@@ -228,11 +195,7 @@ button:disabled {
   z-index: 2;
   transition: background-color 0.2s ease;
 }
-
-.flecha-carrusel:hover {
-  background-color: rgba(255, 255, 255, 0.85);
-}
-
+.flecha-carrusel:hover { background-color: rgba(255, 255, 255, 0.85); }
 .flecha-carrusel.izquierda { left: -20px; }
 .flecha-carrusel.derecha { right: -20px; }
 
@@ -249,7 +212,6 @@ button:disabled {
   align-items: center;
   z-index: 9999;
 }
-
 .modal-content {
   background: white;
   padding: 2rem;
@@ -259,7 +221,6 @@ button:disabled {
   position: relative;
   text-align: center;
 }
-
 .modal-image {
   width: 100%;
   height: auto;
@@ -267,7 +228,6 @@ button:disabled {
   object-fit: contain;
   border-radius: 8px;
 }
-
 .close-button {
   position: absolute;
   top: 0.5rem;
@@ -277,7 +237,6 @@ button:disabled {
   border: none;
   cursor: pointer;
 }
-
 .modal-content .btn-seguir {
   font-size: 1rem;
   padding: 10px 16px;
@@ -285,7 +244,7 @@ button:disabled {
   margin-top: 1rem;
 }
 
-/* ====== Controles de cantidad ====== */
+/* ===== Controles de cantidad ===== */
 .control-cantidad {
   display: flex;
   justify-content: center;
@@ -293,9 +252,7 @@ button:disabled {
   gap: 0.5rem;
   margin-top: 0.5rem;
 }
-
-.btn-menos,
-.btn-mas {
+.btn-menos, .btn-mas {
   background-color: #eeeeee;
   border: 1px solid #ccc;
   font-size: 1.4rem;
@@ -305,10 +262,7 @@ button:disabled {
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
-
-.btn-menos:hover,
-.btn-mas:hover { background-color: #ddd; }
-
+.btn-menos:hover, .btn-mas:hover { background-color: #ddd; }
 .cantidad-input {
   width: 6ch;
   min-width: 72px;
@@ -320,20 +274,8 @@ button:disabled {
   font-family: 'Inter', sans-serif;
   box-sizing: border-box;
 }
-
-.modal-content .control-cantidad button {
-  font-size: 1rem;
-  width: 28px;
-  height: 28px;
-  padding: 4px;
-}
-
-.modal-content .cantidad-input {
-  width: 64px;
-  font-size: 1rem;
-  height: 28px;
-  text-align: center;
-}
+.modal-content .control-cantidad button { font-size: 1rem; width: 28px; height: 28px; padding: 4px; }
+.modal-content .cantidad-input { width: 64px; font-size: 1rem; height: 28px; text-align: center; }
 
 /* ===== Botón flotante global opcional ===== */
 .boton-flotante {
@@ -355,10 +297,7 @@ button:disabled {
   max-width: 90vw;
   text-align: center;
 }
-
-.boton-flotante:active {
-  transform: translateX(-50%) scale(0.97);
-}
+.boton-flotante:active { transform: translateX(-50%) scale(0.97); }
 
 input[type="number"] { font-size: 16px; }
 
@@ -407,9 +346,7 @@ input[type="number"] { font-size: 16px; }
     text-align: left;
   }
 
-  .price-single .price-value {
-    font-size: 1.25rem;
-  }
+  .price-block .price-amount { font-size: 1.35rem; }
 
   .control-cantidad {
     display: flex;
@@ -419,11 +356,7 @@ input[type="number"] { font-size: 16px; }
     margin-top: 4px;
   }
 
-  .control-cantidad button {
-    font-size: 0.7rem;
-    width: 24px;
-    height: 24px;
-  }
+  .control-cantidad button { font-size: 0.7rem; width: 24px; height: 24px; }
 
   .control-cantidad input[type="number"] {
     width: 56px;
@@ -455,3 +388,6 @@ input[type="number"] { font-size: 16px; }
     page-break-inside: avoid;
   }
 }
+
+/* ===== Opcional: estilos mínimos para mostrar el bloque de precio también en Carrito ===== */
+.carrito-price { margin-top: 6px; }

@@ -19,6 +19,17 @@ const Carrito = () => {
   const [guardandoTelefono, setGuardandoTelefono] = useState(false);
   const [mensajeOk, setMensajeOk] = useState('');
 
+  // ===== Helpers de precio (mismo cálculo que en ProductList) =====
+  const redondearCentena = (n) => Math.round(n / 100) * 100;
+  const formatoAR = (n) => new Intl.NumberFormat('es-AR').format(n);
+  const calcularPrecioMinorista = (p) => {
+    const base = Number(p.costosiniva);
+    const ivaFactor = 1 + (Number(p.iva || 0) / 100);
+    const margenDB = 1 + (Number(p.margen || 0) / 100);
+    if (!Number.isFinite(base)) return 0;
+    return redondearCentena(base * ivaFactor * margenDB);
+  };
+
   const getCantidadStr = (codigo, actual) =>
     draftCarrito[codigo] ?? String(actual ?? 1);
 
@@ -67,10 +78,12 @@ const Carrito = () => {
     cargarPedido();
   }, [idPedido, carritoEditadoManualmente, reemplazarCarrito, navigate]);
 
-  const total = carrito.reduce(
-    (acc, item) => acc + item.price * (item.cantidad || 1),
-    0
-  );
+  // ⛳️ TOTAL usando SIEMPRE el precio por margen (ignora item.price si vino de descuento)
+  const total = carrito.reduce((acc, item) => {
+    const precio = calcularPrecioMinorista(item);
+    const cant = item.cantidad || 1;
+    return acc + (precio * cant);
+  }, 0);
 
   // 🔧 Normalización simple (opcional): quita espacios y mantiene +, dígitos
   const normalizarTelefono = (t) => t.replace(/[^\d+]/g, '').trim();
@@ -144,75 +157,86 @@ const Carrito = () => {
         {carrito.length === 0 ? (
           <p>Tu carrito está vacío.</p>
         ) : (
-          carrito.map((item, index) => (
-            <div className="carrito-item" key={index}>
-              <img
-                src={item.imagen1}
-                alt={item.descripcion_corta}
-                className="carrito-item-image"
-              />
-              <div className="carrito-item-details">
-                <h3>{item.codigo_int}</h3>
-                <p>{item.descripcion_corta}</p>
-                <p className="carrito-item-price">
-                  Precio unitario: ${new Intl.NumberFormat('es-AR').format(item.price)}
-                </p>
-                <div className="carrito-cantidad-subtotal">
-                  <label>Cantidad:</label>
-                  <div className="cantidad-wrapper">
-                    <button
-                      type="button"
-                      className="btn-cantidad"
-                      onClick={() => {
-                        setDraftCarrito(prev => {
-                          const cp = { ...prev }; delete cp[item.codigo_int]; return cp;
-                        });
-                        cambiarCantidad(item.codigo_int, Math.max(1, (item.cantidad || 1) - 1));
-                      }}
-                    >
-                      –
-                    </button>
-                    <input
-                      type="number"
-                      min="1"
-                      value={getCantidadStr(item.codigo_int, item.cantidad)}
-                      onFocus={(e) => e.target.select()}
-                      onChange={(e) => {
-                        const v = e.target.value;
-                        setDraftCarrito(prev => ({ ...prev, [item.codigo_int]: v }));
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') commitCantidad(item.codigo_int, item.cantidad || 1);
-                      }}
-                      onBlur={() => commitCantidad(item.codigo_int, item.cantidad || 1)}
-                      className="cantidad-input"
-                    />
-                    <button
-                      type="button"
-                      className="btn-cantidad"
-                      onClick={() => {
-                        setDraftCarrito(prev => {
-                          const cp = { ...prev }; delete cp[item.codigo_int]; return cp;
-                        });
-                        cambiarCantidad(item.codigo_int, (item.cantidad || 1) + 1);
-                      }}
-                    >
-                      +
-                    </button>
+          carrito.map((item, index) => {
+            const precioUnitario = calcularPrecioMinorista(item);
+            const cantidad = item.cantidad || 1;
+            const subtotal = precioUnitario * cantidad;
+
+            return (
+              <div className="carrito-item" key={index}>
+                <img
+                  src={item.imagen1}
+                  alt={item.descripcion_corta}
+                  className="carrito-item-image"
+                />
+                <div className="carrito-item-details">
+                  <h3>{item.codigo_int}</h3>
+                  <p>{item.descripcion_corta}</p>
+
+                  {/* ✅ Nuevo layout de precio en Carrito */}
+                  <div className="price-block carrito-price">
+                    <div className="price-title">PRECIO</div>
+                    <div className="price-amount">$ {formatoAR(precioUnitario)}</div>
+                    <div className="price-legend">*Consultá precio según cantidad.</div>
                   </div>
-                  <span className="subtotal">
-                    Subtotal: ${new Intl.NumberFormat('es-AR').format(item.price * (item.cantidad || 1))}
-                  </span>
+
+                  <div className="carrito-cantidad-subtotal">
+                    <label>Cantidad:</label>
+                    <div className="cantidad-wrapper">
+                      <button
+                        type="button"
+                        className="btn-cantidad"
+                        onClick={() => {
+                          setDraftCarrito(prev => {
+                            const cp = { ...prev }; delete cp[item.codigo_int]; return cp;
+                          });
+                          cambiarCantidad(item.codigo_int, Math.max(1, cantidad - 1));
+                        }}
+                      >
+                        –
+                      </button>
+                      <input
+                        type="number"
+                        min="1"
+                        value={getCantidadStr(item.codigo_int, cantidad)}
+                        onFocus={(e) => e.target.select()}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          setDraftCarrito(prev => ({ ...prev, [item.codigo_int]: v }));
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') commitCantidad(item.codigo_int, cantidad);
+                        }}
+                        onBlur={() => commitCantidad(item.codigo_int, cantidad)}
+                        className="cantidad-input"
+                      />
+                      <button
+                        type="button"
+                        className="btn-cantidad"
+                        onClick={() => {
+                          setDraftCarrito(prev => {
+                            const cp = { ...prev }; delete cp[item.codigo_int]; return cp;
+                          });
+                          cambiarCantidad(item.codigo_int, cantidad + 1);
+                        }}
+                      >
+                        +
+                      </button>
+                    </div>
+                    <span className="subtotal">
+                      Subtotal: $ {formatoAR(subtotal)}
+                    </span>
+                  </div>
                 </div>
+                <button
+                  className="eliminar-button"
+                  onClick={() => eliminarDelCarrito(item)}
+                >
+                  Quitar
+                </button>
               </div>
-              <button
-                className="eliminar-button"
-                onClick={() => eliminarDelCarrito(item)}
-              >
-                Quitar
-              </button>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 
@@ -224,7 +248,7 @@ const Carrito = () => {
               <div className="carrito-total-contenido">
                 <h2 className="carrito-total-titulo">Total nota de pedido:</h2>
                 <p className="carrito-total-monto">
-                  ${new Intl.NumberFormat('es-AR').format(total)}
+                  $ {formatoAR(total)}
                 </p>
                 <p className="carrito-total-envio">
                   * Los precios publicados se calculan automáticamente con el margen vigente y pueden ajustarse al confirmar stock y condiciones comerciales.
