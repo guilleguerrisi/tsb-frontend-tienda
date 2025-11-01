@@ -251,7 +251,7 @@ const Carrito = () => {
                   $ {formatoAR(total)}
                 </p>
                 <p className="carrito-total-envio">
-                  * Los precios publicados se calculan automáticamente con el margen vigente y pueden ajustarse al confirmar stock y condiciones comerciales.
+                  * Los precios publicados se calculan automáticamente y pueden ajustarse al confirmar stock y condiciones comerciales.
                   El costo de envío depende del destino y volumen del pedido. Hacemos envíos locales por mensajería o con el transporte que indiques si es fuera de Salta Capital.<br />
                 </p>
               </div>
@@ -263,7 +263,7 @@ const Carrito = () => {
             <h3 className="contacto-title">¡Felicidades, tu Nota de pedido está lista!</h3>
             <p className="contacto-subtitle">
               <strong>¿A qué número de WhatsApp podemos enviarte el presupuesto?</strong><br className="br-desktop" />
-              Dejanos tu número y te lo mandamos en minutos.
+             
             </p>
 
             <div className="telefono-box"> 
