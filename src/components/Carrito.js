@@ -227,7 +227,7 @@ const Carrito = () => {
                   ${new Intl.NumberFormat('es-AR').format(total)}
                 </p>
                 <p className="carrito-total-envio">
-                  * Los precios mayoristas aplican a partir de los $300.000 a valor mayorista. De igual forma, solicita la revisión de tu pedido para confirmarlo. El costo de envío oscila entre $5.000 y $15.000 dependiendo el destino y volumen del pedido. Hacemos envíos locales con servicio de mensajería o con el transporte que vos nos indiques si es para fuera de Salta Capital.<br />
+                  * Los precios mayoristas aplican a partir de los $95.000 a valor mayorista. De igual forma, solicita la revisión de tu pedido para confirmarlo. El costo de envío oscila entre $5.000 y $15.000 dependiendo el destino y volumen del pedido. Hacemos envíos locales con servicio de mensajería o con el transporte que vos nos indiques si es para fuera de Salta Capital.<br />
                 </p>
               </div>
             </div>

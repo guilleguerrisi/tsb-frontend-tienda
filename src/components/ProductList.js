@@ -160,7 +160,7 @@ useEffect(() => {
     const base = Number(p.costosiniva);
     const ivaFactor = 1 + (Number(p.iva || 0) / 100);
     const margenDB = 1 + (Number(p.margen || 0) / 100);
-    const margenOnline = 1 + 0.20; // 20% fijo
+    const margenOnline = 1 + 0.35; // 20% fijo
 
     if (!Number.isFinite(base)) return { precioOnline: 0, precioSucursal: 0 };
 
