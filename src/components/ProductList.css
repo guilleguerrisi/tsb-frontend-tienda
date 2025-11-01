@@ -1,5 +1,4 @@
-/* Archivo CSS completo corregido con precios dentro de .product-info */
-
+/* ===== Grid general ===== */
 .product-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -25,6 +24,10 @@
   height: 100%;
 }
 
+.product-card:hover {
+  transform: translateY(-3px);
+}
+
 .product-image {
   width: 100%;
   height: auto;
@@ -36,73 +39,39 @@
   align-self: stretch;
 }
 
-/* ====== Bloque de precios (ahora dentro de .product-info) ====== */
-.price-row {
-  display: flex;
-  gap: 12px;
-  align-items: stretch;
-  justify-content: space-between;
-  margin-top: 6px;
-  margin-bottom: 8px;
-}
-
-.price-box {
-  flex: 1;
+/* ====== PRECIO ÚNICO ====== */
+.price-single {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 6px 0 10px 0;
+  background: #eaf3fe;
+  border: 2px solid #3498db;
   border-radius: 10px;
   padding: 10px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  box-sizing: border-box;
 }
 
-.price-box .price-label {
-  font-size: 0.75rem;
+.price-single .price-label {
+  font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.4px;
+  color: #1d6fa5;
 }
 
-.price-box .price-value {
+.price-single .price-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0d2b3e;
   line-height: 1.1;
   white-space: nowrap;
 }
 
-/* Online destacado */
-.price-box.online {
-  background: #eaf3fe;
-  border: 2px solid #3498db;
+.modal-price .price-value {
+  font-size: 1.7rem;
 }
 
-.price-box.online .price-label {
-  color: #1d6fa5;
-}
-
-.price-box.online .price-value {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: #0d2b3e;
-}
-
-/* Sucursal discreto */
-.price-box.sucursal {
-  background: #f7f7f7;
-  border: 1px dashed #d0d0d0;
-  opacity: 0.8;
-}
-
-.price-box.sucursal .price-label {
-  color: #777;
-}
-
-.price-box.sucursal .price-value {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: #444;
-}
-
-/* ====== Fin precios ====== */
-
+/* ====== Tipografía y descripciones ====== */
 h3 {
   text-align: left;
   color: rgb(7, 7, 7);
@@ -128,6 +97,7 @@ p {
   text-overflow: ellipsis;
 }
 
+/* ====== Botonería general ====== */
 .btn-agregar,
 .btn-quitar {
   font-size: 1.1rem;
@@ -188,6 +158,7 @@ button:disabled {
   transform: scale(1.02);
 }
 
+/* ====== Estados/etiquetas ====== */
 .etiqueta-presupuesto {
   color: #2ecc71;
   font-size: 0.95rem;
@@ -215,6 +186,7 @@ button:disabled {
   color: #444;
 }
 
+/* ====== Agrupación ====== */
 .grupo-productos {
   margin-top: 1.5rem;
   margin-bottom: 0rem;
@@ -227,12 +199,12 @@ button:disabled {
   font-size: 1.6rem;
   color: #ffffff;
   margin: 0 0 1rem 0;
-  padding-left: 8px;
   text-align: left;
   border-left: 4px solid #3498db;
   padding-left: 12px;
 }
 
+/* ====== Carrusel del modal ====== */
 .carrusel-imagenes {
   position: relative;
   display: flex;
@@ -261,14 +233,59 @@ button:disabled {
   background-color: rgba(255, 255, 255, 0.85);
 }
 
-.flecha-carrusel.izquierda {
-  left: -20px;
+.flecha-carrusel.izquierda { left: -20px; }
+.flecha-carrusel.derecha { right: -20px; }
+
+/* ====== Modal ====== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
 }
 
-.flecha-carrusel.derecha {
-  right: -20px;
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  max-width: 600px;
+  width: 90%;
+  position: relative;
+  text-align: center;
 }
 
+.modal-image {
+  width: 100%;
+  height: auto;
+  max-height: 420px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.close-button {
+  position: absolute;
+  top: 0.5rem;
+  right: 1rem;
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.modal-content .btn-seguir {
+  font-size: 1rem;
+  padding: 10px 16px;
+  width: auto;
+  margin-top: 1rem;
+}
+
+/* ====== Controles de cantidad ====== */
 .control-cantidad {
   display: flex;
   justify-content: center;
@@ -290,22 +307,11 @@ button:disabled {
 }
 
 .btn-menos:hover,
-.btn-mas:hover {
-  background-color: #ddd;
-}
-
-.cantidad-numero {
-  min-width: 2rem;
-  text-align: center;
-  font-size: 1.2rem;
-  font-weight: 600;
-  font-family: 'Inter', sans-serif;
-}
+.btn-mas:hover { background-color: #ddd; }
 
 .cantidad-input {
-  /* antes: width: 3rem; */
-  width: 6ch; min-width: 64px;          /* ✅ más ancho */
-  min-width: 72px;      /* asegura que no se achique */
+  width: 6ch;
+  min-width: 72px;
   text-align: center;
   font-size: 1.2rem;
   padding: 4px 6px;
@@ -315,7 +321,6 @@ button:disabled {
   box-sizing: border-box;
 }
 
-
 .modal-content .control-cantidad button {
   font-size: 1rem;
   width: 28px;
@@ -324,20 +329,13 @@ button:disabled {
 }
 
 .modal-content .cantidad-input {
-  /* antes: width: 40px; */
-  width: 64px;          /* ✅ más cómodo en la ficha */
+  width: 64px;
   font-size: 1rem;
   height: 28px;
   text-align: center;
 }
 
-
-.modal-content .btn-seguir {
-  font-size: 1rem;
-  padding: 10px 16px;
-  width: auto;
-}
-
+/* ===== Botón flotante global opcional ===== */
 .boton-flotante {
   position: fixed;
   bottom: env(safe-area-inset-bottom, 16px);
@@ -362,11 +360,9 @@ button:disabled {
   transform: translateX(-50%) scale(0.97);
 }
 
-input[type="number"] {
-  font-size: 16px;
-}
+input[type="number"] { font-size: 16px; }
 
-/* Responsive solo para móvil */
+/* ===== Responsive móvil ===== */
 @media (max-width: 768px) {
   .product-container {
     display: flex;
@@ -378,7 +374,7 @@ input[type="number"] {
 
   .product-card {
     display: flex !important;
-    flex-direction: row;            /* Imagen a la izquierda, contenido a la derecha */
+    flex-direction: row;
     align-items: flex-start;
     gap: 10px;
     width: 100%;
@@ -399,31 +395,20 @@ input[type="number"] {
   .product-card .product-info {
     flex: 1;
     display: flex;
-    flex-direction: column;         /* Precios, luego texto, luego controles */
+    flex-direction: column;
     gap: 6px;
     min-width: 0;
     overflow: hidden;
-  }
-
-  /* Precios apilados en móvil, ancho completo del panel derecho */
-  .price-row {
-    flex-direction: column;
-    gap: 6px;
-    width: 100%;
-  }
-
-  .price-box.online .price-value {
-    font-size: 1.25rem;
-  }
-
-  .price-box.sucursal .price-value {
-    font-size: 0.95rem;
   }
 
   .product-card p {
     font-size: 0.9rem;
     margin: 2px 0;
     text-align: left;
+  }
+
+  .price-single .price-value {
+    font-size: 1.25rem;
   }
 
   .control-cantidad {
@@ -441,12 +426,10 @@ input[type="number"] {
   }
 
   .control-cantidad input[type="number"] {
-  /* antes: width: 30px; font-size: 0.8rem; */
-  width: 56px;          /* ✅ más ancho en celular */
-  font-size: 0.95rem;
-  text-align: center;
-}
-
+    width: 56px;
+    font-size: 0.95rem;
+    text-align: center;
+  }
 
   .btn-vermas {
     font-size: 0.8rem;
@@ -460,23 +443,12 @@ input[type="number"] {
     box-sizing: border-box;
   }
 
-  .product-card .bottom-row {
-    width: 100%;
-    flex-wrap: wrap;
-  }
-
-   /* Ocultar control de cantidades y botón Ficha */
+  /* Ocultar control de cantidades y botón Ficha al imprimir */
   body.admin-print .control-cantidad,
-  body.admin-print .btn-vermas {
-    display: none !important;
-  }
+  body.admin-print .btn-vermas { display: none !important; }
 
-  /* (Opcional) Si hubiera un modal abierto, ocultarlo en impresión */
-  body.admin-print .modal-overlay {
-    display: none !important;
-  }
+  body.admin-print .modal-overlay { display: none !important; }
 
-  /* (Opcional) Estética de tarjeta al imprimir */
   body.admin-print .product-card {
     box-shadow: none !important;
     border: 1px solid #ddd !important;
