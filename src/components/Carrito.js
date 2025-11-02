@@ -11,15 +11,15 @@ const Carrito = () => {
   const params = new URLSearchParams(location.search);
   const idPedido = params.get("id");
 
-  // 🧠 Buffer local para escribir cantidades sin "peleas" con el estado global
-  const [draftCarrito, setDraftCarrito] = useState({}); // { [codigo_int]: "texto" }
+  // Buffer local para inputs de cantidad
+  const [draftCarrito, setDraftCarrito] = useState({});
 
-  // 📞 Teléfono de contacto
+  // Teléfono
   const [telefono, setTelefono] = useState('');
   const [guardandoTelefono, setGuardandoTelefono] = useState(false);
   const [mensajeOk, setMensajeOk] = useState('');
 
-  // ===== Helpers de precio (mismo cálculo que en ProductList) =====
+  // Helpers de precio
   const redondearCentena = (n) => Math.round(n / 100) * 100;
   const formatoAR = (n) => new Intl.NumberFormat('es-AR').format(n);
   const calcularPrecioMinorista = (p) => {
@@ -30,10 +30,8 @@ const Carrito = () => {
     return redondearCentena(base * ivaFactor * margenDB);
   };
 
-  // 🔍 Diagnóstico rápido: ver a qué backend estamos llamando
+  // Diagnóstico
   useEffect(() => {
-    // Esto te aparece en la consola del navegador
-    // Confirmá que diga: https://tsb-backend-tienda-production.up.railway.app
     console.log('[Carrito] API_URL =', config.API_URL);
   }, []);
 
@@ -42,11 +40,11 @@ const Carrito = () => {
 
   const commitCantidad = (codigo, actual) => {
     const raw = draftCarrito[codigo];
-    if (raw === undefined) return; // nada que confirmar
+    if (raw === undefined) return;
 
     let n = parseInt(raw, 10);
     if (isNaN(n)) n = actual ?? 1;
-    n = Math.max(1, n); // carrito: mínimo 1
+    n = Math.max(1, n);
 
     if (n !== actual) cambiarCantidad(codigo, n);
 
@@ -57,7 +55,7 @@ const Carrito = () => {
     });
   };
 
-  // 🔄 Si accedemos con /carrito?id=XX, cargamos ese carrito desde el backend
+  // Cargar carrito desde backend
   useEffect(() => {
     const cargarPedido = async () => {
       if (!idPedido || carritoEditadoManualmente) return;
@@ -70,7 +68,6 @@ const Carrito = () => {
 
         if (res.ok && data.array_pedido) {
           const carritoCargado = JSON.parse(data.array_pedido);
-          // traer contacto si viene
           if (data.contacto_cliente) setTelefono(String(data.contacto_cliente));
           reemplazarCarrito(carritoCargado);
         } else {
@@ -87,29 +84,25 @@ const Carrito = () => {
     cargarPedido();
   }, [idPedido, carritoEditadoManualmente, reemplazarCarrito, navigate]);
 
-  // ⛳️ TOTAL usando SIEMPRE el precio por margen (ignora item.price si vino de descuento)
   const total = carrito.reduce((acc, item) => {
     const precio = calcularPrecioMinorista(item);
     const cant = item.cantidad || 1;
     return acc + (precio * cant);
   }, 0);
 
-  // 🔧 Normalización simple: deja + y dígitos
+  // Normaliza teléfono
   const normalizarTelefono = (t) => t.replace(/[^\d+]/g, '').trim();
 
+  // ✅ Anti doble envío
   const handleSolicitarPresupuesto = async () => {
+    if (guardandoTelefono) return; // <--- prevención
+
     try {
       setMensajeOk('');
       const t = normalizarTelefono(telefono);
 
-      if (!t) {
-        alert('Por favor, ingresá un número de WhatsApp.');
-        return;
-      }
-      if (t.length < 8) {
-        alert('El número parece demasiado corto. Revisalo, por favor.');
-        return;
-      }
+      if (!t) return alert('Por favor, ingresá un número de WhatsApp.');
+      if (t.length < 8) return alert('El número parece demasiado corto. Revisalo, por favor.');
 
       setGuardandoTelefono(true);
 
@@ -121,42 +114,36 @@ const Carrito = () => {
       let nuevoId = idPedido;
 
       if (idPedido) {
-        // PATCH (actualizar)
         const url = `${config.API_URL}/api/pedidos/${idPedido}`;
         console.log('[Carrito] PATCH', url, payload);
+
         const res = await fetch(url, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
+
         const body = await res.json().catch(() => ({}));
         console.log('[Carrito] PATCH resp', res.status, body);
-        if (!res.ok) {
-          throw new Error(`PATCH /api/pedidos/${idPedido} -> ${JSON.stringify(body)}`);
-        }
-        // el backend responde { data: { id } }
+        if (!res.ok) throw new Error(`PATCH /api/pedidos/${idPedido}`);
         nuevoId = body?.data?.id ?? idPedido;
+
       } else {
-        // POST (crear)
         const url = `${config.API_URL}/api/pedidos`;
         console.log('[Carrito] POST', url, payload);
+
         const res = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
+
         const body = await res.json().catch(() => ({}));
         console.log('[Carrito] POST resp', res.status, body);
-        if (!res.ok) {
-          throw new Error(`POST /api/pedidos -> ${JSON.stringify(body)}`);
-        }
-        // ✅ tu backend devuelve { data: { id } }
+        if (!res.ok) throw new Error(`POST /api/pedidos`);
         nuevoId = body?.data?.id ?? null;
 
-        if (nuevoId) {
-          // Redirigimos para mantener el flujo actual (link compartible)
-          navigate(`/carrito?id=${nuevoId}`, { replace: true });
-        }
+        if (nuevoId) navigate(`/carrito?id=${nuevoId}`, { replace: true });
       }
 
       setMensajeOk('¡Listo! Te contactaremos lo antes posible para coordinar detalles del presupuesto');
@@ -192,7 +179,6 @@ const Carrito = () => {
                   <h3>{item.codigo_int}</h3>
                   <p>{item.descripcion_corta}</p>
 
-                  {/* ✅ Nuevo layout de precio en Carrito */}
                   <div className="price-block carrito-price">
                     <div className="price-title">PRECIO</div>
                     <div className="price-amount">$ {formatoAR(precioUnitario)}</div>
@@ -248,6 +234,7 @@ const Carrito = () => {
                   </div>
                 </div>
                 <button
+                  type="button"
                   className="eliminar-button"
                   onClick={() => eliminarDelCarrito(item)}
                 >
@@ -266,25 +253,22 @@ const Carrito = () => {
               <div className="carrito-total-icono">🧾</div>
               <div className="carrito-total-contenido">
                 <h2 className="carrito-total-titulo">Total nota de pedido:</h2>
-                <p className="carrito-total-monto">
-                  $ {formatoAR(total)}
-                </p>
+                <p className="carrito-total-monto">$ {formatoAR(total)}</p>
                 <p className="carrito-total-envio">
                   * Los precios publicados se calculan automáticamente y pueden ajustarse al confirmar stock y condiciones comerciales.
-                  El costo de envío depende del destino y volumen del pedido. Hacemos envíos locales por mensajería o con el transporte que indiques si es fuera de Salta Capital.<br />
+                  El costo de envío depende del destino y volumen del pedido.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* ✅ NUEVO: bloque de cierre y captura de WhatsApp */}
           <section className="contacto-final">
             <h3 className="contacto-title">¡Felicidades, tu Nota de pedido está lista!</h3>
             <p className="contacto-subtitle">
-              <strong>¿A qué número de WhatsApp podemos enviarte el presupuesto?</strong><br className="br-desktop" />
+              <strong>¿A qué número de WhatsApp podemos enviarte el presupuesto?</strong>
             </p>
 
-            <div className="telefono-box"> 
+            <div className="telefono-box">
               <input
                 type="tel"
                 inputMode="tel"
@@ -293,11 +277,13 @@ const Carrito = () => {
                 value={telefono}
                 onChange={(e) => setTelefono(e.target.value)}
               />
+
+              {/* ✅ Prevención doble envío */}
               <button
+                type="button"
                 className="telefono-btn"
                 onClick={handleSolicitarPresupuesto}
                 disabled={guardandoTelefono}
-                title={idPedido ? 'Guardar número en este pedido' : 'Crear pedido y guardar número'}
               >
                 {guardandoTelefono ? 'Guardando…' : 'Solicitar presupuesto'}
               </button>
@@ -323,14 +309,6 @@ const Carrito = () => {
       <div className="carrito-footer">
         <p className="leyenda-precio">
           ⚠️ La nota de pedido tiene carácter informativo y no implica compromiso de compra ni obligación de parte del vendedor.
-          Los precios están sujetos a confirmación junto con la disponibilidad de stock. La operación será válida
-          únicamente una vez confirmada por el vendedor.
-        </p>
-
-        <p className="info-contacto">
-          TIENDA SALTA BAZAR · VENTA ONLINE DE PRODUCTOS DE BAZAR GASTRONÓMICO PARA RESTAURANTES, CONFITERÍAS Y HOGAR - SALTA CAPITAL <br />
-          <br />
-          Lunes a Viernes · Sábados y Domingos CERRADO
         </p>
       </div>
     </div>
