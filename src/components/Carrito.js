@@ -30,6 +30,13 @@ const Carrito = () => {
     return redondearCentena(base * ivaFactor * margenDB);
   };
 
+  // 🔍 Diagnóstico rápido: ver a qué backend estamos llamando
+  useEffect(() => {
+    // Esto te aparece en la consola del navegador
+    // Confirmá que diga: https://tsb-backend-tienda-production.up.railway.app
+    console.log('[Carrito] API_URL =', config.API_URL);
+  }, []);
+
   const getCantidadStr = (codigo, actual) =>
     draftCarrito[codigo] ?? String(actual ?? 1);
 
@@ -56,7 +63,9 @@ const Carrito = () => {
       if (!idPedido || carritoEditadoManualmente) return;
 
       try {
-        const res = await fetch(`${config.API_URL}/api/pedidos/${idPedido}`);
+        const url = `${config.API_URL}/api/pedidos/${idPedido}`;
+        console.log('[Carrito] GET', url);
+        const res = await fetch(url);
         const data = await res.json();
 
         if (res.ok && data.array_pedido) {
@@ -85,7 +94,7 @@ const Carrito = () => {
     return acc + (precio * cant);
   }, 0);
 
-  // 🔧 Normalización simple (opcional): quita espacios y mantiene +, dígitos
+  // 🔧 Normalización simple: deja + y dígitos
   const normalizarTelefono = (t) => t.replace(/[^\d+]/g, '').trim();
 
   const handleSolicitarPresupuesto = async () => {
@@ -109,31 +118,41 @@ const Carrito = () => {
         array_pedido: JSON.stringify(carrito),
       };
 
-      // Si existe el pedido, actualizamos; si no, lo creamos
       let nuevoId = idPedido;
 
       if (idPedido) {
-        const res = await fetch(`${config.API_URL}/api/pedidos/${idPedido}`, {
+        // PATCH (actualizar)
+        const url = `${config.API_URL}/api/pedidos/${idPedido}`;
+        console.log('[Carrito] PATCH', url, payload);
+        const res = await fetch(url, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
+        const body = await res.json().catch(() => ({}));
+        console.log('[Carrito] PATCH resp', res.status, body);
         if (!res.ok) {
-          const err = await res.text();
-          throw new Error(`PATCH /api/pedidos/${idPedido} -> ${err}`);
+          throw new Error(`PATCH /api/pedidos/${idPedido} -> ${JSON.stringify(body)}`);
         }
+        // el backend responde { data: { id } }
+        nuevoId = body?.data?.id ?? idPedido;
       } else {
-        const res = await fetch(`${config.API_URL}/api/pedidos`, {
+        // POST (crear)
+        const url = `${config.API_URL}/api/pedidos`;
+        console.log('[Carrito] POST', url, payload);
+        const res = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
-        const data = await res.json();
+        const body = await res.json().catch(() => ({}));
+        console.log('[Carrito] POST resp', res.status, body);
         if (!res.ok) {
-          throw new Error(`POST /api/pedidos -> ${JSON.stringify(data)}`);
+          throw new Error(`POST /api/pedidos -> ${JSON.stringify(body)}`);
         }
-        // Soportar distintas respuestas (id directo o array)
-        nuevoId = data?.id ?? data?.[0]?.id ?? data?.nuevoId ?? null;
+        // ✅ tu backend devuelve { data: { id } }
+        nuevoId = body?.data?.id ?? null;
+
         if (nuevoId) {
           // Redirigimos para mantener el flujo actual (link compartible)
           navigate(`/carrito?id=${nuevoId}`, { replace: true });
@@ -263,7 +282,6 @@ const Carrito = () => {
             <h3 className="contacto-title">¡Felicidades, tu Nota de pedido está lista!</h3>
             <p className="contacto-subtitle">
               <strong>¿A qué número de WhatsApp podemos enviarte el presupuesto?</strong><br className="br-desktop" />
-             
             </p>
 
             <div className="telefono-box"> 
