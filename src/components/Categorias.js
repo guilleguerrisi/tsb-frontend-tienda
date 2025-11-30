@@ -7,7 +7,6 @@ const Categorias = ({ onSeleccionarCategoria }) => {
   const [rubros, setRubros] = useState([]);
   const [rubroSeleccionado, setRubroSeleccionado] = useState(null);
   const [categorias, setCategorias] = useState([]);
-  const [categoriaActiva] = useState(null); // por si lo usás después
   const [busqueda, setBusqueda] = useState('');
   const inputRef = useRef(null);
 
