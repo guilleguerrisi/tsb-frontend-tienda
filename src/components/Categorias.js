@@ -4,10 +4,27 @@ import './Categorias.css';
 import config from '../config';
 
 const Categorias = ({ onSeleccionarCategoria }) => {
+  const [rubros, setRubros] = useState([]);
+  const [rubroSeleccionado, setRubroSeleccionado] = useState(null);
   const [categorias, setCategorias] = useState([]);
   const [categoriaActiva] = useState(null);
   const [busqueda, setBusqueda] = useState('');
   const inputRef = useRef(null);
+
+
+  // Cargar rubros principales
+  const cargarRubros = useCallback(async () => {
+    try {
+      const res = await fetch(`${config.API_URL}/api/rubros`);
+      const data = await res.json();
+      setRubros(data || []);
+    } catch (error) {
+      console.error('Error al cargar rubros:', error);
+      setRubros([]);
+    }
+  }, []);
+
+
 
   // Carga todas las categorías (ordenadas por el backend por catcat ASC)
   const cargarTodas = useCallback(async () => {
@@ -37,8 +54,10 @@ const Categorias = ({ onSeleccionarCategoria }) => {
 
   // Montaje inicial
   useEffect(() => {
-    cargarTodas();
-  }, [cargarTodas]);
+    cargarRubros();   // ← nuevas 3 categorías principales
+    cargarTodas();    // ← subcategorías (se mostrarán después)
+  }, [cargarRubros, cargarTodas]);
+
 
   // Reacciona a cambios en 'busqueda' (filtrado en vivo)
   useEffect(() => {
@@ -65,7 +84,8 @@ const Categorias = ({ onSeleccionarCategoria }) => {
 
   return (
     <div className="categorias-container">
-      {/* Buscador con botón a la derecha */}
+
+      {/* 🔍 BUSCADOR */}
       <form
         onSubmit={handleSubmitBusqueda}
         className="buscador-row"
@@ -78,7 +98,7 @@ const Categorias = ({ onSeleccionarCategoria }) => {
             className="input-busqueda"
             placeholder="🔎 Buscar producto o marca..."
             value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)} // ← sigue filtrando en vivo
+            onChange={(e) => setBusqueda(e.target.value)}
             style={{
               padding: '0.6rem 1rem',
               borderRadius: '30px',
@@ -86,13 +106,13 @@ const Categorias = ({ onSeleccionarCategoria }) => {
               fontSize: '1rem',
               width: '100%',
               boxSizing: 'border-box',
-              paddingRight: '2.4rem', // espacio para la ✕
+              paddingRight: '2.4rem',
             }}
           />
 
           {busqueda && (
             <button
-              type="button" // no enviar el form
+              type="button"
               onClick={() => {
                 setBusqueda('');
                 setTimeout(() => inputRef.current?.focus(), 0);
@@ -108,8 +128,6 @@ const Categorias = ({ onSeleccionarCategoria }) => {
                 cursor: 'pointer',
                 color: '#aaa',
               }}
-              title="Borrar búsqueda"
-              aria-label="Borrar búsqueda"
             >
               ✕
             </button>
@@ -129,77 +147,145 @@ const Categorias = ({ onSeleccionarCategoria }) => {
             cursor: 'pointer',
             whiteSpace: 'nowrap',
           }}
-          aria-label="Buscar"
         >
           Buscar
         </button>
       </form>
 
-      {categorias.length === 0 && busqueda.trim() !== '' ? (
-        <div
-          style={{
-            marginTop: '1.5rem',
-            textAlign: 'center',
-            color: '#333',
-            padding: '1rem',
-          }}
-        >
-          <p style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>
-            ❌ No hemos encontrado el producto.
-          </p>
-          <a
-            href={`https://wa.me/5493875537070?text=${encodeURIComponent(
-              `Hola, no encontré "${busqueda}" en la página, ¿podrían ayudarme?`
-            )}`}
-            target="_blank"
-            rel="noopener noreferrer"
+      {/* =============================================
+       🔎 MODO BÚSQUEDA — SI HAY TEXTO EN BUSQUEDA
+       ============================================= */}
+      {busqueda.trim() !== '' ? (
+        categorias.length === 0 ? (
+
+          <div
             style={{
-              display: 'inline-block',
-              backgroundColor: '#25D366',
-              color: 'white',
-              padding: '10px 20px',
-              borderRadius: '25px',
-              fontWeight: 'bold',
-              textDecoration: 'none',
-              fontSize: '1rem',
-              boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-              transition: 'background-color 0.3s',
+              marginTop: '1.5rem',
+              textAlign: 'center',
+              color: '#333',
+              padding: '1rem',
             }}
           >
-            📲 Toca aquí para consultar por WhatsApp
-          </a>
-        </div>
-      ) : (
-        categorias.map((cat, index) => {
-          const clienteID = localStorage.getItem('clienteID') || '';
-          // 🔄 Ahora abrimos con ?buscar=catXXXXX (consistente con el backend)
-          const url =
-            `/productos?buscar=${encodeURIComponent(cat.grcat)}` +
-            (clienteID ? `&clienteID=${encodeURIComponent(clienteID)}` : '') +
-            `&nombre=${encodeURIComponent(cat.grandescategorias)}`;
-
-          return (
+            <p style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>
+              ❌ No hemos encontrado el producto.
+            </p>
             <a
-              key={cat?.id || index}
-              href={url}
-              className={`categoria-boton ${categoriaActiva === cat.grcat ? 'activa' : ''}`}
+              href={`https://wa.me/5493875537070?text=${encodeURIComponent(
+                `Hola, no encontré "${busqueda}" en la página, ¿podrían ayudarme?`
+              )}`}
               target="_blank"
               rel="noopener noreferrer"
+              style={{
+                display: 'inline-block',
+                backgroundColor: '#25D366',
+                color: 'white',
+                padding: '10px 20px',
+                borderRadius: '25px',
+                fontWeight: 'bold',
+                textDecoration: 'none',
+                fontSize: '1rem',
+                boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+              }}
             >
-              {cat.imagen_url && (
-                <img                  
-                  src={cat.imagen_url}
-                  alt={cat.grandescategorias}
-                  className="categoria-imagen"
-                />
-              )}
-              <span className="categoria-nombre">{cat.grandescategorias}</span>
+              📲 Toca aquí para consultar por WhatsApp
             </a>
-          );
-        })
+          </div>
+
+        ) : (
+
+          categorias.map((cat, index) => {
+            const clienteID = localStorage.getItem('clienteID') || '';
+            const url =
+              `/productos?buscar=${encodeURIComponent(cat.grcat)}` +
+              (clienteID ? `&clienteID=${encodeURIComponent(clienteID)}` : '') +
+              `&nombre=${encodeURIComponent(cat.grandescategorias)}`;
+
+            return (
+              <a
+                key={cat?.id || index}
+                href={url}
+                className="categoria-boton"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {cat.imagen_url && (
+                  <img
+                    src={cat.imagen_url}
+                    alt={cat.grandescategorias}
+                    className="categoria-imagen"
+                  />
+                )}
+                <span className="categoria-nombre">{cat.grandescategorias}</span>
+              </a>
+            );
+          })
+
+        )
+      ) : (
+
+        /* =============================================
+           🧩 MODO RUBROS — SI NO HAY BÚSQUEDA
+           ============================================= */
+
+        <>
+          {/* Aún no se eligió un rubro → mostrar lista de rubros */}
+          {!rubroSeleccionado && rubros.map((rubro, index) => (
+            <button
+              key={index}
+              onClick={() => setRubroSeleccionado(rubro)}
+              className="categoria-boton"
+            >
+              {rubro.toUpperCase()}
+            </button>
+          ))}
+
+          {/* Si ya hay rubro seleccionado → mostrar subcategorías */}
+          {rubroSeleccionado && (
+            <>
+              <button
+                onClick={() => setRubroSeleccionado(null)}
+                className="categoria-boton"
+                style={{ background: '#444', color: 'white' }}
+              >
+                ← VOLVER
+              </button>
+
+              {categorias
+                .filter(cat => (cat.rubros || '').trim() === rubroSeleccionado)
+                .map((cat, index) => {
+                  const clienteID = localStorage.getItem('clienteID') || '';
+                  const url =
+                    `/productos?buscar=${encodeURIComponent(cat.grcat)}` +
+                    (clienteID ? `&clienteID=${encodeURIComponent(clienteID)}` : '') +
+                    `&nombre=${encodeURIComponent(cat.grandescategorias)}`;
+
+                  return (
+                    <a
+                      key={cat?.id || index}
+                      href={url}
+                      className="categoria-boton"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {cat.imagen_url && (
+                        <img
+                          src={cat.imagen_url}
+                          alt={cat.grandescategorias}
+                          className="categoria-imagen"
+                        />
+                      )}
+                      <span className="categoria-nombre">{cat.grandescategorias}</span>
+                    </a>
+                  );
+                })}
+            </>
+          )}
+        </>
       )}
+
     </div>
   );
+
 };
 
 export default Categorias;
