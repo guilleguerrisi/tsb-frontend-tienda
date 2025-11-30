@@ -7,12 +7,11 @@ const Categorias = ({ onSeleccionarCategoria }) => {
   const [rubros, setRubros] = useState([]);
   const [rubroSeleccionado, setRubroSeleccionado] = useState(null);
   const [categorias, setCategorias] = useState([]);
-  const [categoriaActiva] = useState(null);
+  const [categoriaActiva] = useState(null); // por si lo usás después
   const [busqueda, setBusqueda] = useState('');
   const inputRef = useRef(null);
 
-
-  // Cargar rubros principales
+  // Cargar rubros principales (únicos desde BD)
   const cargarRubros = useCallback(async () => {
     try {
       const res = await fetch(`${config.API_URL}/api/rubros`);
@@ -24,51 +23,51 @@ const Categorias = ({ onSeleccionarCategoria }) => {
     }
   }, []);
 
-
-
-  // Carga todas las categorías (ordenadas por el backend por catcat ASC)
+  // Cargar todas las categorías (ordenadas por el backend)
   const cargarTodas = useCallback(async () => {
     try {
       const res = await fetch(`${config.API_URL}/api/categorias`);
       const data = await res.json();
-      setCategorias(data); // ✅ confiar en el orden del backend
+      setCategorias(data || []);
     } catch (error) {
       console.error('Error al cargar todas las categorías:', error);
       setCategorias([]);
     }
   }, []);
 
-  // Busca categorías (el backend también devuelve ordenadas por catcat ASC)
+  // Buscar categorías por palabra
   const buscarCategorias = useCallback(async (texto) => {
     try {
       const res = await fetch(
         `${config.API_URL}/api/buscar-categorias?palabra=${encodeURIComponent(texto)}`
       );
       const data = await res.json();
-      setCategorias(data); // ✅ confiar en el orden del backend
+      setCategorias(data || []);
     } catch (error) {
       console.error('Error al buscar categorías:', error);
       setCategorias([]);
     }
   }, []);
 
-  // Montaje inicial
+  // Montaje inicial: rubros + todas las categorías
   useEffect(() => {
-    cargarRubros();   // ← nuevas 3 categorías principales
-    cargarTodas();    // ← subcategorías (se mostrarán después)
+    cargarRubros();
+    cargarTodas();
   }, [cargarRubros, cargarTodas]);
 
-
-  // Reacciona a cambios en 'busqueda' (filtrado en vivo)
+  // Reacciona a cambios en 'busqueda'
   useEffect(() => {
     if (busqueda.trim() === '') {
+      // sin búsqueda → mantenemos categorías completas (para subrubros)
       cargarTodas();
     } else {
+      // con búsqueda → reseteamos rubro y buscamos por texto
+      setRubroSeleccionado(null);
       buscarCategorias(busqueda);
     }
   }, [busqueda, cargarTodas, buscarCategorias]);
 
-  // Abrir resultados en nueva pestaña cuando se envía el buscador
+  // Enviar búsqueda en nueva pestaña
   const handleSubmitBusqueda = (e) => {
     e.preventDefault();
     const q = (busqueda || '').trim();
@@ -128,6 +127,8 @@ const Categorias = ({ onSeleccionarCategoria }) => {
                 cursor: 'pointer',
                 color: '#aaa',
               }}
+              title="Borrar búsqueda"
+              aria-label="Borrar búsqueda"
             >
               ✕
             </button>
@@ -147,17 +148,17 @@ const Categorias = ({ onSeleccionarCategoria }) => {
             cursor: 'pointer',
             whiteSpace: 'nowrap',
           }}
+          aria-label="Buscar"
         >
           Buscar
         </button>
       </form>
 
       {/* =============================================
-       🔎 MODO BÚSQUEDA — SI HAY TEXTO EN BUSQUEDA
-       ============================================= */}
+         🔎 MODO BÚSQUEDA — SI HAY TEXTO EN BUSQUEDA
+         ============================================= */}
       {busqueda.trim() !== '' ? (
         categorias.length === 0 ? (
-
           <div
             style={{
               marginTop: '1.5rem',
@@ -184,15 +185,13 @@ const Categorias = ({ onSeleccionarCategoria }) => {
                 fontWeight: 'bold',
                 textDecoration: 'none',
                 fontSize: '1rem',
-                boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+                boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
               }}
             >
               📲 Toca aquí para consultar por WhatsApp
             </a>
           </div>
-
         ) : (
-
           categorias.map((cat, index) => {
             const clienteID = localStorage.getItem('clienteID') || '';
             const url =
@@ -219,27 +218,25 @@ const Categorias = ({ onSeleccionarCategoria }) => {
               </a>
             );
           })
-
         )
       ) : (
-
         /* =============================================
-           🧩 MODO RUBROS — SI NO HAY BÚSQUEDA
+           🧩 MODO RUBROS — SIN BÚSQUEDA
            ============================================= */
-
         <>
-          {/* Aún no se eligió un rubro → mostrar lista de rubros */}
-          {!rubroSeleccionado && rubros.map((rubro, index) => (
-            <button
-              key={index}
-              onClick={() => setRubroSeleccionado(rubro)}
-              className="categoria-boton"
-            >
-              {rubro.toUpperCase()}
-            </button>
-          ))}
+          {/* Lista de RUBROS principales */}
+          {!rubroSeleccionado &&
+            rubros.map((rubro, index) => (
+              <button
+                key={index}
+                onClick={() => setRubroSeleccionado(rubro)}
+                className="categoria-boton"
+              >
+                {rubro.toUpperCase()}
+              </button>
+            ))}
 
-          {/* Si ya hay rubro seleccionado → mostrar subcategorías */}
+          {/* Subcategorías del rubro seleccionado */}
           {rubroSeleccionado && (
             <>
               <button
@@ -251,7 +248,7 @@ const Categorias = ({ onSeleccionarCategoria }) => {
               </button>
 
               {categorias
-                .filter(cat => (cat.rubros || '').trim() === rubroSeleccionado)
+                .filter((cat) => (cat.rubros || '').trim() === rubroSeleccionado)
                 .map((cat, index) => {
                   const clienteID = localStorage.getItem('clienteID') || '';
                   const url =
@@ -282,10 +279,8 @@ const Categorias = ({ onSeleccionarCategoria }) => {
           )}
         </>
       )}
-
     </div>
   );
-
 };
 
 export default Categorias;
