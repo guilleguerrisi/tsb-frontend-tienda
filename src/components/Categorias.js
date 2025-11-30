@@ -10,6 +10,16 @@ const Categorias = ({ onSeleccionarCategoria }) => {
   const [busqueda, setBusqueda] = useState('');
   const inputRef = useRef(null);
 
+  // Imágenes fijas para cada rubro
+  const imagenesRubros = {
+    "BAZAR GASTRONÓMICO": "https://lh3.googleusercontent.com/pw/AP1GczMdqFM0vrEMCfMaVwacHVUbQ1lFLpaNo8paLXNMw_8gRiKxPDgBcadOPq7sluuqWfkZVmbBtpLhYcVvnLr_XaZa8MBaxqPo647XNcWF--7tgi7EtoHIZYSrcrqFW1PetCXVWXu0LAQyiqL464tPaTvv=w950-h950-s-no-gm?authuser=1",
+
+    "ARTÍSTICA Y DECORACIÓN": "https://lh3.googleusercontent.com/pw/AP1GczNYXO49IWHr7dM6Z_Yfm73d6nBbl7ral20-yoRiEPMf7YGaiS1q4IOXlI656YEE8_yP9sn7KLH3LzAIbktx4DXzXdprCjY-f7Vv920l-2HlbN2aizxYfsEquldf0dKvV2g0Ckwqh9p8pDlpOBUBGTq8=w950-h950-s-no-gm?authuser=1",
+
+    "INSTRUMENTOS MUSICALES Y SONIDO": "https://lh3.googleusercontent.com/pw/AP1GczPRpvNofEMu3iei_K7SN-br-DQpe7EVHqT5UAHq7VyA0mLa557JFEwSxhNM-a6fvuQBNNeS47_JG65j6mB8ky_Ni3iBFIQshpR6nsh2GMzkofH0rQAcbY5Cjo1IVtI_X3XYTS29Z9uA_xvQRIPis6H9=w950-h950-s-no-gm?authuser=1",
+  };
+
+
   // Cargar rubros principales (únicos desde BD)
   const cargarRubros = useCallback(async () => {
     try {
@@ -224,16 +234,25 @@ const Categorias = ({ onSeleccionarCategoria }) => {
            ============================================= */
         <>
           {/* Lista de RUBROS principales */}
-          {!rubroSeleccionado &&
-            rubros.map((rubro, index) => (
-              <button
-                key={index}
-                onClick={() => setRubroSeleccionado(rubro)}
-                className="categoria-boton"
-              >
-                {rubro.toUpperCase()}
-              </button>
-            ))}
+          {!rubroSeleccionado && rubros.map((rubro, index) => (
+            <button
+              key={index}
+              onClick={() => setRubroSeleccionado(rubro)}
+              className="categoria-boton"
+              style={{ display: "flex", alignItems: "center", gap: "12px" }}
+            >
+              {imagenesRubros[rubro] && (
+                <img
+                  src={imagenesRubros[rubro]}
+                  className="categoria-imagen"
+                  alt={rubro}
+                  style={{ width: "60px", height: "60px", borderRadius: "10px" }}
+                />
+              )}
+              {rubro.toUpperCase()}
+            </button>
+          ))}
+
 
           {/* Subcategorías del rubro seleccionado */}
           {rubroSeleccionado && (
