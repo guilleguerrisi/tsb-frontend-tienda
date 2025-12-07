@@ -97,7 +97,7 @@ const ProductosPage = () => {
 
       {/* ===== Instructivo ===== */}
       <div className="pedido-instructivo">
-        <h3 className="pi-titulo">🛒 Cómo hacer tu pedido</h3>
+        <h3 className="pi-titulo">🛒 Cómo hacer tu pedido / Hasta 20% de DESCUENTO según volumen de compra y distancia de envío.</h3>
 
         <ol className="pi-lista">
           <li>
