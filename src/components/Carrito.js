@@ -255,8 +255,7 @@ const Carrito = () => {
                 <h2 className="carrito-total-titulo">Total nota de pedido:</h2>
                 <p className="carrito-total-monto">$ {formatoAR(total)}</p>
                 <p className="carrito-total-envio">
-                  * Los precios publicados se calculan automáticamente y pueden ajustarse al confirmar stock y condiciones comerciales.
-                  El costo de envío depende del destino y volumen del pedido.
+                  * Los precios incluyen IVA. Finalizá la nota de pedido dejandonos un número de contacto para que te enviemos el presupuesto final con los descuentos si los hubiere.
                 </p>
               </div>
             </div>
