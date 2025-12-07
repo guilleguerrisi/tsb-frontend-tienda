@@ -22,7 +22,7 @@
   align-self: start;
   align-items: stretch;
   height: 100%;
-  position: relative; /* NECESARIO para colocar icono VIDEO */
+  position: relative; /* NECESARIO para icono VIDEO */
 }
 
 .product-card:hover { transform: translateY(-3px); }
@@ -38,7 +38,7 @@
   align-self: stretch;
 }
 
-/* ===== ÍCONO DE VIDEO ===== */
+/* ===== ÍCONO DE VIDEO EN TARJETAS ===== */
 .video-icon {
   position: absolute;
   top: 8px;
@@ -52,6 +52,22 @@
   z-index: 20;
   pointer-events: none;
   box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+
+/* ===== ÍCONO DE VIDEO DENTRO DEL MODAL ===== */
+.video-icon-modal {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(255, 0, 0, 0.9);
+  padding: 6px 12px;
+  color: white;
+  font-size: 0.85rem;
+  font-weight: bold;
+  border-radius: 8px;
+  z-index: 999;
+  pointer-events: none;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.35);
 }
 
 /* ====== PRECIO ÚNICO (nuevo layout) ====== */
@@ -89,7 +105,7 @@
 
 .modal-price .price-amount { font-size: 1.8rem; }
 
-/* ====== Tipografía ====== */
+/* ===== Tipografía ===== */
 h3 {
   text-align: left;
   color: rgb(7, 7, 7);
@@ -209,7 +225,7 @@ button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
   width: 44px;
   height: 44px;
   cursor: pointer;
-  z-index: 2;
+  z-index: 20;
   transition: background-color 0.2s ease;
 }
 .flecha-carrusel:hover { background-color: rgba(255, 255, 255, 0.85); }
@@ -248,22 +264,6 @@ button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
   border-radius: 8px;
 }
 
-.close-button {
-  position: absolute;
-  top: 0.5rem;
-  right: 1rem;
-  font-size: 1.5rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
-.modal-content .btn-seguir {
-  font-size: 1rem;
-  padding: 10px 16px;
-  margin-top: 1rem;
-}
-
 /* ===== VIDEO EN MODAL ===== */
 .video-container {
   width: 100%;
@@ -276,6 +276,7 @@ button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
   height: 320px;
   border-radius: 10px;
   border: none;
+  background: #000;
 }
 
 /* ===== Control de cantidad ===== */
@@ -395,6 +396,11 @@ input[type="number"] { font-size: 16px; }
     text-align: left;
   }
 
+  .video-icon {
+    font-size: 0.7rem;
+    padding: 3px 6px;
+  }
+
   .price-block .price-amount { font-size: 1.35rem; }
 
   .control-cantidad {
@@ -416,18 +422,12 @@ input[type="number"] { font-size: 16px; }
     font-size: 0.8rem;
     padding: 4px 6px;
     width: auto;
-    align-self: flex-start;
     max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
     white-space: nowrap;
-    box-sizing: border-box;
   }
 
   body.admin-print .control-cantidad,
-  body.admin-print .btn-vermas { 
-    display: none !important; 
-  }
+  body.admin-print .btn-vermas { display: none !important; }
 
   body.admin-print .modal-overlay { display: none !important; }
 
@@ -438,5 +438,5 @@ input[type="number"] { font-size: 16px; }
   }
 }
 
-/* ===== Para precio también en Carrito si lo usás ===== */
+/* ===== Para precio también en Carrito ===== */
 .carrito-price { margin-top: 6px; }
