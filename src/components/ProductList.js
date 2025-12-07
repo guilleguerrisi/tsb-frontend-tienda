@@ -277,9 +277,9 @@ function ProductList({ grcat, buscar }) {
                           <div className="price-amount">
                             {precio ? formatoAR(precio) : 'No disponible'}
                           </div>
-                          <div className="price-legend">
+                           {/*<div className="price-legend">
                             *Consultá precio según cantidad.
-                          </div>
+                          </div>*/}
                         </div>
 
                         <p className="desc">{producto.descripcion_corta}</p>
@@ -407,9 +407,10 @@ function ProductList({ grcat, buscar }) {
                 <div className="price-amount">
                   {precioFicha ? formatoAR(precioFicha) : 'No disponible'}
                 </div>
-                <div className="price-legend">
+                
+              {/*<div className="price-legend">
                   *Consultá precio según cantidad.
-                </div>
+                </div> */}
               </div>
 
               <p>{productoSeleccionado.descripcion_corta}</p>
