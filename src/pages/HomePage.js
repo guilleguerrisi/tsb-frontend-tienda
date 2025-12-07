@@ -37,7 +37,7 @@ const HomePage = () => {
             marginRight: 'auto',        // ← Centrado perfecto
           }}
         >
-          <strong>Hasta 20% de DESCUENTO </strong> según volumen de compra y distancia de envío.
+          <strong>Hasta 20% de DESCUENTO</strong> según volumen de compra y distancia de envío.
           ¡Navegá por las categorías y solicitá tu presupuesto!
         </p>
 
