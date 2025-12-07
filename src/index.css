@@ -1,0 +1,31 @@
+/* === Google Fonts === */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap');
+
+/* === Tailwind === */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* === Tipografía global === */
+body {
+  @apply min-h-screen bg-[linear-gradient(135deg,#a757f7,#a5f3fc)];
+  font-family: 'Inter', sans-serif;
+}
+
+/* === TITULOS — Poppins === */
+h1, h2, h3 {
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+/* Opcional: más estilo a los títulos */
+h1 {
+  font-size: 2.4rem;
+}
+h2 {
+  font-size: 1.8rem;
+}
+h3 {
+  font-size: 1.4rem;
+}

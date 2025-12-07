@@ -1,38 +1,33 @@
 // src/pages/ProductosPage.jsx
-import React, { useEffect, useState } from 'react';
-import ProductList from '../components/ProductList';
-import CarritoLink from '../components/CarritoLink';
-import BotonFlotante from '../components/BotonFlotante';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { FaWhatsapp } from 'react-icons/fa';
-import './ProductosPage.css';
+import React, { useEffect, useState } from "react";
+import ProductList from "../components/ProductList";
+import CarritoLink from "../components/CarritoLink";
+import BotonFlotante from "../components/BotonFlotante";
+import { useLocation, useNavigate } from "react-router-dom";
+import { FaWhatsapp } from "react-icons/fa";
 
 const ProductosPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [grcat, setGrcat] = useState('');
-  const [buscar, setBuscar] = useState('');
+  const [grcat, setGrcat] = useState("");
+  const [buscar, setBuscar] = useState("");
   const [copiado, setCopiado] = useState(false);
 
-  // Persistir clienteID si viene en la URL
-  const clienteID = new URLSearchParams(location.search).get('clienteID');
+  const clienteID = new URLSearchParams(location.search).get("clienteID");
+
   useEffect(() => {
-    if (clienteID) {
-      localStorage.setItem('clienteID', clienteID);
-    }
+    if (clienteID) localStorage.setItem("clienteID", clienteID);
   }, [clienteID]);
 
-  // Leer parámetros y setear título
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const valorGrcat = params.get('grcat') || '';
-    const q = params.get('buscar') || '';
-    const nombre = params.get('nombre');
+    const valorGrcat = params.get("grcat") || "";
+    const q = params.get("buscar") || "";
+    const nombre = params.get("nombre");
 
-    // Si no hay ni categoría ni búsqueda, volvemos al Home
     if (!valorGrcat && !q) {
-      navigate('/');
+      navigate("/");
       return;
     }
 
@@ -40,167 +35,131 @@ const ProductosPage = () => {
     setBuscar(q);
 
     if (nombre) {
-      const nombreDecodificado = decodeURIComponent(nombre);
-      document.title = `Bazar - ${nombreDecodificado}`;
+      document.title = `Bazar - ${decodeURIComponent(nombre)}`;
     } else if (q) {
       document.title = `Bazar - Resultados para "${q}"`;
     } else {
-      document.title = 'Bazar - Productos';
+      document.title = "Bazar - Productos";
     }
   }, [location, navigate]);
-
-  // Construir el link limpio
   const linkCategoria = (() => {
-    const valor = (buscar || grcat || '').trim();
-    if (!valor) return '';
+    const valor = (buscar || grcat || "").trim();
+    if (!valor) return "";
     const base = window.location.origin;
     return `${base}/productos?buscar=${encodeURIComponent(valor)}`;
   })();
 
   const copiarAlPortapapeles = async () => {
     if (!linkCategoria) return;
+
     try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(linkCategoria);
-      } else {
-        const el = document.createElement('textarea');
-        el.value = linkCategoria;
-        document.body.appendChild(el);
-        el.select();
-        document.execCommand('copy');
-        document.body.removeChild(el);
-      }
+      await navigator.clipboard.writeText(linkCategoria);
       setCopiado(true);
       setTimeout(() => setCopiado(false), 2000);
     } catch (e) {
-      console.error('No se pudo copiar el link:', e);
+      console.error("Error al copiar:", e);
     }
   };
 
   if (!grcat && !buscar) {
-    return <div style={{ padding: '2rem', color: '#333' }}>Cargando productos...</div>;
+    return (
+      <div className="p-6 text-gray-700 text-lg">Cargando productos...</div>
+    );
   }
 
   return (
     <div className="App">
-      {/* ===== Header ===== */}
-      <header className="header header--with-cta">
+      {/* HEADER */}
+      <header className="w-full text-center py-6 bg-white/20 backdrop-blur border-b border-white/30 shadow-sm">
         <button
-          className="flotante-boton secundaria header-categorias-btn"
-          onClick={() => navigate('/')}
+          className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-full shadow hover:bg-blue-600 transition"
+          onClick={() => navigate("/")}
         >
           ← Categorías
         </button>
-        <h1>TIENDA SALTA BAZAR</h1>
-        <CarritoLink />
+
+        <h1 className="text-3xl font-extrabold text-white mt-3 tracking-wide drop-shadow">
+          TIENDA SALTA BAZAR
+        </h1>
+
+        <div className="flex justify-end pr-4 mt-2">
+          <CarritoLink />
+        </div>
+
       </header>
 
-      {/* ===== Instructivo ===== */}
-      <div className="pedido-instructivo">
-        <h3 className="pi-titulo">🛒 <strong>Hasta 20% de DESCUENTO  </strong> según volumen de compra y distancia de envío.¡Generá la nota de pedido y solicitá tu presupuesto!</h3>
+      {/* INSTRUCTIVO */}
+      <div className="max-w-2xl mx-auto mt-4 bg-white/40 border border-white/50 backdrop-blur-xl rounded-xl shadow p-4">
+        <h3 className="text-center text-gray-800 font-semibold text-base mb-2">
+          🛒 <strong>Hasta 20% de DESCUENTO</strong> según volumen de compra y distancia.
+        </h3>
 
-        <ol className="pi-lista">
+        <ol className="space-y-2 text-gray-900">
           <li>
             <strong>Elegí tus productos</strong>
-            <span>Buscá por categoría o palabra y agregá al carrito lo que necesites.</span>
+            <p>Buscá por categoría o palabra y agregá al carrito lo que necesites.</p>
           </li>
           <li>
             <strong>Revisá tu pedido</strong>
-            <span>Entrá a “Ver tu pedido” para confirmar cantidades y ver el total.</span>
+            <p>Entrá a “Ver tu pedido” para confirmar cantidades y ver el total.</p>
           </li>
           <li>
             <strong>Enviá tu solicitud</strong>
-            <span>
-              Indicanos un WhatsApp para enviarte el presupuesto.<br />
-              👉 El vendedor revisará <strong>precio y stock</strong> y luego <strong>vos podrás confirmar o no el pedido</strong>.
-            </span> 
+            <p>
+              Te enviaremos el presupuesto por WhatsApp. Luego confirmás o no el pedido.
+            </p>
           </li>
         </ol>
-
-        {/* === Botón de copiar link (visible para todos) === */}
         {linkCategoria && (
-          <div style={{ marginTop: '12px' }}>
+          <div className="text-center mt-4">
             <button
               onClick={copiarAlPortapapeles}
-              style={{
-                padding: '10px 18px',
-                borderRadius: '30px',
-                border: 'none',
-                background: '#3DAAFF',
-                color: '#fff',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                boxShadow: '0 3px 6px rgba(0,0,0,0.2)',
-              }}
+              className="px-5 py-2 bg-blue-500 text-white rounded-full shadow hover:bg-blue-600 transition font-semibold"
             >
               🔗 Copiar link de categoría
             </button>
 
             {copiado && (
-              <div
-                style={{
-                  marginTop: '8px',
-                  color: '#2ecc71',
-                  fontWeight: 600,
-                  fontSize: '0.95rem',
-                }}
-              >
-                ✅ Link copiado al portapapeles
-              </div>
+              <p className="text-green-600 mt-2 font-semibold">
+                ✓ Link copiado al portapapeles
+              </p>
             )}
           </div>
         )}
       </div>
 
-      {/* ===== Productos ===== */}
+      {/* LISTA DE PRODUCTOS */}
       <ProductList grcat={grcat} buscar={buscar} />
 
+      {/* BOTONES FLOTANTES */}
       <BotonFlotante />
-
-      {/* ===== Footer ===== */}
-      <div className="footer" style={{ textAlign: 'center', padding: '2rem', color: 'white' }}>
+      {/* FOOTER */}
+      <footer className="text-center text-white py-10 mt-10">
         <a
           href="https://wa.me/5493875537070"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Contactar por WhatsApp"
-          style={{
-            display: 'inline-block',
-            marginBottom: '18px',
-            padding: '12px 24px',
-            backgroundColor: '#25D366',
-            color: '#fff',
-            borderRadius: '30px',
-            textDecoration: 'none',
-            fontWeight: 'bold',
-            fontSize: '1rem',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-          }}
+          className="inline-block mb-4 px-6 py-3 bg-green-500 rounded-full font-semibold shadow hover:bg-green-600 transition"
         >
           📲 Contactar por WhatsApp
         </a>
 
-        <p>
-          <FaWhatsapp style={{ color: '#25D366', marginRight: '8px' }} />
+        <p className="flex justify-center items-center gap-2 text-white">
+          <FaWhatsapp className="text-green-400 text-xl" />
           <a
             href="https://wa.me/5493875537070"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              color: '#ffffff',
-              textDecoration: 'underline',
-              fontWeight: 'bold',
-            }}
+            className="underline font-bold"
           >
             3875537070
           </a>
         </p>
 
-        <p>Todos los derechos reservados &copy; 2025</p>
-        <p>Desarrollado por: Tienda Salta Bazar</p>
-      </div>
+        <p className="mt-4 opacity-90">Todos los derechos reservados © 2025</p>
+        <p className="opacity-80 text-sm">Desarrollado por Tienda Salta Bazar</p>
+      </footer>
     </div>
   );
 };
 
 export default ProductosPage;
+

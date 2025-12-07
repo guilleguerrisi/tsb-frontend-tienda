@@ -1,6 +1,5 @@
 // src/components/Categorias.js
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import './Categorias.css';
 import config from '../config';
 
 const Categorias = ({ onSeleccionarCategoria }) => {
@@ -10,41 +9,37 @@ const Categorias = ({ onSeleccionarCategoria }) => {
   const [busqueda, setBusqueda] = useState('');
   const inputRef = useRef(null);
 
-  // Imágenes fijas para cada rubro
   const imagenesRubros = {
-    "BAZAR GASTRONÓMICO": "https://lh3.googleusercontent.com/pw/AP1GczMdqFM0vrEMCfMaVwacHVUbQ1lFLpaNo8paLXNMw_8gRiKxPDgBcadOPq7sluuqWfkZVmbBtpLhYcVvnLr_XaZa8MBaxqPo647XNcWF--7tgi7EtoHIZYSrcrqFW1PetCXVWXu0LAQyiqL464tPaTvv=w950-h950-s-no-gm?authuser=1",
+    "BAZAR GASTRONÓMICO":
+      "https://lh3.googleusercontent.com/pw/AP1GczMdqFM0vrEMCfMaVwacHVUbQ1lFLpaNo8paLXNMw_8gRiKxPDgBcadOPq7sluuqWfkZVmbBtpLhYcVvnLr_XaZa8MBaxqPo647XNcWF--7tgi7EtoHIZYSrcrqFW1PetCXVWXu0LAQyiqL464tPaTvv=w950-h950-s-no-gm?authuser=1",
 
-    "ARTÍSTICA Y DECORACIÓN": "https://lh3.googleusercontent.com/pw/AP1GczNYXO49IWHr7dM6Z_Yfm73d6nBbl7ral20-yoRiEPMf7YGaiS1q4IOXlI656YEE8_yP9sn7KLH3LzAIbktx4DXzXdprCjY-f7Vv920l-2HlbN2aizxYfsEquldf0dKvV2g0Ckwqh9p8pDlpOBUBGTq8=w950-h950-s-no-gm?authuser=1",
+    "ARTÍSTICA Y DECORACIÓN":
+      "https://lh3.googleusercontent.com/pw/AP1GczNYXO49IWHr7dM6Z_Yfm73d6nBbl7ral20-yoRiEPMf7YGaiS1q4IOXlI656YEE8_yP9sn7KLH3LzAIbktx4DXzXdprCjY-f7Vv920l-2HlbN2aizxYfsEquldf0dKvV2g0Ckwqh9p8pDlpOBUBGTq8=w950-h950-s-no-gm?authuser=1",
 
-    "INSTRUMENTOS MUSICALES Y SONIDO": "https://lh3.googleusercontent.com/pw/AP1GczPRpvNofEMu3iei_K7SN-br-DQpe7EVHqT5UAHq7VyA0mLa557JFEwSxhNM-a6fvuQBNNeS47_JG65j6mB8ky_Ni3iBFIQshpR6nsh2GMzkofH0rQAcbY5Cjo1IVtI_X3XYTS29Z9uA_xvQRIPis6H9=w950-h950-s-no-gm?authuser=1",
+    "INSTRUMENTOS MUSICALES Y SONIDO":
+      "https://lh3.googleusercontent.com/pw/AP1GczPRpvNofEMu3iei_K7SN-br-DQpe7EVHqT5UAHq7VyA0mLa557JFEwSxhNM-a6fvuQBNNeS47_JG65j6mB8ky_Ni3iBFIQshpR6nsh2GMzkofH0rQAcbY5Cjo1IVtI_X3XYTS29Z9uA_xvQRIPis6H9=w950-h950-s-no-gm?authuser=1",
   };
 
-
-  // Cargar rubros principales (únicos desde BD)
   const cargarRubros = useCallback(async () => {
     try {
       const res = await fetch(`${config.API_URL}/api/rubros`);
       const data = await res.json();
       setRubros(data || []);
-    } catch (error) {
-      console.error('Error al cargar rubros:', error);
+    } catch (e) {
       setRubros([]);
     }
   }, []);
 
-  // Cargar todas las categorías (ordenadas por el backend)
   const cargarTodas = useCallback(async () => {
     try {
       const res = await fetch(`${config.API_URL}/api/categorias`);
       const data = await res.json();
       setCategorias(data || []);
-    } catch (error) {
-      console.error('Error al cargar todas las categorías:', error);
+    } catch (e) {
       setCategorias([]);
     }
   }, []);
 
-  // Buscar categorías por palabra
   const buscarCategorias = useCallback(async (texto) => {
     try {
       const res = await fetch(
@@ -52,92 +47,63 @@ const Categorias = ({ onSeleccionarCategoria }) => {
       );
       const data = await res.json();
       setCategorias(data || []);
-    } catch (error) {
-      console.error('Error al buscar categorías:', error);
+    } catch {
       setCategorias([]);
     }
   }, []);
 
-  // Montaje inicial: rubros + todas las categorías
   useEffect(() => {
     cargarRubros();
     cargarTodas();
   }, [cargarRubros, cargarTodas]);
 
-  // Reacciona a cambios en 'busqueda'
   useEffect(() => {
-    if (busqueda.trim() === '') {
-      // sin búsqueda → mantenemos categorías completas (para subrubros)
+    if (!busqueda.trim()) {
       cargarTodas();
     } else {
-      // con búsqueda → reseteamos rubro y buscamos por texto
       setRubroSeleccionado(null);
       buscarCategorias(busqueda);
     }
   }, [busqueda, cargarTodas, buscarCategorias]);
 
-  // Enviar búsqueda en nueva pestaña
   const handleSubmitBusqueda = (e) => {
     e.preventDefault();
-    const q = (busqueda || '').trim();
-    if (!q) return;
+    if (!busqueda.trim()) return;
 
-    const clienteID = localStorage.getItem('clienteID') || '';
+    const clienteID = localStorage.getItem("clienteID") || "";
     const url =
-      `/productos?buscar=${encodeURIComponent(q)}` +
-      (clienteID ? `&clienteID=${encodeURIComponent(clienteID)}` : '');
+      `/productos?buscar=${encodeURIComponent(busqueda)}` +
+      (clienteID ? `&clienteID=${clienteID}` : "");
 
-    window.open(url, '_blank');
+    window.open(url, "_blank");
   };
 
   return (
-    <div className="categorias-container">
+    <div className="flex flex-col items-center gap-4 bg-white/40 backdrop-blur-md p-6 rounded-xl max-w-lg mx-auto shadow-md">
 
       {/* 🔍 BUSCADOR */}
       <form
         onSubmit={handleSubmitBusqueda}
-        className="buscador-row"
-        style={{ display: 'flex', gap: '8px', width: '100%' }}
+        className="flex gap-3 w-full"
       >
-        <div style={{ position: 'relative', flex: 1 }}>
+        <div className="relative flex-1">
           <input
             ref={inputRef}
             type="text"
-            className="input-busqueda"
-            placeholder="🔎 Buscar producto o marca..."
+            placeholder="🔎 Buscar producto o marca…"
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
-            style={{
-              padding: '0.6rem 1rem',
-              borderRadius: '30px',
-              border: '1px solid #ccc',
-              fontSize: '1rem',
-              width: '100%',
-              boxSizing: 'border-box',
-              paddingRight: '2.4rem',
-            }}
+            className="w-full px-4 py-3 rounded-full border border-gray-300 shadow-sm text-gray-800 focus:ring-2 focus:ring-blue-400 outline-none pr-10"
           />
 
           {busqueda && (
             <button
               type="button"
               onClick={() => {
-                setBusqueda('');
+                setBusqueda("");
                 setTimeout(() => inputRef.current?.focus(), 0);
               }}
-              style={{
-                position: 'absolute',
-                right: '10px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: 'transparent',
-                border: 'none',
-                fontSize: '1.2rem',
-                cursor: 'pointer',
-                color: '#aaa',
-              }}
-              title="Borrar búsqueda"
-              aria-label="Borrar búsqueda"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-xl"
             >
               ✕
             </button>
@@ -146,150 +112,126 @@ const Categorias = ({ onSeleccionarCategoria }) => {
 
         <button
           type="submit"
-          className="btn-buscar"
-          style={{
-            padding: '0.6rem 1rem',
-            borderRadius: '30px',
-            border: '1px solid #3498db',
-            background: '#3498db',
-            color: '#fff',
-            fontWeight: 700,
-            cursor: 'pointer',
-            whiteSpace: 'nowrap',
-          }}
-          aria-label="Buscar"
+          className="px-5 py-3 rounded-full bg-blue-600 text-white font-semibold shadow hover:bg-blue-700"
         >
           Buscar
         </button>
       </form>
-
       {/* =============================================
-         🔎 MODO BÚSQUEDA — SI HAY TEXTO EN BUSQUEDA
-         ============================================= */}
-      {busqueda.trim() !== '' ? (
+          🔍 RESULTADOS DE BÚSQUEDA
+      ============================================= */}
+      {busqueda.trim() !== "" ? (
         categorias.length === 0 ? (
-          <div
-            style={{
-              marginTop: '1.5rem',
-              textAlign: 'center',
-              color: '#333',
-              padding: '1rem',
-            }}
-          >
-            <p style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>
-              ❌ No hemos encontrado el producto.
-            </p>
+          <div className="mt-4 text-center text-gray-800 p-4">
+            <p className="text-lg mb-3">❌ No hemos encontrado el producto.</p>
+
             <a
               href={`https://wa.me/5493875537070?text=${encodeURIComponent(
                 `Hola, no encontré "${busqueda}" en la página, ¿podrían ayudarme?`
               )}`}
               target="_blank"
               rel="noopener noreferrer"
-              style={{
-                display: 'inline-block',
-                backgroundColor: '#25D366',
-                color: 'white',
-                padding: '10px 20px',
-                borderRadius: '25px',
-                fontWeight: 'bold',
-                textDecoration: 'none',
-                fontSize: '1rem',
-                boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
-              }}
+              className="inline-block bg-green-500 text-white px-6 py-3 rounded-full font-semibold shadow hover:bg-green-600"
             >
-              📲 Toca aquí para consultar por WhatsApp
+              📲 Consultar por WhatsApp
             </a>
           </div>
         ) : (
           categorias.map((cat, index) => {
-            const clienteID = localStorage.getItem('clienteID') || '';
+            const clienteID = localStorage.getItem("clienteID") || "";
             const url =
               `/productos?buscar=${encodeURIComponent(cat.grcat)}` +
-              (clienteID ? `&clienteID=${encodeURIComponent(clienteID)}` : '') +
+              (clienteID ? `&clienteID=${clienteID}` : "") +
               `&nombre=${encodeURIComponent(cat.grandescategorias)}`;
 
             return (
               <a
                 key={cat?.id || index}
                 href={url}
-                className="categoria-boton"
                 target="_blank"
                 rel="noopener noreferrer"
+                className="w-full flex items-center gap-4 bg-white border-2 border-blue-400 text-blue-600 p-4 rounded-2xl shadow hover:bg-blue-600 hover:text-white transition font-semibold"
               >
                 {cat.imagen_url && (
                   <img
                     src={cat.imagen_url}
                     alt={cat.grandescategorias}
-                    className="categoria-imagen"
+                    className="w-20 h-20 object-cover rounded-lg"
                   />
                 )}
-                <span className="categoria-nombre">{cat.grandescategorias}</span>
+
+                <span className="text-lg">
+                  {cat.grandescategorias}
+                </span>
               </a>
             );
           })
         )
       ) : (
-        /* =============================================
-           🧩 MODO RUBROS — SIN BÚSQUEDA
-           ============================================= */
         <>
-          {/* Lista de RUBROS principales */}
-          {!rubroSeleccionado && rubros.map((rubro, index) => (
-            <button
-              key={index}
-              onClick={() => setRubroSeleccionado(rubro)}
-              className="categoria-boton"
-              style={{ display: "flex", alignItems: "center", gap: "12px" }}
-            >
-              {imagenesRubros[rubro] && (
-                <img
-                  src={imagenesRubros[rubro]}
-                  className="categoria-imagen"
-                  alt={rubro}
-                  style={{ width: "60px", height: "60px", borderRadius: "10px" }}
-                />
-              )}
-              {rubro.toUpperCase()}
-            </button>
-          ))}
+          {/* =============================================
+              🧩 LISTA DE RUBROS PRINCIPALES
+          ============================================= */}
+          {!rubroSeleccionado &&
+            rubros.map((rubro, index) => (
+              <button
+                key={index}
+                onClick={() => setRubroSeleccionado(rubro)}
+                className="w-full flex items-center gap-4 bg-white border-2 border-blue-400 text-blue-600 p-4 rounded-2xl shadow hover:bg-blue-600 hover:text-white transition font-semibold"
+              >
+                {imagenesRubros[rubro] && (
+                  <img
+                    src={imagenesRubros[rubro]}
+                    alt={rubro}
+                    className="w-16 h-16 rounded-lg object-cover"
+                  />
+                )}
 
+                {rubro.toUpperCase()}
+              </button>
+            ))}
 
-          {/* Subcategorías del rubro seleccionado */}
+          {/* =============================================
+              📁 SUBCATEGORÍAS DEL RUBRO SELECCIONADO
+          ============================================= */}
           {rubroSeleccionado && (
             <>
+              {/* 🔙 BOTÓN VOLVER */}
               <button
                 onClick={() => setRubroSeleccionado(null)}
-                className="categoria-boton"
-                style={{ background: '#444', color: 'white' }}
+                className="w-full bg-gray-700 text-white p-3 rounded-2xl shadow font-semibold hover:bg-gray-800"
               >
                 ← VOLVER
               </button>
 
               {categorias
-                .filter((cat) => (cat.rubros || '').trim() === rubroSeleccionado)
+                .filter((cat) => (cat.rubros || "").trim() === rubroSeleccionado)
                 .map((cat, index) => {
-                  const clienteID = localStorage.getItem('clienteID') || '';
+                  const clienteID = localStorage.getItem("clienteID") || "";
                   const url =
                     `/productos?buscar=${encodeURIComponent(cat.grcat)}` +
-                    (clienteID ? `&clienteID=${encodeURIComponent(clienteID)}` : '') +
+                    (clienteID ? `&clienteID=${clienteID}` : "") +
                     `&nombre=${encodeURIComponent(cat.grandescategorias)}`;
 
                   return (
                     <a
                       key={cat?.id || index}
                       href={url}
-                      className="categoria-boton"
                       target="_blank"
                       rel="noopener noreferrer"
+                      className="w-full flex items-center gap-4 bg-white border-2 border-blue-400 text-blue-600 p-4 rounded-2xl shadow hover:bg-blue-600 hover:text-white transition font-semibold"
                     >
                       {cat.imagen_url && (
                         <img
                           src={cat.imagen_url}
                           alt={cat.grandescategorias}
-                          className="categoria-imagen"
+                          className="w-20 h-20 rounded-lg object-cover"
                         />
                       )}
-                      <span className="categoria-nombre">{cat.grandescategorias}</span>
+
+                      <span className="text-lg">
+                        {cat.grandescategorias}
+                      </span>
                     </a>
                   );
                 })}
@@ -302,3 +244,6 @@ const Categorias = ({ onSeleccionarCategoria }) => {
 };
 
 export default Categorias;
+
+
+
