@@ -182,7 +182,7 @@ const Carrito = () => {
                   <div className="price-block carrito-price">
                     <div className="price-title">PRECIO</div>
                     <div className="price-amount">$ {formatoAR(precioUnitario)}</div>
-                    <div className="price-legend">*Consultá precio según cantidad.</div>
+                    {/*<div className="price-legend">*Consultá precio según cantidad.</div>*/}
                   </div>
 
                   <div className="carrito-cantidad-subtotal">
