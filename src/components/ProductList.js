@@ -23,14 +23,10 @@ function ProductList({ grcat, buscar }) {
   const getCantidadStr = (codigo) =>
     draftCantidades[codigo] ?? String(obtenerCantidad(codigo));
 
-  // ===== Helpers de precio: UN SOLO PRECIO por margen DB =====
+  // ===== Helpers de precio =====
   const redondearCentena = (n) => Math.round(n / 100) * 100;
   const formatoAR = (n) => `$ ${new Intl.NumberFormat('es-AR').format(n)}`;
 
-  /**
-   * Precio ÚNICO (minorista) = costo sin IVA * (1 + IVA/100) * (1 + margen/100)
-   * Se redondea a la centena más cercana.
-   */
   const calcularPrecioMinorista = (p) => {
     const base = Number(p.costosiniva);
     const ivaFactor = 1 + (Number(p.iva || 0) / 100);
@@ -39,22 +35,20 @@ function ProductList({ grcat, buscar }) {
     return redondearCentena(base * ivaFactor * margenDB);
   };
 
-  // Confirma el draft y lo vuelca al carrito (aplicando mínimo)
   const commitCantidad = (producto, cantidadMin = 0) => {
     const codigo = producto.codigo_int;
     const raw = draftCantidades[codigo];
 
-    if (raw === undefined) return; // no hay nada que confirmar
+    if (raw === undefined) return;
 
     const actual = obtenerCantidad(codigo);
     let n = parseInt(raw, 10);
-    if (isNaN(n)) n = actual; // si quedó vacío o no numérico, mantenemos actual
+    if (isNaN(n)) n = actual;
     if (typeof cantidadMin === 'number') n = Math.max(cantidadMin, n);
 
     const delta = n - actual;
     if (delta !== 0) modificarCantidad(producto, delta);
 
-    // limpiar draft del producto
     setDraftCantidades(prev => {
       const cp = { ...prev };
       delete cp[codigo];
@@ -70,15 +64,13 @@ function ProductList({ grcat, buscar }) {
         setError(null);
 
         const params = new URLSearchParams();
-        if (buscar && buscar.trim() !== '') {
-          // siempre priorizamos la búsqueda
+        if (buscar?.trim()) {
           params.set('buscar', buscar.trim());
-        } else if (grcat && grcat.trim() !== '') {
-          // fallback: si solo vino grcat, lo usamos como texto de búsqueda
+        } else if (grcat?.trim()) {
           params.set('buscar', grcat.trim());
         }
 
-        const url = `${config.API_URL}/api/mercaderia${params.toString() ? `?${params.toString()}` : ''}`;
+        const url = `${config.API_URL}/api/mercaderia${params.toString() ? `?${params}` : ''}`;
 
         const res = await fetch(url);
         const data = await res.json();
@@ -99,17 +91,15 @@ function ProductList({ grcat, buscar }) {
     fetchProductos();
   }, [grcat, buscar]);
 
-  // Siempre agrega usando el precio ÚNICO (minorista por margen DB)
-  // Enviamos el price ya calculado y además metadatos para evitar recálculos externos.
   const modificarCantidad = (producto, delta) => {
     const precioMinorista = calcularPrecioMinorista(producto);
 
     const prodConPrecio = {
       ...producto,
-      __usarPrecioOnline: false,        // compat con lógica vieja
-      __usarPrecioMinorista: true,      // pista opcional
-      __noRecalcularPrecio: true,       // pista opcional
-      price: precioMinorista            // 🔑 el carrito debería usar este valor
+      __usarPrecioOnline: false,
+      __usarPrecioMinorista: true,
+      __noRecalcularPrecio: true,
+      price: precioMinorista,
     };
 
     agregarAlCarrito(prodConPrecio, delta);
@@ -121,10 +111,7 @@ function ProductList({ grcat, buscar }) {
     try {
       if (Array.isArray(producto.imagearray)) {
         arrayImagenes = producto.imagearray;
-      } else if (
-        typeof producto.imagearray === 'string' &&
-        producto.imagearray.trim().startsWith('[')
-      ) {
+      } else if (typeof producto.imagearray === 'string' && producto.imagearray.trim().startsWith('[')) {
         arrayImagenes = JSON.parse(producto.imagearray);
       }
     } catch {
@@ -133,14 +120,14 @@ function ProductList({ grcat, buscar }) {
 
     if (!Array.isArray(arrayImagenes)) arrayImagenes = [];
 
-    // 🟡 Extraer solo URLs válidas
     arrayImagenes = arrayImagenes
       .map((img) => (typeof img === 'string' ? img : img?.imagenamostrar))
       .filter((url) => typeof url === 'string' && url.trim() !== '');
 
     setProductoSeleccionado({
       ...producto,
-      imagearray: arrayImagenes
+      imagearray: arrayImagenes,
+      videoUrl: producto.video1 || null,
     });
 
     arrayImagenes.forEach((url) => {
@@ -191,10 +178,10 @@ function ProductList({ grcat, buscar }) {
             return acc;
           }, {})
         ).map(([grupo, productos]) => {
-          // 🔽 Forzar orden por fechaordengrupo (desc)
           const productosOrdenados = productos.sort((a, b) =>
             (b.fechaordengrupo || '').localeCompare(a.fechaordengrupo || '')
           );
+
           return (
             <div key={grupo} className="grupo-productos">
               <h2 style={{ padding: "1rem", marginBottom: "0" }}>{grupo}</h2>
@@ -202,26 +189,24 @@ function ProductList({ grcat, buscar }) {
                 {productosOrdenados.map((producto, index) => {
                   const precio = calcularPrecioMinorista(producto);
                   const enCarrito = carrito.some(item => item.codigo_int === producto.codigo_int);
+                  const tieneVideo = Boolean(producto.video1);
 
                   return (
                     <div className="product-card" key={index}>
+                      {/* 🎥 ÍCONO DE VIDEO */}
+                      {tieneVideo && (
+                        <div className="video-icon">🎥 VIDEO</div>
+                      )}
+
                       {(() => {
                         let autorizado = false;
                         try {
                           const raw = localStorage.getItem('usuario_admin');
-                          if (
-                            raw &&
-                            raw !== 'undefined' &&
-                            raw !== 'null' &&
-                            typeof raw === 'string' &&
-                            raw.trim().startsWith('{')
-                          ) {
+                          if (raw && raw !== 'undefined' && raw !== 'null' && raw.trim().startsWith('{')) {
                             const user = JSON.parse(raw);
                             autorizado = user?.autorizado === true;
                           }
-                        } catch {
-                          autorizado = false;
-                        }
+                        } catch {}
 
                         const Imagen = (
                           <img
@@ -240,25 +225,6 @@ function ProductList({ grcat, buscar }) {
                           return (
                             <div>
                               {Imagen}
-                              <a
-                                href={`https://tsb-frontend-mercaderia-production-3b78.up.railway.app/?id=${producto.id}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="btn-hyperlink"
-                                style={{
-                                  fontSize: '0.65rem',
-                                  opacity: 0.4,
-                                  display: 'block',
-                                  marginTop: '0.25rem',
-                                  textAlign: 'right',
-                                  pointerEvents: 'auto'
-                                }}
-                                onMouseDown={(e) => {
-                                  if (![0, 1].includes(e.button)) e.preventDefault();
-                                }}
-                              >
-                                🔗
-                              </a>
                             </div>
                           );
                         } else {
@@ -270,20 +236,16 @@ function ProductList({ grcat, buscar }) {
                         }
                       })()}
 
-                      {/* ✅ PRECIO ÚNICO (nuevo layout) */}
                       <div className="product-info">
                         <div className="price-block">
                           <div className="price-title">PRECIO</div>
                           <div className="price-amount">
                             {precio ? formatoAR(precio) : 'No disponible'}
                           </div>
-                           {/*<div className="price-legend">
-                            *Consultá precio según cantidad.
-                          </div>*/}
                         </div>
 
                         <p className="desc">{producto.descripcion_corta}</p>
-                        <p><strong>Codigo:</strong> {producto.codigo_int}</p>
+                        <p><strong>Código:</strong> {producto.codigo_int}</p>
 
                         {enCarrito && (
                           <span className="etiqueta-presupuesto">
@@ -307,11 +269,11 @@ function ProductList({ grcat, buscar }) {
 
                             <input
                               type="number"
-                              min="0" // tarjeta: mínimo 0
+                              min="0"
                               value={getCantidadStr(producto.codigo_int)}
-                              onFocus={(e) => { e.target.select(); }}
+                              onFocus={(e) => e.target.select()}
                               onChange={(e) => {
-                                const v = e.target.value; // guardamos string tal cual (incluye vacío)
+                                const v = e.target.value;
                                 setDraftCantidades(prev => ({ ...prev, [producto.codigo_int]: v }));
                               }}
                               onKeyDown={(e) => {
@@ -350,19 +312,28 @@ function ProductList({ grcat, buscar }) {
 
       {productoSeleccionado && (() => {
         const precioFicha = calcularPrecioMinorista(productoSeleccionado);
+        const totalSlides = productoSeleccionado.videoUrl
+          ? productoSeleccionado.imagearray.length + 1
+          : productoSeleccionado.imagearray.length;
+
+        const esVideo =
+          productoSeleccionado.videoUrl &&
+          indiceImagen === productoSeleccionado.imagearray.length;
+
         return (
           <div className="modal-overlay" onClick={cerrarModal}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
               <button className="close-button" onClick={cerrarModal}>×</button>
 
+              {/* ===================== CARRUSEL ===================== */}
               <div className="carrusel-imagenes">
-                {productoSeleccionado.imagearray?.length > 1 && (
+
+                {/* Flecha izquierda */}
+                {totalSlides > 1 && (
                   <button
                     onClick={() =>
                       setIndiceImagen((prev) =>
-                        prev === 0
-                          ? productoSeleccionado.imagearray.length - 1
-                          : prev - 1
+                        prev === 0 ? totalSlides - 1 : prev - 1
                       )
                     }
                     className="flecha-carrusel izquierda"
@@ -371,27 +342,37 @@ function ProductList({ grcat, buscar }) {
                   </button>
                 )}
 
-                <img
-                  src={
-                    productoSeleccionado.imagearray?.[indiceImagen] ||
-                    productoSeleccionado.imagen1 ||
-                    "/imagenes/no-disponible.jpg"
-                  }
-                  alt={productoSeleccionado.descripcion_corta}
-                  className="modal-image"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = "/imagenes/no-disponible.jpg";
-                  }}
-                />
+                {/* Contenido dinámico */}
+                {esVideo ? (
+                  <div className="video-container">
+                    <iframe
+                      src={productoSeleccionado.videoUrl.replace("watch?v=", "embed/")}
+                      title="Video del producto"
+                      frameBorder="0"
+                      allowFullScreen
+                    ></iframe>
+                  </div>
+                ) : (
+                  <img
+                    src={
+                      productoSeleccionado.imagearray?.[indiceImagen] ||
+                      productoSeleccionado.imagen1
+                    }
+                    alt={productoSeleccionado.descripcion_corta}
+                    className="modal-image"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "/imagenes/no-disponible.jpg";
+                    }}
+                  />
+                )}
 
-                {productoSeleccionado.imagearray?.length > 1 && (
+                {/* Flecha derecha */}
+                {totalSlides > 1 && (
                   <button
                     onClick={() =>
                       setIndiceImagen((prev) =>
-                        prev === productoSeleccionado.imagearray.length - 1
-                          ? 0
-                          : prev + 1
+                        prev === totalSlides - 1 ? 0 : prev + 1
                       )
                     }
                     className="flecha-carrusel derecha"
@@ -401,27 +382,20 @@ function ProductList({ grcat, buscar }) {
                 )}
               </div>
 
-              {/* ✅ PRECIO ÚNICO EN FICHA (nuevo layout) */}
+              {/* Precio en ficha */}
               <div className="price-block modal-price">
                 <div className="price-title">PRECIO</div>
                 <div className="price-amount">
                   {precioFicha ? formatoAR(precioFicha) : 'No disponible'}
                 </div>
-                
-              {/*<div className="price-legend">
-                  *Consultá precio según cantidad.
-                </div> */}
               </div>
 
               <p>{productoSeleccionado.descripcion_corta}</p>
-              <p><strong>Codigo:</strong> {productoSeleccionado.codigo_int}</p>
+              <p><strong>Código:</strong> {productoSeleccionado.codigo_int}</p>
 
               <div className="control-cantidad" style={{ marginTop: '1rem' }}>
                 <button
                   onClick={() => {
-                    setDraftCantidades(prev => {
-                      const cp = { ...prev }; delete cp[productoSeleccionado.codigo_int]; return cp;
-                    });
                     modificarCantidad(productoSeleccionado, -1);
                   }}
                   className="btn-menos"
@@ -431,25 +405,16 @@ function ProductList({ grcat, buscar }) {
 
                 <input
                   type="number"
-                  min="0" // modal: mínimo 0
+                  min="0"
                   value={getCantidadStr(productoSeleccionado.codigo_int)}
                   onFocus={(e) => e.target.select()}
-                  onChange={(e) => {
-                    const v = e.target.value; // guardamos string tal cual
-                    setDraftCantidades(prev => ({ ...prev, [productoSeleccionado.codigo_int]: v }));
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') commitCantidad(productoSeleccionado, 0);
-                  }}
+                  onChange={(e) => setDraftCantidades(prev => ({ ...prev, [productoSeleccionado.codigo_int]: e.target.value }))}
                   onBlur={() => commitCantidad(productoSeleccionado, 0)}
                   className="cantidad-input"
                 />
 
                 <button
                   onClick={() => {
-                    setDraftCantidades(prev => {
-                      const cp = { ...prev }; delete cp[productoSeleccionado.codigo_int]; return cp;
-                    });
                     modificarCantidad(productoSeleccionado, 1);
                   }}
                   className="btn-mas"
