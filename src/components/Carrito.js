@@ -179,7 +179,7 @@ const Carrito = () => {
                   <h3>{item.codigo_int}</h3>
                   <p>{item.descripcion_corta}</p>
 
-                  <div className="price-block carrito-price">
+                  <div className="price-block compacto">
                     <div className="price-title">PRECIO</div>
                     <div className="price-amount">$ {formatoAR(precioUnitario)}</div>
                     {/*<div className="price-legend">*Consultá precio según cantidad.</div>*/}

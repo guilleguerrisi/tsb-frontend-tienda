@@ -340,6 +340,29 @@
   font-weight: 500;
 }
 
+.price-block.compacto {
+  display: inline-block;         /* Se ajusta al contenido */
+  padding: 0.8rem 1.2rem;
+  background: #e9f3ff;
+  border: 2px solid #75b6ff;
+  border-radius: 10px;
+  margin-top: 1rem;
+}
+
+.price-block.compacto .price-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #0056a8;
+  margin-bottom: 4px;
+}
+
+.price-block.compacto .price-amount {
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: #003b7a;
+}
+
+
 /* ==== Responsive ==== */
 @media (max-width: 900px) {
   .br-desktop { display: inline; }
