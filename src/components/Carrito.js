@@ -262,7 +262,7 @@ const Carrito = () => {
           </div>
 
           <section className="contacto-final">
-            <h3 className="contacto-title">¡Felicidades, tu Nota de pedido está lista!</h3>
+            <h3 className="contacto-title">¡ÚLTIMO PASO!</h3>
             <p className="contacto-subtitle">
               <strong>¿A qué número de WhatsApp podemos enviarte el presupuesto?</strong>
             </p>
