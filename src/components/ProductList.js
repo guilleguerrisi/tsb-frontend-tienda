@@ -11,7 +11,6 @@ function ProductList({ grcat, buscar }) {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
 
-  // 🧠 Draft de cantidades por producto mientras el usuario escribe
   const [draftCantidades, setDraftCantidades] = useState({});
 
   const obtenerCantidad = (codigo_int) => {
@@ -19,11 +18,9 @@ function ProductList({ grcat, buscar }) {
     return item?.cantidad || 0;
   };
 
-  // Devuelve el string a mostrar en el input: draft si existe, si no la cantidad real
   const getCantidadStr = (codigo) =>
     draftCantidades[codigo] ?? String(obtenerCantidad(codigo));
 
-  // ===== Helpers de precio =====
   const redondearCentena = (n) => Math.round(n / 100) * 100;
   const formatoAR = (n) => `$ ${new Intl.NumberFormat('es-AR').format(n)}`;
 
@@ -38,7 +35,6 @@ function ProductList({ grcat, buscar }) {
   const commitCantidad = (producto, cantidadMin = 0) => {
     const codigo = producto.codigo_int;
     const raw = draftCantidades[codigo];
-
     if (raw === undefined) return;
 
     const actual = obtenerCantidad(codigo);
@@ -56,7 +52,6 @@ function ProductList({ grcat, buscar }) {
     });
   };
 
-  // ===== Carga de productos =====
   useEffect(() => {
     const fetchProductos = async () => {
       try {
@@ -93,7 +88,6 @@ function ProductList({ grcat, buscar }) {
 
   const modificarCantidad = (producto, delta) => {
     const precioMinorista = calcularPrecioMinorista(producto);
-
     const prodConPrecio = {
       ...producto,
       __usarPrecioOnline: false,
@@ -101,7 +95,6 @@ function ProductList({ grcat, buscar }) {
       __noRecalcularPrecio: true,
       price: precioMinorista,
     };
-
     agregarAlCarrito(prodConPrecio, delta);
   };
 
@@ -154,12 +147,11 @@ function ProductList({ grcat, buscar }) {
     return () => window.removeEventListener('keydown', handleKeydown);
   }, [productoSeleccionado]);
 
-  if (cargando)
-    return (
-      <div className="loading-centered">
-        <p>Cargando productos...</p>
-      </div>
-    );
+  if (cargando) return (
+    <div className="loading-centered">
+      <p>Cargando productos...</p>
+    </div>
+  );
 
   if (error) return <div className="error">{error}</div>;
 
@@ -193,7 +185,6 @@ function ProductList({ grcat, buscar }) {
 
                   return (
                     <div className="product-card" key={index}>
-                      {/* 🎥 ÍCONO DE VIDEO */}
                       {tieneVideo && (
                         <div className="video-icon">🎥 VIDEO</div>
                       )}
@@ -225,6 +216,21 @@ function ProductList({ grcat, buscar }) {
                           return (
                             <div>
                               {Imagen}
+                              <a
+                                href={`https://tsb-frontend-mercaderia-production-3b78.up.railway.app/?id=${producto.id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="btn-hyperlink"
+                                style={{
+                                  fontSize: '0.65rem',
+                                  opacity: 0.4,
+                                  display: 'block',
+                                  marginTop: '0.25rem',
+                                  textAlign: 'right',
+                                }}
+                              >
+                                🔗
+                              </a>
                             </div>
                           );
                         } else {
@@ -325,10 +331,7 @@ function ProductList({ grcat, buscar }) {
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
               <button className="close-button" onClick={cerrarModal}>×</button>
 
-              {/* ===================== CARRUSEL ===================== */}
               <div className="carrusel-imagenes">
-
-                {/* Flecha izquierda */}
                 {totalSlides > 1 && (
                   <button
                     onClick={() =>
@@ -342,7 +345,6 @@ function ProductList({ grcat, buscar }) {
                   </button>
                 )}
 
-                {/* Contenido dinámico */}
                 {esVideo ? (
                   <div className="video-container">
                     <iframe
@@ -367,7 +369,6 @@ function ProductList({ grcat, buscar }) {
                   />
                 )}
 
-                {/* Flecha derecha */}
                 {totalSlides > 1 && (
                   <button
                     onClick={() =>
@@ -382,7 +383,6 @@ function ProductList({ grcat, buscar }) {
                 )}
               </div>
 
-              {/* Precio en ficha */}
               <div className="price-block modal-price">
                 <div className="price-title">PRECIO</div>
                 <div className="price-amount">
@@ -394,15 +394,7 @@ function ProductList({ grcat, buscar }) {
               <p><strong>Código:</strong> {productoSeleccionado.codigo_int}</p>
 
               <div className="control-cantidad" style={{ marginTop: '1rem' }}>
-                <button
-                  onClick={() => {
-                    modificarCantidad(productoSeleccionado, -1);
-                  }}
-                  className="btn-menos"
-                >
-                  −
-                </button>
-
+                <button className="btn-menos" onClick={() => modificarCantidad(productoSeleccionado, -1)}>−</button>
                 <input
                   type="number"
                   min="0"
@@ -412,15 +404,7 @@ function ProductList({ grcat, buscar }) {
                   onBlur={() => commitCantidad(productoSeleccionado, 0)}
                   className="cantidad-input"
                 />
-
-                <button
-                  onClick={() => {
-                    modificarCantidad(productoSeleccionado, 1);
-                  }}
-                  className="btn-mas"
-                >
-                  +
-                </button>
+                <button className="btn-mas" onClick={() => modificarCantidad(productoSeleccionado, 1)}>+</button>
               </div>
 
               <button className="btn-seguir" onClick={cerrarModal}>
