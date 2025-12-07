@@ -35,6 +35,10 @@ const Carrito = () => {
     console.log('[Carrito] API_URL =', config.API_URL);
   }, []);
 
+   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
   const getCantidadStr = (codigo, actual) =>
     draftCarrito[codigo] ?? String(actual ?? 1);
 
