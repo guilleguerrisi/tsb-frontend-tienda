@@ -197,7 +197,7 @@ function ProductList({ grcat, buscar }) {
                             const user = JSON.parse(raw);
                             autorizado = user?.autorizado === true;
                           }
-                        } catch {}
+                        } catch { }
 
                         const Imagen = (
                           <img
@@ -328,7 +328,7 @@ function ProductList({ grcat, buscar }) {
 
         return (
           <div className="modal-overlay" onClick={cerrarModal}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ position: "relative" }}>
               <button className="close-button" onClick={cerrarModal}>×</button>
 
               <div className="carrusel-imagenes">
@@ -346,15 +346,19 @@ function ProductList({ grcat, buscar }) {
                 )}
 
                 {esVideo ? (
-                  <div className="video-container">
-                    <iframe
-                      src={productoSeleccionado.videoUrl.replace("watch?v=", "embed/")}
-                      title="Video del producto"
-                      frameBorder="0"
-                      allowFullScreen
-                    ></iframe>
-                  </div>
+                  <>
+                    <div className="video-icon-modal">🎥 VIDEO</div>
+                    <div className="video-container">
+                      <iframe
+                        src={productoSeleccionado.videoUrl.replace("watch?v=", "embed/")}
+                        title="Video del producto"
+                        frameBorder="0"
+                        allowFullScreen
+                      ></iframe>
+                    </div>
+                  </>
                 ) : (
+
                   <img
                     src={
                       productoSeleccionado.imagearray?.[indiceImagen] ||
