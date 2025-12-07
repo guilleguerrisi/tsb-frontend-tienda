@@ -4,15 +4,15 @@ import CarritoLink from '../components/CarritoLink';
 import { FaWhatsapp } from 'react-icons/fa';
 
 const HomePage = () => {
- 
+
 
   const manejarSeleccionCategoria = (grcat) => {
-  const clienteID = localStorage.getItem('clienteID') || '';
-  const url =
-    `/productos?buscar=${encodeURIComponent(grcat)}` +
-    (clienteID ? `&clienteID=${encodeURIComponent(clienteID)}` : '');
-  window.open(url, '_blank');
-};
+    const clienteID = localStorage.getItem('clienteID') || '';
+    const url =
+      `/productos?buscar=${encodeURIComponent(grcat)}` +
+      (clienteID ? `&clienteID=${encodeURIComponent(clienteID)}` : '');
+    window.open(url, '_blank');
+  };
 
 
 
@@ -20,8 +20,32 @@ const HomePage = () => {
     <div className="App">
       <header className="header">
         <h1>TIENDA SALTA BAZAR</h1>
+
+        {/* Leyenda de descuentos */}
+        <p
+          style={{
+            marginTop: '10px',
+            marginBottom: '20px',
+            color: '#ffd700',
+            fontWeight: 'bold',
+            fontSize: '2rem',
+            textShadow: '1px 1px 3px rgba(0,0,0,0.5)',
+            lineHeight: '1.4',
+            maxWidth: '620px',          // ← Ajustado para coincidir con el ancho del título
+            textAlign: 'center',
+            marginLeft: 'auto',
+            marginRight: 'auto',        // ← Centrado perfecto
+          }}
+        >
+          <strong>Hasta 20% de DESCUENTO </strong> según volumen de compra y distancia de envío.
+          ¡Navegá por las categorías y solicitá tu presupuesto!
+        </p>
+
+
+
         <CarritoLink />
       </header>
+
 
       <Categorias onSeleccionarCategoria={manejarSeleccionCategoria} />
 

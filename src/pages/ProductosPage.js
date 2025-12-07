@@ -111,7 +111,7 @@ const ProductosPage = () => {
           <li>
             <strong>Enviá tu solicitud</strong>
             <span>
-              Mandanos tu nota de pedido por WhatsApp, llamada o contacto online.<br />
+              Indicanos un WhatsApp para enviarte el presupuesto.<br />
               👉 El vendedor revisará <strong>precio y stock</strong> y luego <strong>vos podrás confirmar o no el pedido</strong>.
             </span>
           </li>
