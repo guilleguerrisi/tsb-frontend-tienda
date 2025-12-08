@@ -361,18 +361,13 @@ sm:w-full sm:h-64             /* PC */
                           </p>
                         </div>
 
-                        {/* DESCRIPCIÓN */}
-                        <p className="text-[1rem] sm:text-sm text-gray-800 leading-snug mt-1">
+                        <p className="text-[0.95rem] sm:text-sm text-gray-800 leading-snug mt-1">
                           {producto.descripcion_corta}
+                          <span className="ml-1 text-xs text-gray-600">
+                            <strong className="font-semibold text-gray-800">Código:</strong> {producto.codigo_int}
+                          </span>
                         </p>
 
-
-
-                        {/* CÓDIGO */}
-                        <p className="text-xs text-gray-600">
-                          <strong className="font-semibold text-gray-800">Código:</strong>{' '}
-                          {producto.codigo_int}
-                        </p>
 
                         {/* ETIQUETA AGREGADO */}
                         {enCarrito && (
