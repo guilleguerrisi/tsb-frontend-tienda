@@ -21,28 +21,26 @@ const convertirYoutubeEmbed = (url = "") => {
 
   const limpio = url.trim();
 
-  // Ya embed
-  if (limpio.includes("embed")) return limpio;
+  let id = null;
 
-  // YouTube Shorts
+  // Shorts
   if (limpio.includes("youtube.com/shorts/")) {
-    const id = limpio.split("shorts/")[1].split("?")[0];
-    return `https://www.youtube.com/embed/${id}`;
+    id = limpio.split("shorts/")[1].split("?")[0];
   }
 
-  // YouTube normal
-  if (limpio.includes("watch?v=")) {
-    const id = limpio.split("watch?v=")[1].split("&")[0];
-    return `https://www.youtube.com/embed/${id}`;
+  // watch?v=
+  else if (limpio.includes("watch?v=")) {
+    id = limpio.split("watch?v=")[1].split("&")[0];
   }
 
-  // youtu.be corto
-  if (limpio.includes("youtu.be/")) {
-    const id = limpio.split("youtu.be/")[1].split("?")[0];
-    return `https://www.youtube.com/embed/${id}`;
+  // youtu.be
+  else if (limpio.includes("youtu.be/")) {
+    id = limpio.split("youtu.be/")[1].split("?")[0];
   }
 
-  return null;
+  if (!id) return null;
+
+  return `https://www.youtube.com/embed/${id}`;
 };
 
 
@@ -525,11 +523,13 @@ function ProductList({ grcat, buscar }) {
                         </span>
                         <div className="w-full rounded-lg overflow-hidden bg-black aspect-video">
                           <iframe
-                            src={convertirYoutubeEmbed(slide.url)}
+                            src={convertirYoutubeEmbed(slide.url) + "?autoplay=1&mute=1"}
                             className="w-full h-full"
                             title="Video del producto"
+                            allow="autoplay; encrypted-media"
                             allowFullScreen
                           ></iframe>
+
                         </div>
                       </div>
                     );
