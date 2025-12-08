@@ -362,9 +362,10 @@ sm:w-full sm:h-64             /* PC */
                         </div>
 
                         {/* DESCRIPCIÓN */}
-                        <p className="text-[0.95rem] sm:text-sm text-gray-800 leading-snug line-clamp-2 sm:line-clamp-none mt-1">
+                        <p className="text-[1rem] sm:text-sm text-gray-800 leading-snug mt-1">
                           {producto.descripcion_corta}
                         </p>
+
 
 
                         {/* CÓDIGO */}
