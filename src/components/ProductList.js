@@ -153,11 +153,22 @@ function ProductList({ grcat, buscar }) {
       .map((img) => (typeof img === "string" ? img : img?.imagenamostrar))
       .filter((u) => typeof u === "string" && u.trim() !== "");
 
+    // NUEVO: armamos SLIDES
+    const slides = [];
+
+    // 1) VIDEO primero (si existe en video1)
+    const videoUrl = tieneVideo(producto.video1) ? producto.video1.trim() : null;
+    if (videoUrl) {
+      slides.push({ tipo: "video", url: videoUrl });
+    }
+
+    // 2) Luego todas las imágenes en orden
+    imagenes.forEach((img) => slides.push({ tipo: "img", url: img }));
+
+    // Guardamos estructura final
     setProductoSeleccionado({
       ...producto,
-      imagearray: imagenes,
-      videoUrl: tieneVideo(producto.video1) ? producto.video1.trim() : null,
-
+      slides,
     });
 
     // Preload imágenes
@@ -169,6 +180,7 @@ function ProductList({ grcat, buscar }) {
     setIndiceImagen(0);
     document.body.classList.add("modal-abierto");
   };
+
 
   const cerrarModal = () => {
     setProductoSeleccionado(null);
@@ -455,7 +467,6 @@ function ProductList({ grcat, buscar }) {
           : productoSeleccionado.imagearray.length;
 
 
-        const esVideo = productoSeleccionado.videoUrl && indiceImagen === 0;
 
 
         return (
@@ -476,13 +487,14 @@ function ProductList({ grcat, buscar }) {
               </button>
 
               {/* CARRUSEL IMAGEN / VIDEO */}
+              {/* CARRUSEL IMAGEN / VIDEO */}
               <div className="relative flex justify-center items-center mb-4">
+
+                {/* BOTÓN ANTERIOR */}
                 {totalSlides > 1 && (
                   <button
                     onClick={() =>
-                      setIndiceImagen((prev) =>
-                        prev === 0 ? totalSlides - 1 : prev - 1
-                      )
+                      setIndiceImagen((prev) => (prev === 0 ? totalSlides - 1 : prev - 1))
                     }
                     className="absolute left-0 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-700 px-3 py-1 rounded-full shadow focus:outline-none"
                   >
@@ -490,44 +502,47 @@ function ProductList({ grcat, buscar }) {
                   </button>
                 )}
 
-                {esVideo ? (
-                  <div className="relative w-full">
-                    <span className="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-1 rounded shadow">
-                      🎥 VIDEO
-                    </span>
-                    <div className="w-full rounded-lg overflow-hidden bg-black aspect-video">
-                      <iframe
-                        src={convertirYoutubeEmbed(productoSeleccionado.videoUrl)}
+                {/* CONTENIDO DEL SLIDE */}
+                {/* Mostrar slide actual */}
+                {(() => {
+                  const slide = productoSeleccionado.slides[indiceImagen];
 
-                        className="w-full h-full"
-                        title="Video del producto"
-                        allowFullScreen
-                      ></iframe>
-                    </div>
-                  </div>
-                ) : (
-                  <img
-                    src={
-                      productoSeleccionado.imagearray[
-                      productoSeleccionado.videoUrl ? indiceImagen - 1 : indiceImagen
-                      ]
-                      ||
-                      productoSeleccionado.imagen1
-                    }
-                    alt={productoSeleccionado.descripcion_corta}
-                    className="max-h-[360px] max-w-[85%] mx-auto object-contain rounded-lg bg-white"
-                    onError={(e) =>
-                      (e.target.src = "/imagenes/no-disponible.jpg")
-                    }
-                  />
-                )}
+                  if (slide.tipo === "video") {
+                    return (
+                      <div className="relative w-full">
+                        <span className="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-1 rounded shadow">
+                          🎥 VIDEO
+                        </span>
 
+                        <div className="w-full rounded-lg overflow-hidden bg-black aspect-video">
+                          <iframe
+                            src={convertirYoutubeEmbed(slide.url)}
+                            className="w-full h-full"
+                            title="Video del producto"
+                            allowFullScreen
+                          ></iframe>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  // Si NO es video → es foto
+                  return (
+                    <img
+                      src={slide.url}
+                      alt="imagen del producto"
+                      className="max-h-[360px] max-w-[85%] mx-auto object-contain rounded-lg bg-white"
+                      onError={(e) => (e.target.src = "/imagenes/no-disponible.jpg")}
+                    />
+                  );
+                })()}
+
+
+                {/* BOTÓN SIGUIENTE */}
                 {totalSlides > 1 && (
                   <button
                     onClick={() =>
-                      setIndiceImagen((prev) =>
-                        prev === totalSlides - 1 ? 0 : prev + 1
-                      )
+                      setIndiceImagen((prev) => (prev === totalSlides - 1 ? 0 : prev + 1))
                     }
                     className="absolute right-0 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-700 px-3 py-1 rounded-full shadow focus:outline-none"
                   >
@@ -535,6 +550,7 @@ function ProductList({ grcat, buscar }) {
                   </button>
                 )}
               </div>
+
 
               {/* PRECIO EN NEGRO, DISCRETO */}
               <div className="text-left mb-3">
