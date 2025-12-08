@@ -141,52 +141,40 @@ function ProductList({ grcat, buscar }) {
   }, [grcat, buscar]);
 
   const abrirModal = (producto) => {
-    let imagenes = [];
+    let slides = [];
 
     try {
-      if (Array.isArray(producto.imagearray)) {
-        imagenes = producto.imagearray;
-      } else if (
-        typeof producto.imagearray === "string" &&
-        producto.imagearray.trim().startsWith("[")
-      ) {
-        imagenes = JSON.parse(producto.imagearray);
+      // Si es string traído desde la DB → parsear
+      if (typeof producto.imagearray === "string") {
+        slides = JSON.parse(producto.imagearray);
+      }
+      // Si ya es array → usarlo tal cual
+      else if (Array.isArray(producto.imagearray)) {
+        slides = producto.imagearray;
       }
     } catch {
-      imagenes = [];
+      slides = [];
     }
 
-    imagenes = (imagenes || [])
-      .map((img) => (typeof img === "string" ? img : img?.imagenamostrar))
-      .filter((u) => typeof u === "string" && u.trim() !== "");
+    // FILTRAR elementos inválidos
+    slides = slides.filter(
+      (s) => s && typeof s.url === "string" && s.url.trim() !== ""
+    );
 
-    // NUEVO: armamos SLIDES
-    const slides = [];
-
-    // 1) VIDEO primero (si existe en video1)
-    const videoUrl = tieneVideo(producto.video1) ? producto.video1.trim() : null;
-    if (videoUrl) {
-      slides.push({ tipo: "video", url: videoUrl });
+    // Si NO hay slides, mostrar un slide vacío controlado
+    if (slides.length === 0) {
+      slides = [{ tipo: "empty", url: null }];
     }
 
-    // 2) Luego todas las imágenes en orden
-    imagenes.forEach((img) => slides.push({ tipo: "img", url: img }));
-
-    // Guardamos estructura final
     setProductoSeleccionado({
       ...producto,
       slides,
     });
 
-    // Preload imágenes
-    imagenes.forEach((url) => {
-      const img = new Image();
-      img.src = url;
-    });
-
     setIndiceImagen(0);
     document.body.classList.add("modal-abierto");
   };
+
 
 
   const cerrarModal = () => {
@@ -468,10 +456,7 @@ function ProductList({ grcat, buscar }) {
       {/* ---------- MODAL ---------- */}
       {productoSeleccionado && (() => {
         const precioFicha = calcularPrecioMinorista(productoSeleccionado);
-
-      const totalSlides = productoSeleccionado.slides.length;
-
-
+        const totalSlides = productoSeleccionado.slides.length;
 
 
 
@@ -513,6 +498,15 @@ function ProductList({ grcat, buscar }) {
                 {(() => {
                   const slide = productoSeleccionado.slides[indiceImagen];
 
+                  // Seguridad: si no hay slide, no rompas
+                  if (!slide) {
+                    return (
+                      <div className="w-full text-center text-gray-500 py-10">
+                        Sin imágenes ni videos disponibles
+                      </div>
+                    );
+                  }
+
                   if (slide.tipo === "video") {
                     return (
                       <div className="relative w-full">
@@ -532,7 +526,7 @@ function ProductList({ grcat, buscar }) {
                     );
                   }
 
-                  // Si NO es video → es foto
+                  // FOTO
                   return (
                     <img
                       src={slide.url}
@@ -541,6 +535,7 @@ function ProductList({ grcat, buscar }) {
                       onError={(e) => (e.target.src = "/imagenes/no-disponible.jpg")}
                     />
                   );
+
                 })()}
 
 
