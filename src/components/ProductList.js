@@ -453,10 +453,13 @@ function ProductList({ grcat, buscar }) {
 
       {/* ---------- MODAL ---------- */}
       {productoSeleccionado && (() => {
+        const slides = Array.isArray(productoSeleccionado.slides)
+          ? productoSeleccionado.slides
+          : [];
+
+        const totalSlides = slides.length;
+
         const precioFicha = calcularPrecioMinorista(productoSeleccionado);
-        const totalSlides = productoSeleccionado.slides.length;
-
-
 
         return (
           <div
@@ -467,7 +470,7 @@ function ProductList({ grcat, buscar }) {
               className="bg-white rounded-xl shadow-xl max-w-lg w-full px-5 pt-8 pb-5 relative"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* BOTÓN CERRAR (SEPARADO DE LA IMAGEN) */}
+              {/* BOTÓN CERRAR */}
               <button
                 className="absolute top-3 right-4 text-3xl text-gray-500 hover:text-gray-800 z-50 focus:outline-none"
                 onClick={cerrarModal}
@@ -475,15 +478,16 @@ function ProductList({ grcat, buscar }) {
                 ×
               </button>
 
-              {/* CARRUSEL IMAGEN / VIDEO */}
-              {/* CARRUSEL IMAGEN / VIDEO */}
+              {/* CARRUSEL */}
               <div className="relative flex justify-center items-center mb-4">
 
                 {/* BOTÓN ANTERIOR */}
                 {totalSlides > 1 && (
                   <button
                     onClick={() =>
-                      setIndiceImagen((prev) => (prev === 0 ? totalSlides - 1 : prev - 1))
+                      setIndiceImagen((prev) =>
+                        prev === 0 ? totalSlides - 1 : prev - 1
+                      )
                     }
                     className="absolute left-0 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-700 px-3 py-1 rounded-full shadow focus:outline-none"
                   >
@@ -492,12 +496,8 @@ function ProductList({ grcat, buscar }) {
                 )}
 
                 {/* CONTENIDO DEL SLIDE */}
-                {/* Mostrar slide actual */}
                 {(() => {
-                  const slides = productoSeleccionado.slides;
-
-                  // 🛑 Si no hay imágenes ni videos → mostrar backup
-                  if (!slides || slides.length === 0) {
+                  if (totalSlides === 0) {
                     return (
                       <div className="w-full text-center py-10 text-gray-600">
                         <p>No hay imágenes ni videos disponibles</p>
@@ -510,9 +510,9 @@ function ProductList({ grcat, buscar }) {
                     );
                   }
 
-                  const slide = slides[indiceImagen];
+                  // Corrige índice fuera de rango
+                  const slide = slides[indiceImagen] || slides[0];
 
-                  // 🎥 Si es video → mostrar iframe
                   if (slide.tipo === "video") {
                     return (
                       <div className="relative w-full">
@@ -525,15 +525,14 @@ function ProductList({ grcat, buscar }) {
                             src={convertirYoutubeEmbed(slide.url)}
                             className="w-full h-full"
                             title="Video del producto"
+                            allow="autoplay"
                             allowFullScreen
-                            autoPlay
                           ></iframe>
                         </div>
                       </div>
                     );
                   }
 
-                  // 🖼 Si es imagen → mostrar imagen
                   return (
                     <img
                       src={slide.url}
@@ -544,14 +543,13 @@ function ProductList({ grcat, buscar }) {
                   );
                 })()}
 
-
-
-
                 {/* BOTÓN SIGUIENTE */}
                 {totalSlides > 1 && (
                   <button
                     onClick={() =>
-                      setIndiceImagen((prev) => (prev === totalSlides - 1 ? 0 : prev + 1))
+                      setIndiceImagen((prev) =>
+                        prev === totalSlides - 1 ? 0 : prev + 1
+                      )
                     }
                     className="absolute right-0 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-700 px-3 py-1 rounded-full shadow focus:outline-none"
                   >
@@ -560,15 +558,13 @@ function ProductList({ grcat, buscar }) {
                 )}
               </div>
 
-
-              {/* PRECIO EN NEGRO, DISCRETO */}
+              {/* PRECIO */}
               <div className="text-left mb-3">
                 <p className="text-xs font-semibold text-gray-500">Precio</p>
                 <p className="text-2xl font-bold text-black">
                   {precioFicha ? formatoAR(precioFicha) : "Sin precio"}
                 </p>
               </div>
-
 
               {/* DESCRIPCIÓN */}
               <p className="text-gray-800 text-base mb-2">
@@ -580,16 +576,10 @@ function ProductList({ grcat, buscar }) {
                 <strong>Código:</strong> {productoSeleccionado.codigo_int}
               </p>
 
-              {/* CONTROL DE CANTIDAD (AZUL ML) */}
+              {/* CARGA CANTIDAD */}
               <div className="flex justify-center items-center gap-3 mb-4">
                 <button
-                  className="
-                    w-10 h-10 
-                    bg-[#3483FA] text-white 
-                    rounded-md text-xl font-bold 
-                    hover:bg-[#2968C8] active:scale-95 
-                    transition focus:outline-none
-                  "
+                  className="w-10 h-10 bg-[#3483FA] text-white rounded-md text-xl font-bold hover:bg-[#2968C8] active:scale-95 transition focus:outline-none"
                   onClick={() => modificarCantidad(productoSeleccionado, -1)}
                 >
                   −
@@ -599,11 +589,7 @@ function ProductList({ grcat, buscar }) {
                   type="number"
                   value={getCantidadStr(productoSeleccionado.codigo_int)}
                   min="0"
-                  className="
-                    w-20 border border-[#3483FA] rounded-md 
-                    p-2 text-center text-lg font-semibold
-                    focus:outline-none focus:ring-2 focus:ring-[#3483FA55]
-                  "
+                  className="w-20 border border-[#3483FA] rounded-md p-2 text-center text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-[#3483FA55]"
                   onFocus={(e) => e.target.select()}
                   onChange={(e) =>
                     setDraftCantidades((prev) => ({
@@ -615,27 +601,16 @@ function ProductList({ grcat, buscar }) {
                 />
 
                 <button
-                  className="
-                    w-10 h-10 
-                    bg-[#3483FA] text-white 
-                    rounded-md text-xl font-bold 
-                    hover:bg-[#2968C8] active:scale-95 
-                    transition focus:outline-none
-                  "
+                  className="w-10 h-10 bg-[#3483FA] text-white rounded-md text-xl font-bold hover:bg-[#2968C8] active:scale-95 transition focus:outline-none"
                   onClick={() => modificarCantidad(productoSeleccionado, 1)}
                 >
                   +
                 </button>
               </div>
 
-              {/* CERRAR MODAL */}
+              {/* BOTÓN CERRAR */}
               <button
-                className="
-                  w-full bg-gray-100 border rounded-lg 
-                  py-2 text-gray-700 font-semibold 
-                  hover:bg-gray-200 transition
-                  focus:outline-none
-                "
+                className="w-full bg-gray-100 border rounded-lg py-2 text-gray-700 font-semibold hover:bg-gray-200 transition focus:outline-none"
                 onClick={cerrarModal}
               >
                 ← Seguir viendo productos
@@ -644,6 +619,7 @@ function ProductList({ grcat, buscar }) {
           </div>
         );
       })()}
+
     </>
   );
 }
