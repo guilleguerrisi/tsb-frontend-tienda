@@ -308,15 +308,7 @@ function ProductList({ grcat, buscar }) {
     sm:h-auto
   "
                     >
-                      {/* BADGE VIDEO */}
-                      {tieneVideoEnArray(producto.imagearray) && (
-                        <span className="absolute top-3 left-3 bg-red-600 text-white text-xs px-2 py-1 rounded-md shadow-md">
-                          🎥 VIDEO
-                        </span>
-                      )}
-
-
-
+ 
                       {/* IMAGEN – MOBILE IZQUIERDA, PC NORMAL */}
                       <div
                         className="
