@@ -436,24 +436,46 @@ function ProductList({ grcat, buscar }) {
                             </button>
                           </div>
 
-                          {/* BOTÓN FICHA */}
-                          {/* BOTÓN FICHA */}
-                          <button
-                            type="button"
-                            onClick={() => abrirModal(producto)}
-                            className="
-    w-[90px] sm:w-full
-    bg-[#3483FA] hover:bg-[#2968C8]
-    text-white
-    py-1.5 sm:py-2 
-    rounded-lg
-    font-semibold text-xs sm:text-sm
-    shadow-md
-    active:scale-95
-  "
-                          >
-                            Ficha
-                          </button>
+                        
+                          {/* BOTÓN FICHA O VIDEO */}
+                          {tieneVideo(producto.video1) ? (
+                            // SI TIENE VIDEO → BOTÓN ROJO VIDEO
+                            <button
+                              type="button"
+                              onClick={() => abrirModal(producto)}
+                              className="
+      w-[90px] sm:w-full
+      bg-red-600 hover:bg-red-700
+      text-white flex items-center justify-center gap-1
+      py-1.5 sm:py-2
+      rounded-lg
+      font-semibold text-xs sm:text-sm
+      shadow-md
+      active:scale-95
+    "
+                            >
+                              🎥 VIDEO
+                            </button>
+                          ) : (
+                            // SI NO TIENE VIDEO → BOTÓN FICHA NORMAL
+                            <button
+                              type="button"
+                              onClick={() => abrirModal(producto)}
+                              className="
+      w-[90px] sm:w-full
+      bg-[#3483FA] hover:bg-[#2968C8]
+      text-white
+      py-1.5 sm:py-2 
+      rounded-lg
+      font-semibold text-xs sm:text-sm
+      shadow-md
+      active:scale-95
+    "
+                            >
+                              Ficha
+                            </button>
+                          )}
+
 
                         </div>
                       </div>
