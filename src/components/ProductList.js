@@ -139,59 +139,59 @@ function ProductList({ grcat, buscar }) {
   }, [grcat, buscar]);
 
   const abrirModal = (producto) => {
-  let slides = [];
+    let slides = [];
 
-  try {
-    // Si imagearray es string → parsear
-    if (typeof producto.imagearray === "string") {
-      slides = JSON.parse(producto.imagearray);
-    }
-    // Si ya es array
-    else if (Array.isArray(producto.imagearray)) {
-      slides = producto.imagearray;
-    }
-  } catch {
-    slides = [];
-  }
-
-  // Convertir strings en formato correcto {tipo, url}
-  slides = slides.map((s) => {
-    if (!s) return null;
-
-    // Caso correcto: {tipo, url}
-    if (typeof s === "object" && typeof s.url === "string") return s;
-
-    // Caso incorrecto: "https://..."
-    if (typeof s === "string") {
-      return { tipo: "imagen", url: s };
+    try {
+      // Si imagearray es string → parsear
+      if (typeof producto.imagearray === "string") {
+        slides = JSON.parse(producto.imagearray);
+      }
+      // Si ya es array
+      else if (Array.isArray(producto.imagearray)) {
+        slides = producto.imagearray;
+      }
+    } catch {
+      slides = [];
     }
 
-    return null;
-  });
+    // Convertir strings en formato correcto {tipo, url}
+    slides = slides.map((s) => {
+      if (!s) return null;
 
-  // Filtrar inválidos
-  slides = slides.filter((s) => s && s.url);
+      // Caso correcto: {tipo, url}
+      if (typeof s === "object" && typeof s.url === "string") return s;
 
-  // Si sigue vacío, usar imagen1 como respaldo
-  if (slides.length === 0 && producto.imagen1) {
-    slides.push({ tipo: "imagen", url: producto.imagen1 });
-  }
+      // Caso incorrecto: "https://..."
+      if (typeof s === "string") {
+        return { tipo: "imagen", url: s };
+      }
 
-  // Si aun así no hay nada
-  if (slides.length === 0) {
-    slides.push({ tipo: "imagen", url: "/imagenes/no-disponible.jpg" });
-  }
+      return null;
+    });
 
-  // Guardar y abrir modal
-  setIndiceImagen(0);
+    // Filtrar inválidos
+    slides = slides.filter((s) => s && s.url);
 
-  setProductoSeleccionado({
-    ...producto,
-    slides,
-  });
+    // Si sigue vacío, usar imagen1 como respaldo
+    if (slides.length === 0 && producto.imagen1) {
+      slides.push({ tipo: "imagen", url: producto.imagen1 });
+    }
 
-  document.body.classList.add("modal-abierto");
-};
+    // Si aun así no hay nada
+    if (slides.length === 0) {
+      slides.push({ tipo: "imagen", url: "/imagenes/no-disponible.jpg" });
+    }
+
+    // Guardar y abrir modal
+    setIndiceImagen(0);
+
+    setProductoSeleccionado({
+      ...producto,
+      slides,
+    });
+
+    document.body.classList.add("modal-abierto");
+  };
 
 
 
@@ -312,10 +312,11 @@ function ProductList({ grcat, buscar }) {
                       <div
                         className="
       cursor-pointer 
-      flex justify-center items-center 
-      bg-white
-      w-[110px] h-full     /* MOBILE */
-      sm:w-full sm:h-64    /* PC */
+flex justify-center items-center 
+bg-white
+w-[130px] h-[130px]           /* MOBILE */
+sm:w-full sm:h-64             /* PC */
+
     "
                         onClick={() => !autorizado && abrirModal(producto)}
                       >
