@@ -499,7 +499,8 @@ function ProductList({ grcat, buscar }) {
                   <button
                     onClick={() =>
                       setIndiceImagen((prev) =>
-                        prev === 0 ? totalSlides - 1 : prev - 1
+                        totalSlides <= 1 ? 0 : prev === 0 ? totalSlides - 1 : prev - 1
+
                       )
                     }
                     className="absolute left-0 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-700 px-3 py-1 rounded-full shadow focus:outline-none"
@@ -524,7 +525,16 @@ function ProductList({ grcat, buscar }) {
                   }
 
                   // Corrige índice fuera de rango
-                  const slide = slides[indiceImagen] || slides[0];
+                  // Índice seguro SIEMPRE
+                  const safeIndex =
+                    typeof indiceImagen === "number" &&
+                      indiceImagen >= 0 &&
+                      indiceImagen < slides.length
+                      ? indiceImagen
+                      : 0;
+
+                  const slide = slides[safeIndex];
+
 
                   if (slide.tipo === "video") {
                     return (
@@ -561,7 +571,8 @@ function ProductList({ grcat, buscar }) {
                   <button
                     onClick={() =>
                       setIndiceImagen((prev) =>
-                        prev === totalSlides - 1 ? 0 : prev + 1
+                        totalSlides <= 1 ? 0 : prev === totalSlides - 1 ? 0 : prev + 1
+
                       )
                     }
                     className="absolute right-0 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-700 px-3 py-1 rounded-full shadow focus:outline-none"
