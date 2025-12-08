@@ -285,20 +285,20 @@ function ProductList({ grcat, buscar }) {
                     <div
                       key={index}
                       className="
-    relative
-    bg-white 
-    rounded-xl 
-    shadow-sm 
-    hover:shadow-md 
-    transition-shadow 
-    p-4 
-    flex flex-row          /* MOBILE: HORIZONTAL */
-    sm:flex-col            /* PC: VERTICAL */
-    gap-4 
-    border border-gray-100
-    h-[160px]              /* MOBILE: MÁS CHICA */
-    sm:h-auto
-  "
+  relative
+  bg-white 
+  rounded-xl 
+  shadow-sm 
+  hover:shadow-md 
+  transition-shadow 
+  p-4 
+  flex flex-row
+  sm:flex-col
+  gap-4 
+  border border-gray-100
+  h-auto
+"
+
                     >
                       {/* BADGE VIDEO */}
                       {tieneVideo(producto.video1) && (
