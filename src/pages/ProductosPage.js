@@ -70,29 +70,30 @@ const ProductosPage = () => {
   return (
     <div className="App">
       {/* HEADER */}
-      <header className="w-full py-6 bg-white/20 backdrop-blur border-b border-white/30 shadow-sm">
+     <header className="w-full py-5 bg-white/20 backdrop-blur border-b border-white/30 shadow-sm">
 
-        {/* TITULO CENTRADO Y MÁS GRANDE */}
-        <h1 className="text-4xl font-extrabold text-white tracking-wide drop-shadow px-6 text-center">
-          TIENDA SALTA BAZAR
-        </h1>
+  {/* TITULO */}
+  <h1 className="text-3xl font-extrabold text-white tracking-wide drop-shadow px-4 text-center">
+    TIENDA SALTA BAZAR
+  </h1>
 
-        {/* BOTÓN CATEGORÍAS DEBAJO DEL TÍTULO EN MOBILE */}
-        <div className="mt-4 flex justify-center sm:justify-start px-6">
-          <button
-            className="px-5 py-2 bg-blue-500 text-white font-semibold rounded-full shadow hover:bg-blue-600 transition"
-            onClick={() => navigate("/")}
-          >
-            ← Categorías
-          </button>
-        </div>
+  {/* BOTÓN CATEGORÍAS BAJO EL TÍTULO */}
+  <div className="mt-3 flex justify-center sm:justify-start px-4">
+    <button
+      className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-full shadow hover:bg-blue-600 transition text-sm"
+      onClick={() => navigate("/")}
+    >
+      ← Categorías
+    </button>
+  </div>
 
-        {/* CARRITO ALINEADO A LA DERECHA */}
-        <div className="flex justify-end pr-4 mt-2">
-          <CarritoLink />
-        </div>
+  {/* CARRITO */}
+  <div className="flex justify-end pr-4 mt-1">
+    <CarritoLink />
+  </div>
 
-      </header>
+</header>
+
 
 
       {/* INSTRUCTIVO */}
