@@ -20,7 +20,6 @@ const convertirYoutubeEmbed = (url = "") => {
   if (!url) return null;
 
   const limpio = url.trim();
-
   let id = null;
 
   // Shorts
@@ -42,6 +41,7 @@ const convertirYoutubeEmbed = (url = "") => {
 
   return `https://www.youtube.com/embed/${id}`;
 };
+
 
 
 
@@ -165,9 +165,9 @@ function ProductList({ grcat, buscar }) {
     }
 
     // ====== NORMALIZAR SLIDES ======
-   let safeSlides = Array.isArray(slides)
-  ? slides.filter(s => s && typeof s.url === "string")
-  : [];
+    let safeSlides = Array.isArray(slides)
+      ? slides.filter(s => s && typeof s.url === "string")
+      : [];
 
 
     // Si no hay nada, crear slide de respaldo
@@ -553,12 +553,13 @@ function ProductList({ grcat, buscar }) {
 
                         <div className="w-full rounded-lg overflow-hidden bg-black aspect-video">
                           <iframe
-                            src={convertirYoutubeEmbed(slide.url)}
+                            src={convertirYoutubeEmbed(slide.url) + "?autoplay=1&mute=1"}
                             className="w-full h-full"
                             title="Video del producto"
-                            allow="autoplay"
+                            allow="autoplay; encrypted-media; fullscreen"
                             allowFullScreen
                           ></iframe>
+
                         </div>
                       </div>
                     );
