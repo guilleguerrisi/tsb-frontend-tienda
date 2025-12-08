@@ -70,29 +70,31 @@ const ProductosPage = () => {
   return (
     <div className="App">
       {/* HEADER */}
-     <header className="w-full py-5 bg-white/20 backdrop-blur border-b border-white/30 shadow-sm">
+      <header className="w-full text-center py-5 bg-white/20 backdrop-blur border-b border-white/30 shadow-sm">
 
-  {/* TITULO */}
-  <h1 className="text-3xl font-extrabold text-white tracking-wide drop-shadow px-4 text-center">
-    TIENDA SALTA BAZAR
-  </h1>
+        {/* TÍTULO */}
+        <h1 className="text-3xl font-extrabold text-white tracking-wide drop-shadow mb-4">
+          TIENDA SALTA BAZAR
+        </h1>
 
-  {/* BOTÓN CATEGORÍAS BAJO EL TÍTULO */}
-  <div className="mt-3 flex justify-center sm:justify-start px-4">
-    <button
-      className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-full shadow hover:bg-blue-600 transition text-sm"
-      onClick={() => navigate("/")}
-    >
-      ← Categorías
-    </button>
-  </div>
+        {/* BOTONES CENTRADOS EN LA MISMA FILA */}
+        <div className="flex justify-center items-center gap-4 mb-2">
 
-  {/* CARRITO */}
-  <div className="flex justify-end pr-4 mt-1">
-    <CarritoLink />
-  </div>
+          <button
+            className="px-5 py-2 bg-blue-500 text-white font-semibold rounded-full shadow hover:bg-blue-600 transition text-sm"
+            onClick={() => navigate("/")}
+          >
+            ← Categorías
+          </button>
 
-</header>
+          <div>
+            <CarritoLink />
+          </div>
+
+        </div>
+
+      </header>
+
 
 
 
