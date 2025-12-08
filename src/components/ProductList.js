@@ -4,15 +4,31 @@ import config from "../config";
 
 
 // Detecta si un producto realmente tiene un link de video válido
-const tieneVideo = (v) => {
-  if (!v) return false;
-  if (typeof v !== "string") return false;
+// Detecta si hay un video dentro de imagearray
+const tieneVideoEnArray = (imagearray) => {
+  if (!imagearray) return false;
 
-  const limpio = v.trim().toLowerCase();
-  if (limpio === "" || limpio === "null" || limpio === "undefined") return false;
+  try {
+    const arr =
+      typeof imagearray === "string"
+        ? JSON.parse(imagearray)
+        : imagearray;
 
-  return true;
+    if (!Array.isArray(arr)) return false;
+
+    return arr.some(
+      (item) =>
+        item &&
+        item.tipo === "video" &&
+        typeof item.url === "string" &&
+        item.url.trim().startsWith("http")
+    );
+  } catch {
+    return false;
+  }
 };
+
+
 
 // Convierte cualquier link de YouTube en formato embed
 const convertirYoutubeEmbed = (url = "") => {
@@ -293,11 +309,13 @@ function ProductList({ grcat, buscar }) {
   "
                     >
                       {/* BADGE VIDEO */}
-                      {tieneVideo(producto.video1) && (
+                      {tieneVideoEnArray(producto.imagearray) && (
                         <span className="absolute top-3 left-3 bg-red-600 text-white text-xs px-2 py-1 rounded-md shadow-md">
                           🎥 VIDEO
                         </span>
                       )}
+
+
 
                       {/* IMAGEN – MOBILE IZQUIERDA, PC NORMAL */}
                       <div
@@ -436,10 +454,11 @@ function ProductList({ grcat, buscar }) {
                             </button>
                           </div>
 
-                        
+
                           {/* BOTÓN FICHA O VIDEO */}
-                          {tieneVideo(producto.video1) ? (
-                            // SI TIENE VIDEO → BOTÓN ROJO VIDEO
+                          {/* BOTÓN FICHA O VIDEO */}
+                          {/* BOTÓN FICHA O VIDEO */}
+                          {tieneVideoEnArray(producto.imagearray) ? (
                             <button
                               type="button"
                               onClick={() => abrirModal(producto)}
@@ -457,7 +476,6 @@ function ProductList({ grcat, buscar }) {
                               🎥 VIDEO
                             </button>
                           ) : (
-                            // SI NO TIENE VIDEO → BOTÓN FICHA NORMAL
                             <button
                               type="button"
                               onClick={() => abrirModal(producto)}
@@ -475,6 +493,8 @@ function ProductList({ grcat, buscar }) {
                               Ficha
                             </button>
                           )}
+
+
 
 
                         </div>
