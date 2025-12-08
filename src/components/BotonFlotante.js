@@ -33,43 +33,45 @@ const BotonFlotante = () => {
   if (modalAbierto) return null;
 
   return (
-    <div
-      className={`
-        fixed bottom-8 left-1/2 -translate-x-1/2 
-        flex gap-3 max-w-[500px] w-full justify-center z-[1000]
-        transition-all duration-300
-        ${mostrar ? "opacity-100 visible" : "opacity-0 invisible"}
-      `}
-    >
-      {/* Botón Categorías */}
-      <button
-        onClick={() => navigate("/")}
-        className="
-          flex-1 px-5 py-3 min-w-[120px]
-          rounded-full font-bold text-white text-lg
-          bg-blue-500 hover:bg-blue-600 
-          shadow-lg active:scale-95 transition-transform
-        "
-      >
-        ← Categorías
-      </button>
+   <div
+  className={`
+    fixed bottom-6 left-1/2 -translate-x-1/2 
+    flex gap-4 w-full justify-center z-[1000]
+    px-6   /* agrega margen lateral */
+    transition-all duration-300
+    ${mostrar ? "opacity-100 visible" : "opacity-0 invisible"}
+  `}
+>
+  {/* Botón Categorías */}
+  <button
+    onClick={() => navigate("/")}
+    className="
+      flex-1 max-w-[140px] px-4 py-2.5
+      rounded-full font-bold text-white text-base
+      bg-blue-500 hover:bg-blue-600 
+      shadow-lg active:scale-95 transition-transform
+    "
+  >
+    ← Categorías
+  </button>
 
-      {/* Botón Ver tu pedido */}
-      <button
-        onClick={() => {
-          const pedidoID = localStorage.getItem("pedidoID");
-          navigate(`/carrito${pedidoID ? `?id=${pedidoID}` : ""}`);
-        }}
-        className="
-          flex-1 px-5 py-3 min-w-[120px]
-          rounded-full font-bold text-white text-lg
-          bg-orange-500 hover:bg-orange-600
-          shadow-lg active:scale-95 transition-transform
-        "
-      >
-        Ver tu pedido
-      </button>
-    </div>
+  {/* Botón Ver tu pedido */}
+  <button
+    onClick={() => {
+      const pedidoID = localStorage.getItem('pedidoID');
+      navigate(`/carrito${pedidoID ? `?id=${pedidoID}` : ""}`);
+    }}
+    className="
+      flex-1 max-w-[140px] px-4 py-2.5
+      rounded-full font-bold text-white text-base
+      bg-orange-500 hover:bg-orange-600
+      shadow-lg active:scale-95 transition-transform
+    "
+  >
+    Ver tu pedido
+  </button>
+</div>
+
   );
 };
 
