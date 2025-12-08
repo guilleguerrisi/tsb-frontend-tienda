@@ -164,10 +164,23 @@ function ProductList({ grcat, buscar }) {
       slides = [{ tipo: "empty", url: null }];
     }
 
+    // ====== NORMALIZAR SLIDES ======
+    let safeSlides = Array.isArray(slides) ? slides.filter(s => s && s.url) : [];
+
+    // Si no hay nada, crear slide de respaldo
+    if (safeSlides.length === 0) {
+      safeSlides = [{ tipo: "img", url: "/imagenes/no-disponible.jpg" }];
+    }
+
+    // ====== NORMALIZAR EL ÍNDICE ======
+    setIndiceImagen(0);
+
+    // ====== GUARDAR ======
     setProductoSeleccionado({
       ...producto,
-      slides,
+      slides: safeSlides
     });
+
 
     setIndiceImagen(0);
     document.body.classList.add("modal-abierto");
