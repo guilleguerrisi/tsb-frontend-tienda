@@ -21,16 +21,22 @@ const convertirYoutubeEmbed = (url = "") => {
 
   const limpio = url.trim();
 
-  // Si ya es embed
+  // Ya embed
   if (limpio.includes("embed")) return limpio;
 
-  // https://www.youtube.com/watch?v=XXXX
+  // YouTube Shorts
+  if (limpio.includes("youtube.com/shorts/")) {
+    const id = limpio.split("shorts/")[1].split("?")[0];
+    return `https://www.youtube.com/embed/${id}`;
+  }
+
+  // YouTube normal
   if (limpio.includes("watch?v=")) {
     const id = limpio.split("watch?v=")[1].split("&")[0];
     return `https://www.youtube.com/embed/${id}`;
   }
 
-  // https://youtu.be/XXXX
+  // youtu.be corto
   if (limpio.includes("youtu.be/")) {
     const id = limpio.split("youtu.be/")[1].split("?")[0];
     return `https://www.youtube.com/embed/${id}`;
@@ -38,6 +44,7 @@ const convertirYoutubeEmbed = (url = "") => {
 
   return null;
 };
+
 
 
 
@@ -462,9 +469,8 @@ function ProductList({ grcat, buscar }) {
       {productoSeleccionado && (() => {
         const precioFicha = calcularPrecioMinorista(productoSeleccionado);
 
-        const totalSlides = productoSeleccionado.videoUrl
-          ? productoSeleccionado.imagearray.length + 1
-          : productoSeleccionado.imagearray.length;
+      const totalSlides = productoSeleccionado.slides.length;
+
 
 
 
