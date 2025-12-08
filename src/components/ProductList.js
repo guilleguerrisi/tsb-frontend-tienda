@@ -2,6 +2,46 @@ import React, { useEffect, useState } from "react";
 import { useCarrito } from "../contexts/CarritoContext";
 import config from "../config";
 
+
+// Detecta si un producto realmente tiene un link de video válido
+const tieneVideo = (v) => {
+
+  if (!v) return false;
+  if (typeof v !== "string") return false;
+
+  const limpio = v.trim().toLowerCase();
+  if (limpio === "" || limpio === "null" || limpio === "undefined") return false;
+
+  return true;
+};
+
+// Convierte cualquier link de YouTube en formato embed
+const convertirYoutubeEmbed = (url = "") => {
+  if (!url) return null;
+
+  const limpio = url.trim();
+
+  // Si ya es embed
+  if (limpio.includes("embed")) return limpio;
+
+  // https://www.youtube.com/watch?v=XXXX
+  if (limpio.includes("watch?v=")) {
+    const id = limpio.split("watch?v=")[1].split("&")[0];
+    return `https://www.youtube.com/embed/${id}`;
+  }
+
+  // https://youtu.be/XXXX
+  if (limpio.includes("youtu.be/")) {
+    const id = limpio.split("youtu.be/")[1].split("?")[0];
+    return `https://www.youtube.com/embed/${id}`;
+  }
+
+  return null;
+};
+
+
+
+
 function ProductList({ grcat, buscar }) {
   const { carrito, agregarAlCarrito } = useCarrito();
 
@@ -116,7 +156,8 @@ function ProductList({ grcat, buscar }) {
     setProductoSeleccionado({
       ...producto,
       imagearray: imagenes,
-      videoUrl: producto.video1 || null,
+      videoUrl: tieneVideo(producto.video1) ? producto.video1.trim() : null,
+
     });
 
     // Preload imágenes
@@ -234,7 +275,8 @@ function ProductList({ grcat, buscar }) {
   "
                     >
                       {/* BADGE VIDEO */}
-                      {producto.video1 && (
+                      {tieneVideo(producto.video1) && (
+
                         <span className="absolute top-3 left-3 bg-red-600 text-white text-xs px-2 py-1 rounded-md shadow-md">
                           🎥 VIDEO
                         </span>
@@ -412,9 +454,9 @@ function ProductList({ grcat, buscar }) {
           ? productoSeleccionado.imagearray.length + 1
           : productoSeleccionado.imagearray.length;
 
-        const esVideo =
-          productoSeleccionado.videoUrl &&
-          indiceImagen === productoSeleccionado.imagearray.length;
+
+        const esVideo = productoSeleccionado.videoUrl && indiceImagen === 0;
+
 
         return (
           <div
@@ -455,10 +497,8 @@ function ProductList({ grcat, buscar }) {
                     </span>
                     <div className="w-full rounded-lg overflow-hidden bg-black aspect-video">
                       <iframe
-                        src={productoSeleccionado.videoUrl.replace(
-                          "watch?v=",
-                          "embed/"
-                        )}
+                        src={convertirYoutubeEmbed(productoSeleccionado.videoUrl)}
+
                         className="w-full h-full"
                         title="Video del producto"
                         allowFullScreen
@@ -468,7 +508,10 @@ function ProductList({ grcat, buscar }) {
                 ) : (
                   <img
                     src={
-                      productoSeleccionado.imagearray[indiceImagen] ||
+                      productoSeleccionado.imagearray[
+                      productoSeleccionado.videoUrl ? indiceImagen - 1 : indiceImagen
+                      ]
+                      ||
                       productoSeleccionado.imagen1
                     }
                     alt={productoSeleccionado.descripcion_corta}
