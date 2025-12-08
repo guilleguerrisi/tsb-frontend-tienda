@@ -5,7 +5,6 @@ import config from "../config";
 
 // Detecta si un producto realmente tiene un link de video válido
 const tieneVideo = (v) => {
-
   if (!v) return false;
   if (typeof v !== "string") return false;
 
@@ -41,10 +40,6 @@ const convertirYoutubeEmbed = (url = "") => {
 
   return `https://www.youtube.com/embed/${id}`;
 };
-
-
-
-
 
 
 function ProductList({ grcat, buscar }) {
@@ -154,30 +149,29 @@ function ProductList({ grcat, buscar }) {
       slides = [];
     }
 
-    // Convertir strings en formato correcto {tipo, url}
-    slides = slides.map((s) => {
-      if (!s) return null;
+    // Normalizar: asegurarse de tener siempre objetos {tipo, url}
+    slides = slides
+      .map((s) => {
+        if (!s) return null;
 
-      // Caso correcto: {tipo, url}
-      if (typeof s === "object" && typeof s.url === "string") return s;
+        // Objeto correcto: { tipo, url }
+        if (typeof s === "object" && typeof s.url === "string") return s;
 
-      // Caso incorrecto: "https://..."
-      if (typeof s === "string") {
-        return { tipo: "imagen", url: s };
-      }
+        // String suelta: "https://..."
+        if (typeof s === "string") {
+          return { tipo: "imagen", url: s };
+        }
 
-      return null;
-    });
+        return null;
+      })
+      .filter((s) => s && s.url);
 
-    // Filtrar inválidos
-    slides = slides.filter((s) => s && s.url);
-
-    // Si sigue vacío, usar imagen1 como respaldo
+    // Si no vino nada, usar imagen1 como respaldo
     if (slides.length === 0 && producto.imagen1) {
       slides.push({ tipo: "imagen", url: producto.imagen1 });
     }
 
-    // Si aun así no hay nada
+    // Si aún así no hay nada
     if (slides.length === 0) {
       slides.push({ tipo: "imagen", url: "/imagenes/no-disponible.jpg" });
     }
@@ -192,8 +186,6 @@ function ProductList({ grcat, buscar }) {
 
     document.body.classList.add("modal-abierto");
   };
-
-
 
 
   const cerrarModal = () => {
@@ -285,24 +277,23 @@ function ProductList({ grcat, buscar }) {
                     <div
                       key={index}
                       className="
-  relative
-  bg-white 
-  rounded-xl 
-  shadow-sm 
-  hover:shadow-md 
-  transition-shadow 
-  p-4 
-  flex flex-row
-  sm:flex-col
-  gap-4 
-  border border-gray-100
-  h-auto
-"
-
+    relative
+    bg-white 
+    rounded-xl 
+    shadow-sm 
+    hover:shadow-md 
+    transition-shadow 
+    p-4 
+    flex flex-row          /* MOBILE: HORIZONTAL */
+    sm:flex-col            /* PC: VERTICAL */
+    gap-4 
+    border border-gray-100
+    h-auto                 /* MOBILE: ALTURA AUTOMÁTICA */
+    sm:h-auto
+  "
                     >
                       {/* BADGE VIDEO */}
                       {tieneVideo(producto.video1) && (
-
                         <span className="absolute top-3 left-3 bg-red-600 text-white text-xs px-2 py-1 rounded-md shadow-md">
                           🎥 VIDEO
                         </span>
@@ -312,11 +303,10 @@ function ProductList({ grcat, buscar }) {
                       <div
                         className="
       cursor-pointer 
-flex justify-center items-center 
-bg-white
-w-[130px] h-[130px]           /* MOBILE */
-sm:w-full sm:h-64             /* PC */
-
+      flex justify-center items-center 
+      bg-white
+      w-[130px] h-[130px]           /* MOBILE */
+      sm:w-full sm:h-64             /* PC */
     "
                         onClick={() => !autorizado && abrirModal(producto)}
                       >
@@ -361,14 +351,16 @@ sm:w-full sm:h-64             /* PC */
                           </p>
                         </div>
 
-                        <p className="text-[0.95rem] sm:text-sm text-gray-800 leading-snug mt-1 mb-2 sm:mb-3">
+                        {/* DESCRIPCIÓN + CÓDIGO EN LA MISMA LÍNEA */}
+                        <p className="text-[0.95rem] sm:text-sm text-gray-800 leading-snug mt-1 mb-3">
                           {producto.descripcion_corta}
-                          <span className="ml-1 text-xs text-gray-600">
-                            <strong className="font-semibold text-gray-800">Código:</strong> {producto.codigo_int}
-                          </span>
+                          {producto.codigo_int && (
+                            <span className="ml-1 text-xs text-gray-600">
+                              <span className="font-semibold text-gray-800">Código:</span>{" "}
+                              {producto.codigo_int}
+                            </span>
+                          )}
                         </p>
-
-
 
                         {/* ETIQUETA AGREGADO */}
                         {enCarrito && (
@@ -480,7 +472,6 @@ sm:w-full sm:h-64             /* PC */
           : [];
 
         const totalSlides = slides.length;
-
         const precioFicha = calcularPrecioMinorista(productoSeleccionado);
 
         return (
@@ -533,24 +524,22 @@ sm:w-full sm:h-64             /* PC */
                     );
                   }
 
-                  // Corrige índice fuera de rango
-                  // Índice seguro SIEMPRE
-                  // Índice seguro definitivo ✓
                   let safeIndex = Number(indiceImagen);
 
-                  // Si NO es un número, forzar 0
                   if (isNaN(safeIndex)) safeIndex = 0;
-
-                  // Si está fuera del rango → corregir
                   if (safeIndex < 0) safeIndex = 0;
                   if (safeIndex >= slides.length) safeIndex = 0;
 
-                  // Ahora sí es imposible que falle
                   const slide = slides[safeIndex] || slides[0];
 
-
-
+                  // 🎥 VIDEO con LOOP
                   if (slide.tipo === "video") {
+                    const base = convertirYoutubeEmbed(slide.url);
+                    const videoId = base ? base.split("/embed/")[1] : "";
+                    const src = videoId
+                      ? `${base}?autoplay=1&mute=1&loop=1&playlist=${videoId}`
+                      : "";
+
                     return (
                       <div className="relative w-full">
                         <span className="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-1 rounded shadow">
@@ -559,18 +548,18 @@ sm:w-full sm:h-64             /* PC */
 
                         <div className="w-full rounded-lg overflow-hidden bg-black aspect-video">
                           <iframe
-                            src={convertirYoutubeEmbed(slide.url) + "?autoplay=1&mute=1"}
+                            src={src}
                             className="w-full h-full"
                             title="Video del producto"
                             allow="autoplay; encrypted-media; fullscreen"
                             allowFullScreen
                           ></iframe>
-
                         </div>
                       </div>
                     );
                   }
 
+                  // 🖼 IMAGEN
                   return (
                     <img
                       src={slide.url}
