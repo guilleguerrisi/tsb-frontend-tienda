@@ -139,55 +139,60 @@ function ProductList({ grcat, buscar }) {
   }, [grcat, buscar]);
 
   const abrirModal = (producto) => {
-    let slides = [];
+  let slides = [];
 
-    try {
-      // Si es string traído desde la DB → parsear
-      if (typeof producto.imagearray === "string") {
-        slides = JSON.parse(producto.imagearray);
-      }
-      // Si ya es array → usarlo tal cual
-      else if (Array.isArray(producto.imagearray)) {
-        slides = producto.imagearray;
-      }
-    } catch {
-      slides = [];
+  try {
+    // Si imagearray es string → parsear
+    if (typeof producto.imagearray === "string") {
+      slides = JSON.parse(producto.imagearray);
+    }
+    // Si ya es array
+    else if (Array.isArray(producto.imagearray)) {
+      slides = producto.imagearray;
+    }
+  } catch {
+    slides = [];
+  }
+
+  // Convertir strings en formato correcto {tipo, url}
+  slides = slides.map((s) => {
+    if (!s) return null;
+
+    // Caso correcto: {tipo, url}
+    if (typeof s === "object" && typeof s.url === "string") return s;
+
+    // Caso incorrecto: "https://..."
+    if (typeof s === "string") {
+      return { tipo: "imagen", url: s };
     }
 
-    // FILTRAR elementos inválidos
-    slides = slides.filter(
-      (s) => s && typeof s.url === "string" && s.url.trim() !== ""
-    );
+    return null;
+  });
 
-    // Si NO hay slides, mostrar un slide vacío controlado
-    if (slides.length === 0) {
-      slides = [{ tipo: "empty", url: null }];
-    }
+  // Filtrar inválidos
+  slides = slides.filter((s) => s && s.url);
 
-    // ====== NORMALIZAR SLIDES ======
-    let safeSlides = Array.isArray(slides)
-      ? slides.filter(s => s && typeof s.url === "string")
-      : [];
+  // Si sigue vacío, usar imagen1 como respaldo
+  if (slides.length === 0 && producto.imagen1) {
+    slides.push({ tipo: "imagen", url: producto.imagen1 });
+  }
 
+  // Si aun así no hay nada
+  if (slides.length === 0) {
+    slides.push({ tipo: "imagen", url: "/imagenes/no-disponible.jpg" });
+  }
 
-    // Si no hay nada, crear slide de respaldo
-    if (safeSlides.length === 0) {
-      safeSlides = [{ tipo: "img", url: "/imagenes/no-disponible.jpg" }];
-    }
+  // Guardar y abrir modal
+  setIndiceImagen(0);
 
-    // ====== NORMALIZAR EL ÍNDICE ======
-    setIndiceImagen(0);
+  setProductoSeleccionado({
+    ...producto,
+    slides,
+  });
 
-    // ====== GUARDAR ======
-    setProductoSeleccionado({
-      ...producto,
-      slides: safeSlides
-    });
+  document.body.classList.add("modal-abierto");
+};
 
-
-    setIndiceImagen(0);
-    document.body.classList.add("modal-abierto");
-  };
 
 
 
