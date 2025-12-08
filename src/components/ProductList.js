@@ -82,6 +82,7 @@ function ProductList({ grcat, buscar }) {
         if (Array.isArray(data)) setProductos(data);
         else throw new Error("Formato incorrecto en respuesta.");
       } catch (err) {
+        console.error(err);
         setError("No se pudieron cargar los productos.");
         setProductos([]);
       } finally {
@@ -98,14 +99,17 @@ function ProductList({ grcat, buscar }) {
     try {
       if (Array.isArray(producto.imagearray)) {
         imagenes = producto.imagearray;
-      } else if (typeof producto.imagearray === "string" && producto.imagearray.startsWith("[")) {
+      } else if (
+        typeof producto.imagearray === "string" &&
+        producto.imagearray.trim().startsWith("[")
+      ) {
         imagenes = JSON.parse(producto.imagearray);
       }
     } catch {
       imagenes = [];
     }
 
-    imagenes = imagenes
+    imagenes = (imagenes || [])
       .map((img) => (typeof img === "string" ? img : img?.imagenamostrar))
       .filter((u) => typeof u === "string" && u.trim() !== "");
 
@@ -113,6 +117,12 @@ function ProductList({ grcat, buscar }) {
       ...producto,
       imagearray: imagenes,
       videoUrl: producto.video1 || null,
+    });
+
+    // Preload imágenes
+    imagenes.forEach((url) => {
+      const img = new Image();
+      img.src = url;
     });
 
     setIndiceImagen(0);
@@ -130,10 +140,9 @@ function ProductList({ grcat, buscar }) {
     return () => window.removeEventListener("keydown", handleKey);
   }, [productoSeleccionado]);
 
-
+  // ---------- RENDER PRINCIPAL ----------
   return (
     <>
-      {/* ---------- LISTA DE PRODUCTOS ---------- */}
       <div className="w-full">
         {cargando && (
           <div className="flex justify-center items-center h-64 text-xl text-gray-700">
@@ -142,7 +151,9 @@ function ProductList({ grcat, buscar }) {
         )}
 
         {error && (
-          <div className="text-center text-red-600 font-semibold py-4">{error}</div>
+          <div className="text-center text-red-600 font-semibold py-4">
+            {error}
+          </div>
         )}
 
         {!cargando && !error && mercaderia.length === 0 && (
@@ -171,16 +182,16 @@ function ProductList({ grcat, buscar }) {
 
               <div
                 className="
-    grid 
-    grid-cols-1 
-    sm:grid-cols-2 
-    lg:grid-cols-3 
-    xl:grid-cols-4 
-    gap-4 
-    p-3 
-    max-w-[1600px] 
-    mx-auto
-  "
+                  grid 
+                  grid-cols-1 
+                  sm:grid-cols-2 
+                  lg:grid-cols-3 
+                  xl:grid-cols-4 
+                  gap-4 
+                  p-3 
+                  max-w-[1600px] 
+                  mx-auto
+                "
               >
                 {ordenados.map((producto, index) => {
                   const precio = calcularPrecioMinorista(producto);
@@ -191,7 +202,12 @@ function ProductList({ grcat, buscar }) {
                   const autorizado = (() => {
                     try {
                       const raw = localStorage.getItem("usuario_admin");
-                      if (raw && raw.startsWith("{")) {
+                      if (
+                        raw &&
+                        raw !== "undefined" &&
+                        raw !== "null" &&
+                        raw.trim().startsWith("{")
+                      ) {
                         return JSON.parse(raw)?.autorizado === true;
                       }
                     } catch { }
@@ -202,27 +218,37 @@ function ProductList({ grcat, buscar }) {
                     <div
                       key={index}
                       className="
+    relative
     bg-white 
     rounded-xl 
     shadow-sm 
     hover:shadow-md 
     transition-shadow 
     p-4 
-    flex flex-col 
+    flex flex-row          /* MOBILE: HORIZONTAL */
+    sm:flex-col            /* PC: VERTICAL */
     gap-4 
     border border-gray-100
+    h-[160px]              /* MOBILE: MÁS CHICA */
+    sm:h-auto
   "
                     >
-                      {/* VIDEO */}
+                      {/* BADGE VIDEO */}
                       {producto.video1 && (
                         <span className="absolute top-3 left-3 bg-red-600 text-white text-xs px-2 py-1 rounded-md shadow-md">
                           🎥 VIDEO
                         </span>
                       )}
 
-                      {/* IMAGEN SIN FONDO GRIS */}
+                      {/* IMAGEN – MOBILE IZQUIERDA, PC NORMAL */}
                       <div
-                        className="cursor-pointer flex justify-center items-center bg-white"
+                        className="
+      cursor-pointer 
+      flex justify-center items-center 
+      bg-white
+      w-[110px] h-full     /* MOBILE */
+      sm:w-full sm:h-64    /* PC */
+    "
                         onClick={() => !autorizado && abrirModal(producto)}
                       >
                         <img
@@ -230,7 +256,7 @@ function ProductList({ grcat, buscar }) {
                           alt={producto.descripcion_corta}
                           className="
         w-full 
-        h-56 
+        h-full 
         object-contain 
         rounded-lg 
         bg-white
@@ -241,126 +267,134 @@ function ProductList({ grcat, buscar }) {
                         />
                       </div>
 
-                      {/* ADMIN */}
-                      {autorizado && (
-                        <a
-                          href={`https://tsb-frontend-mercaderia-production-3b78.up.railway.app/?id=${producto.id}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-gray-400 text-[0.7rem] self-end hover:text-gray-600"
-                        >
-                          🔗 admin
-                        </a>
-                      )}
+                      {/* CONTENIDO */}
+                      <div className="flex flex-col flex-1 justify-between sm:gap-3">
 
-                      {/* PRECIO (AHORA NEGRO) */}
-                      <div className="text-center">
-                        <p className="text-[0.75rem] font-semibold text-gray-500">Precio</p>
-                        <p className="text-2xl font-bold text-black">
-                          {precio ? formatoAR(precio) : "Sin precio"}
-                        </p>
-                      </div>
-
-                      {/* DESCRIPCIÓN */}
-                      <p className="text-sm text-gray-800 leading-tight">
-                        {producto.descripcion_corta}
-                      </p>
-
-                      {/* CÓDIGO */}
-                      <p className="text-xs text-gray-600">
-                        <strong className="font-semibold text-gray-800">Código:</strong>{" "}
-                        {producto.codigo_int}
-                      </p>
-
-                      {/* ETIQUETA DE AGREGADO */}
-                      {enCarrito && (
-                        <p className="text-green-600 text-sm font-semibold flex items-center gap-1">
-                          ✔ Agregado al pedido
-                        </p>
-                      )}
-
-                      {/* CONTROLES */}
-                      <div className="mt-auto flex flex-col gap-3">
-
-                        {/* CANTIDAD (BOTONES AZULES) */}
-                        <div className="flex items-center justify-center gap-2">
-                          <button
-                            onClick={() => {
-                              setDraftCantidades((p) => {
-                                const cp = { ...p };
-                                delete cp[producto.codigo_int];
-                                return cp;
-                              });
-                              modificarCantidad(producto, -1);
-                            }}
-                            className="
-          w-9 h-9 flex items-center justify-center 
-          bg-blue-600 text-white 
-          rounded-lg text-lg font-bold 
-          hover:bg-blue-700 active:scale-95
-          focus:outline-none
-        "
+                        {/* LINK ADMIN */}
+                        {autorizado && (
+                          <a
+                            href={`https://tsb-frontend-mercaderia-production-3b78.up.railway.app/?id=${producto.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-gray-400 text-[0.7rem] self-end hover:text-gray-600"
                           >
-                            −
-                          </button>
+                            🔗 admin
+                          </a>
+                        )}
 
-                          <input
-                            type="number"
-                            min="0"
-                            className="
-          w-16 text-center border border-gray-300 rounded-lg 
-          p-1 text-sm font-semibold 
-          focus:ring-2 focus:ring-blue-300 focus:outline-none
-        "
-                            value={getCantidadStr(producto.codigo_int)}
-                            onFocus={(e) => e.target.select()}
-                            onChange={(e) =>
-                              setDraftCantidades((p) => ({
-                                ...p,
-                                [producto.codigo_int]: e.target.value,
-                              }))
-                            }
-                            onBlur={() => commitCantidad(producto, 0)}
-                            onKeyDown={(e) => e.key === "Enter" && commitCantidad(producto, 0)}
-                          />
-
-                          <button
-                            onClick={() => {
-                              setDraftCantidades((p) => {
-                                const cp = { ...p };
-                                delete cp[producto.codigo_int];
-                                return cp;
-                              });
-                              modificarCantidad(producto, 1);
-                            }}
-                            className="
-          w-9 h-9 flex items-center justify-center 
-          bg-blue-600 text-white 
-          rounded-lg text-lg font-bold 
-          hover:bg-blue-700 active:scale-95
-          focus:outline-none
-        "
-                          >
-                            +
-                          </button>
+                        {/* PRECIO */}
+                        <div className="text-left">
+                          <p className="text-[0.75rem] font-semibold text-gray-500">Precio</p>
+                          <p className="text-xl sm:text-2xl font-bold text-black">
+                            {precio ? formatoAR(precio) : 'Sin precio'}
+                          </p>
                         </div>
 
-                        {/* BOTÓN FICHA SIN BORDE NEGRO */}
-                        <button
-                          className="
-        w-full bg-blue-600 hover:bg-blue-700 
-        text-white py-2 rounded-lg 
-        font-semibold text-sm 
-        transition-all active:scale-95
-        focus:outline-none
-      "
-                          onClick={() => abrirModal(producto)}
-                        >
-                          Ficha
-                        </button>
+                        {/* DESCRIPCIÓN */}
+                        <p className="text-[0.8rem] sm:text-sm text-gray-800 leading-tight line-clamp-2 sm:line-clamp-none">
+                          {producto.descripcion_corta}
+                        </p>
+
+                        {/* CÓDIGO */}
+                        <p className="text-xs text-gray-600">
+                          <strong className="font-semibold text-gray-800">Código:</strong>{' '}
+                          {producto.codigo_int}
+                        </p>
+
+                        {/* ETIQUETA AGREGADO */}
+                        {enCarrito && (
+                          <p className="text-green-600 text-sm font-semibold flex items-center gap-1">
+                            ✔ Agregado al pedido
+                          </p>
+                        )}
+
+                        {/* CONTROLES */}
+                        <div className="mt-auto flex items-center justify-between sm:flex-col sm:gap-3">
+
+                          {/* CANTIDAD */}
+                          <div className="flex items-center justify-center gap-2">
+                            <button
+                              onClick={() => {
+                                setDraftCantidades((p) => {
+                                  const cp = { ...p };
+                                  delete cp[producto.codigo_int];
+                                  return cp;
+                                });
+                                modificarCantidad(producto, -1);
+                              }}
+                              className="
+            w-8 h-8 sm:w-9 sm:h-9 
+            flex items-center justify-center 
+            bg-[#3483FA] text-white 
+            rounded-lg text-lg font-bold 
+            hover:bg-[#2968C8] active:scale-95
+          "
+                            >
+                              −
+                            </button>
+
+                            <input
+                              type="number"
+                              min="0"
+                              className="
+            w-14 sm:w-16 
+            text-center border border-gray-300 rounded-lg 
+            p-1 text-sm font-semibold 
+            focus:ring-2 focus:ring-[#3483FA33]
+          "
+                              value={getCantidadStr(producto.codigo_int)}
+                              onFocus={(e) => e.target.select()}
+                              onChange={(e) =>
+                                setDraftCantidades((p) => ({
+                                  ...p,
+                                  [producto.codigo_int]: e.target.value,
+                                }))
+                              }
+                              onBlur={() => commitCantidad(producto, 0)}
+                              onKeyDown={(e) => e.key === 'Enter' && commitCantidad(producto, 0)}
+                            />
+
+                            <button
+                              onClick={() => {
+                                setDraftCantidades((p) => {
+                                  const cp = { ...p };
+                                  delete cp[producto.codigo_int];
+                                  return cp;
+                                });
+                                modificarCantidad(producto, 1);
+                              }}
+                              className="
+            w-8 h-8 sm:w-9 sm:h-9
+            flex items-center justify-center 
+            bg-[#3483FA] text-white 
+            rounded-lg text-lg font-bold 
+            hover:bg-[#2968C8] active:scale-95
+          "
+                            >
+                              +
+                            </button>
+                          </div>
+
+                          {/* BOTÓN FICHA */}
+                          <button
+                            type="button"
+                            onClick={() => abrirModal(producto)}
+                            className="
+          w-[90px] sm:w-full
+          bg-[#3483FA] hover:bg-[#2968C8]
+          text-white
+          py-1.5 sm:py-2 
+          rounded-lg
+          font-semibold text-xs sm:text-sm
+          shadow-md
+          active:scale-95
+        "
+                          >
+                            Ficha
+                          </button>
+                        </div>
                       </div>
                     </div>
-
 
                   );
                 })}
@@ -371,120 +405,177 @@ function ProductList({ grcat, buscar }) {
       </div>
 
       {/* ---------- MODAL ---------- */}
-      {productoSeleccionado && (
-        <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-[9999] p-4"
-          onClick={cerrarModal}
-        >
+      {productoSeleccionado && (() => {
+        const precioFicha = calcularPrecioMinorista(productoSeleccionado);
+
+        const totalSlides = productoSeleccionado.videoUrl
+          ? productoSeleccionado.imagearray.length + 1
+          : productoSeleccionado.imagearray.length;
+
+        const esVideo =
+          productoSeleccionado.videoUrl &&
+          indiceImagen === productoSeleccionado.imagearray.length;
+
+        return (
           <div
-            className="bg-white rounded-xl shadow-xl max-w-lg w-full p-5 relative"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-[9999] p-4"
+            onClick={cerrarModal}
           >
-            <button
-              className="absolute top-2 right-4 text-4xl text-gray-500 hover:text-gray-800 z-50"
-              onClick={cerrarModal}
+            <div
+              className="bg-white rounded-xl shadow-xl max-w-lg w-full px-5 pt-8 pb-5 relative"
+              onClick={(e) => e.stopPropagation()}
             >
-              ×
-            </button>
+              {/* BOTÓN CERRAR (SEPARADO DE LA IMAGEN) */}
+              <button
+                className="absolute top-3 right-4 text-3xl text-gray-500 hover:text-gray-800 z-50 focus:outline-none"
+                onClick={cerrarModal}
+              >
+                ×
+              </button>
 
-            <div className="relative flex justify-center items-center mb-4">
-              {productoSeleccionado.imagearray.length > 1 && (
-                <button
-                  onClick={() =>
-                    setIndiceImagen((prev) =>
-                      prev === 0
-                        ? productoSeleccionado.imagearray.length - 1
-                        : prev - 1
-                    )
-                  }
-                  className="absolute left-0 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-700 px-3 py-1 rounded-full shadow"
-                >
-                  ‹
-                </button>
-              )}
+              {/* CARRUSEL IMAGEN / VIDEO */}
+              <div className="relative flex justify-center items-center mb-4">
+                {totalSlides > 1 && (
+                  <button
+                    onClick={() =>
+                      setIndiceImagen((prev) =>
+                        prev === 0 ? totalSlides - 1 : prev - 1
+                      )
+                    }
+                    className="absolute left-0 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-700 px-3 py-1 rounded-full shadow focus:outline-none"
+                  >
+                    ‹
+                  </button>
+                )}
 
-              <img
-                src={
-                  productoSeleccionado.imagearray[indiceImagen] ||
-                  productoSeleccionado.imagen1
-                }
-                alt={productoSeleccionado.descripcion_corta}
-                className="max-h-[360px] max-w-[85%] mx-auto object-contain rounded-lg bg-gray-100"
-                onError={(e) => (e.target.src = "/imagenes/no-disponible.jpg")}
-              />
+                {esVideo ? (
+                  <div className="relative w-full">
+                    <span className="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-1 rounded shadow">
+                      🎥 VIDEO
+                    </span>
+                    <div className="w-full rounded-lg overflow-hidden bg-black aspect-video">
+                      <iframe
+                        src={productoSeleccionado.videoUrl.replace(
+                          "watch?v=",
+                          "embed/"
+                        )}
+                        className="w-full h-full"
+                        title="Video del producto"
+                        allowFullScreen
+                      ></iframe>
+                    </div>
+                  </div>
+                ) : (
+                  <img
+                    src={
+                      productoSeleccionado.imagearray[indiceImagen] ||
+                      productoSeleccionado.imagen1
+                    }
+                    alt={productoSeleccionado.descripcion_corta}
+                    className="max-h-[360px] max-w-[85%] mx-auto object-contain rounded-lg bg-white"
+                    onError={(e) =>
+                      (e.target.src = "/imagenes/no-disponible.jpg")
+                    }
+                  />
+                )}
 
-              {productoSeleccionado.imagearray.length > 1 && (
-                <button
-                  onClick={() =>
-                    setIndiceImagen((prev) =>
-                      prev === productoSeleccionado.imagearray.length - 1
-                        ? 0
-                        : prev + 1
-                    )
-                  }
-                  className="absolute right-0 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-700 px-3 py-1 rounded-full shadow"
-                >
-                  ›
-                </button>
-              )}
-            </div>
+                {totalSlides > 1 && (
+                  <button
+                    onClick={() =>
+                      setIndiceImagen((prev) =>
+                        prev === totalSlides - 1 ? 0 : prev + 1
+                      )
+                    }
+                    className="absolute right-0 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-700 px-3 py-1 rounded-full shadow focus:outline-none"
+                  >
+                    ›
+                  </button>
+                )}
+              </div>
 
-            <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-3 text-center mb-3">
-              <p className="text-xs font-bold text-blue-700">PRECIO</p>
-              <p className="text-2xl font-extrabold text-blue-900">
-                {formatoAR(calcularPrecioMinorista(productoSeleccionado))}
+              {/* PRECIO EN NEGRO, DISCRETO */}
+              <div className="text-left mb-3">
+                <p className="text-xs font-semibold text-gray-500">Precio</p>
+                <p className="text-2xl font-bold text-black">
+                  {precioFicha ? formatoAR(precioFicha) : "Sin precio"}
+                </p>
+              </div>
+
+
+              {/* DESCRIPCIÓN */}
+              <p className="text-gray-800 text-base mb-2">
+                {productoSeleccionado.descripcion_corta}
               </p>
-            </div>
 
-            <p className="text-gray-800 text-base mb-2">
-              {productoSeleccionado.descripcion_corta}
-            </p>
+              {/* CÓDIGO */}
+              <p className="text-sm text-gray-600 mb-4">
+                <strong>Código:</strong> {productoSeleccionado.codigo_int}
+              </p>
 
-            <p className="text-sm text-gray-600 mb-4">
-              <strong>Código:</strong> {productoSeleccionado.codigo_int}
-            </p>
+              {/* CONTROL DE CANTIDAD (AZUL ML) */}
+              <div className="flex justify-center items-center gap-3 mb-4">
+                <button
+                  className="
+                    w-10 h-10 
+                    bg-[#3483FA] text-white 
+                    rounded-md text-xl font-bold 
+                    hover:bg-[#2968C8] active:scale-95 
+                    transition focus:outline-none
+                  "
+                  onClick={() => modificarCantidad(productoSeleccionado, -1)}
+                >
+                  −
+                </button>
 
-            <div className="flex justify-center items-center gap-3 mb-4">
+                <input
+                  type="number"
+                  value={getCantidadStr(productoSeleccionado.codigo_int)}
+                  min="0"
+                  className="
+                    w-20 border border-[#3483FA] rounded-md 
+                    p-2 text-center text-lg font-semibold
+                    focus:outline-none focus:ring-2 focus:ring-[#3483FA55]
+                  "
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) =>
+                    setDraftCantidades((prev) => ({
+                      ...prev,
+                      [productoSeleccionado.codigo_int]: e.target.value,
+                    }))
+                  }
+                  onBlur={() => commitCantidad(productoSeleccionado, 0)}
+                />
+
+                <button
+                  className="
+                    w-10 h-10 
+                    bg-[#3483FA] text-white 
+                    rounded-md text-xl font-bold 
+                    hover:bg-[#2968C8] active:scale-95 
+                    transition focus:outline-none
+                  "
+                  onClick={() => modificarCantidad(productoSeleccionado, 1)}
+                >
+                  +
+                </button>
+              </div>
+
+              {/* CERRAR MODAL */}
               <button
-                className="w-10 h-10 bg-blue-500 text-white rounded-md text-xl font-bold hover:bg-blue-600 active:scale-95 transition"
-                onClick={() => modificarCantidad(productoSeleccionado, -1)}
+                className="
+                  w-full bg-gray-100 border rounded-lg 
+                  py-2 text-gray-700 font-semibold 
+                  hover:bg-gray-200 transition
+                  focus:outline-none
+                "
+                onClick={cerrarModal}
               >
-                −
-              </button>
-
-              <input
-                type="number"
-                value={getCantidadStr(productoSeleccionado.codigo_int)}
-                min="0"
-                className="w-20 border border-blue-400 rounded-md p-2 text-center text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-blue-300"
-                onFocus={(e) => e.target.select()}
-                onChange={(e) =>
-                  setDraftCantidades((prev) => ({
-                    ...prev,
-                    [productoSeleccionado.codigo_int]: e.target.value,
-                  }))
-                }
-                onBlur={() => commitCantidad(productoSeleccionado, 0)}
-              />
-
-              <button
-                className="w-10 h-10 bg-blue-500 text-white rounded-md text-xl font-bold hover:bg-blue-600 active:scale-95 transition"
-                onClick={() => modificarCantidad(productoSeleccionado, 1)}
-              >
-                +
+                ← Seguir viendo productos
               </button>
             </div>
-
-
-            <button
-              className="w-full bg-gray-100 border rounded-lg py-2 text-gray-700 font-semibold hover:bg-gray-200"
-              onClick={cerrarModal}
-            >
-              ← Seguir viendo productos
-            </button>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </>
   );
 }
