@@ -498,22 +498,31 @@ function ProductList({ grcat, buscar }) {
                 {(() => {
                   const slide = productoSeleccionado.slides[indiceImagen];
 
-                  // Seguridad: si no hay slide, no rompas
+                  // 🛑 Si no hay slide → error controlado
                   if (!slide) {
                     return (
-                      <div className="w-full text-center text-gray-500 py-10">
+                      <div className="w-full text-center py-10 text-gray-500">
                         Sin imágenes ni videos disponibles
                       </div>
                     );
                   }
 
+                  // 🛑 Si el slide marcó vacío
+                  if (slide.tipo === "empty") {
+                    return (
+                      <div className="w-full text-center py-10 text-gray-500">
+                        Sin imágenes ni videos disponibles
+                      </div>
+                    );
+                  }
+
+                  // 🎥 VIDEO
                   if (slide.tipo === "video") {
                     return (
                       <div className="relative w-full">
                         <span className="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-1 rounded shadow">
                           🎥 VIDEO
                         </span>
-
                         <div className="w-full rounded-lg overflow-hidden bg-black aspect-video">
                           <iframe
                             src={convertirYoutubeEmbed(slide.url)}
@@ -526,7 +535,7 @@ function ProductList({ grcat, buscar }) {
                     );
                   }
 
-                  // FOTO
+                  // 🖼 FOTO
                   return (
                     <img
                       src={slide.url}
@@ -535,8 +544,8 @@ function ProductList({ grcat, buscar }) {
                       onError={(e) => (e.target.src = "/imagenes/no-disponible.jpg")}
                     />
                   );
-
                 })()}
+
 
 
                 {/* BOTÓN SIGUIENTE */}
