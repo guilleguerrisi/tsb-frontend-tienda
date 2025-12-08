@@ -352,17 +352,20 @@ sm:w-full sm:h-64             /* PC */
                         )}
 
                         {/* PRECIO */}
-                        <div className="text-left">
-                          <p className="text-[0.75rem] font-semibold text-gray-500">Precio</p>
-                          <p className="text-xl sm:text-2xl font-bold text-black">
+                        <div className="text-left mb-1">
+                          <p className="text-[0.7rem] sm:text-[0.8rem] font-semibold text-gray-500 leading-none">
+                            Precio
+                          </p>
+                          <p className="text-lg sm:text-2xl font-bold text-black leading-none">
                             {precio ? formatoAR(precio) : 'Sin precio'}
                           </p>
                         </div>
 
                         {/* DESCRIPCIÓN */}
-                        <p className="text-[0.8rem] sm:text-sm text-gray-800 leading-tight line-clamp-2 sm:line-clamp-none">
+                        <p className="text-[0.95rem] sm:text-sm text-gray-800 leading-snug line-clamp-2 sm:line-clamp-none mt-1">
                           {producto.descripcion_corta}
                         </p>
+
 
                         {/* CÓDIGO */}
                         <p className="text-xs text-gray-600">
