@@ -165,7 +165,10 @@ function ProductList({ grcat, buscar }) {
     }
 
     // ====== NORMALIZAR SLIDES ======
-    let safeSlides = Array.isArray(slides) ? slides.filter(s => s && s.url) : [];
+   let safeSlides = Array.isArray(slides)
+  ? slides.filter(s => s && typeof s.url === "string")
+  : [];
+
 
     // Si no hay nada, crear slide de respaldo
     if (safeSlides.length === 0) {
@@ -526,14 +529,19 @@ function ProductList({ grcat, buscar }) {
 
                   // Corrige índice fuera de rango
                   // Índice seguro SIEMPRE
-                  const safeIndex =
-                    typeof indiceImagen === "number" &&
-                      indiceImagen >= 0 &&
-                      indiceImagen < slides.length
-                      ? indiceImagen
-                      : 0;
+                  // Índice seguro definitivo ✓
+                  let safeIndex = Number(indiceImagen);
 
-                  const slide = slides[safeIndex];
+                  // Si NO es un número, forzar 0
+                  if (isNaN(safeIndex)) safeIndex = 0;
+
+                  // Si está fuera del rango → corregir
+                  if (safeIndex < 0) safeIndex = 0;
+                  if (safeIndex >= slides.length) safeIndex = 0;
+
+                  // Ahora sí es imposible que falle
+                  const slide = slides[safeIndex] || slides[0];
+
 
 
                   if (slide.tipo === "video") {
