@@ -587,7 +587,7 @@ function ProductList({ grcat, buscar }) {
                         <div className="
   w-full rounded-lg overflow-hidden bg-black
   aspect-[9/16] sm:aspect-video
-  max-h-[60vh]
+  max-h-[50vh]
 ">
                           <iframe
                             src={src}
