@@ -1,19 +1,15 @@
-import React, { useEffect, useState } from "react";
+// src/components/ProductList.jsx
+import React, { useEffect, useState, useCallback } from "react";
 import { useCarrito } from "../contexts/CarritoContext";
 import config from "../config";
+import { useLocation, useNavigate } from "react-router-dom";
 
-
-// Detecta si un producto realmente tiene un link de video válido
-// Detecta si hay un video dentro de imagearray
+// Detecta si un producto realmente tiene un link de video válido dentro de imagearray
 const tieneVideoEnArray = (imagearray) => {
   if (!imagearray) return false;
 
   try {
-    const arr =
-      typeof imagearray === "string"
-        ? JSON.parse(imagearray)
-        : imagearray;
-
+    const arr = typeof imagearray === "string" ? JSON.parse(imagearray) : imagearray;
     if (!Array.isArray(arr)) return false;
 
     return arr.some(
@@ -28,8 +24,6 @@ const tieneVideoEnArray = (imagearray) => {
   }
 };
 
-
-
 // Convierte cualquier link de YouTube en formato embed
 const convertirYoutubeEmbed = (url = "") => {
   if (!url) return null;
@@ -41,25 +35,24 @@ const convertirYoutubeEmbed = (url = "") => {
   if (limpio.includes("youtube.com/shorts/")) {
     id = limpio.split("shorts/")[1].split("?")[0];
   }
-
   // watch?v=
   else if (limpio.includes("watch?v=")) {
     id = limpio.split("watch?v=")[1].split("&")[0];
   }
-
   // youtu.be
   else if (limpio.includes("youtu.be/")) {
     id = limpio.split("youtu.be/")[1].split("?")[0];
   }
 
   if (!id) return null;
-
   return `https://www.youtube.com/embed/${id}`;
 };
 
-
 function ProductList({ grcat, buscar }) {
   const { carrito, agregarAlCarrito } = useCarrito();
+
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const [mercaderia, setProductos] = useState([]);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
@@ -84,8 +77,7 @@ function ProductList({ grcat, buscar }) {
     return item?.cantidad || 0;
   };
 
-  const getCantidadStr = (codigo) =>
-    draftCantidades[codigo] ?? String(obtenerCantidad(codigo));
+  const getCantidadStr = (codigo) => draftCantidades[codigo] ?? String(obtenerCantidad(codigo));
 
   const modificarCantidad = (producto, delta) => {
     const precioMinorista = calcularPrecioMinorista(producto);
@@ -119,6 +111,29 @@ function ProductList({ grcat, buscar }) {
     });
   };
 
+  // ✅ Copiar link del producto (categoría/lista + modal por ID)
+  const copiarLinkProducto = async (producto) => {
+    try {
+      const base = window.location.origin;
+      const params = new URLSearchParams(location.search);
+
+      // asegurar que el link abre la lista (ProductosPage depende de buscar/grcat)
+      const valorLista = (buscar || grcat || params.get("buscar") || "").trim();
+      if (valorLista) params.set("buscar", valorLista);
+
+      // producto por ID (como pediste)
+      params.set("prod", String(producto.id));
+
+      const url = `${base}${location.pathname}?${params.toString()}`;
+      await navigator.clipboard.writeText(url);
+
+      alert("Link del producto copiado ✔");
+    } catch (e) {
+      console.error("No se pudo copiar el link", e);
+      alert("No se pudo copiar el link");
+    }
+  };
+
   useEffect(() => {
     const fetchProductos = async () => {
       try {
@@ -149,71 +164,83 @@ function ProductList({ grcat, buscar }) {
     fetchProductos();
   }, [grcat, buscar]);
 
-  const abrirModal = (producto) => {
-    let slides = [];
+  const abrirModal = (producto, opts = {}) => {
+    const { startOnVideo = false } = opts;
 
+    let slides = [];
     try {
-      // Si imagearray es string → parsear
-      if (typeof producto.imagearray === "string") {
-        slides = JSON.parse(producto.imagearray);
-      }
-      // Si ya es array
-      else if (Array.isArray(producto.imagearray)) {
-        slides = producto.imagearray;
-      }
+      if (typeof producto.imagearray === "string") slides = JSON.parse(producto.imagearray);
+      else if (Array.isArray(producto.imagearray)) slides = producto.imagearray;
     } catch {
       slides = [];
     }
 
-    // Normalizar: asegurarse de tener siempre objetos {tipo, url}
+    // Normalizar: {tipo, url}
     slides = slides
       .map((s) => {
         if (!s) return null;
-
-        // Objeto correcto: { tipo, url }
         if (typeof s === "object" && typeof s.url === "string") return s;
-
-        // String suelta: "https://..."
-        if (typeof s === "string") {
-          return { tipo: "imagen", url: s };
-        }
-
+        if (typeof s === "string") return { tipo: "imagen", url: s };
         return null;
       })
       .filter((s) => s && s.url);
 
-    // Si no vino nada, usar imagen1 como respaldo
-    if (slides.length === 0 && producto.imagen1) {
-      slides.push({ tipo: "imagen", url: producto.imagen1 });
+    if (slides.length === 0 && producto.imagen1) slides.push({ tipo: "imagen", url: producto.imagen1 });
+    if (slides.length === 0) slides.push({ tipo: "imagen", url: "/imagenes/no-disponible.jpg" });
+
+    // ✅ Si viene por deep-link, arrancar en el video (si existe)
+    let startIndex = 0;
+    if (startOnVideo) {
+      const idxVideo = slides.findIndex((s) => s?.tipo === "video");
+      if (idxVideo >= 0) startIndex = idxVideo;
     }
+    setIndiceImagen(startIndex);
 
-    // Si aún así no hay nada
-    if (slides.length === 0) {
-      slides.push({ tipo: "imagen", url: "/imagenes/no-disponible.jpg" });
-    }
-
-    // Guardar y abrir modal
-    setIndiceImagen(0);
-
-    setProductoSeleccionado({
-      ...producto,
-      slides,
-    });
-
+    setProductoSeleccionado({ ...producto, slides });
     document.body.classList.add("modal-abierto");
   };
 
-
-  const cerrarModal = () => {
+  const cerrarModal = useCallback(() => {
     setProductoSeleccionado(null);
     document.body.classList.remove("modal-abierto");
-  };
+
+    try {
+      const params = new URLSearchParams(location.search);
+      params.delete("prod");
+      navigate(`${location.pathname}?${params.toString()}`, { replace: true });
+    } catch { }
+  }, [location.search, location.pathname, navigate]);
+
 
   useEffect(() => {
-    const handleKey = (e) => e.key === "Escape" && cerrarModal();
-    if (productoSeleccionado) window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [productoSeleccionado]);
+    const handleKey = (e) => {
+      if (e.key === "Escape") {
+        cerrarModal();
+      }
+    };
+
+    if (productoSeleccionado) {
+      window.addEventListener("keydown", handleKey);
+    }
+
+    return () => {
+      window.removeEventListener("keydown", handleKey);
+    };
+  }, [productoSeleccionado, cerrarModal]);
+
+
+  // ✅ Auto-abrir modal si viene prod=ID en la URL (sin perder la categoría/lista)
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const prodId = params.get("prod");
+    if (!prodId) return;
+
+    if (!Array.isArray(mercaderia) || mercaderia.length === 0) return;
+    if (productoSeleccionado) return;
+
+    const encontrado = mercaderia.find((p) => String(p.id) === String(prodId));
+    if (encontrado) abrirModal(encontrado, { startOnVideo: true });
+  }, [location.search, mercaderia, productoSeleccionado]);
 
   // ---------- RENDER PRINCIPAL ----------
   return (
@@ -293,52 +320,50 @@ function ProductList({ grcat, buscar }) {
                     <div
                       key={index}
                       className="
-    relative
-    bg-white 
-    rounded-xl 
-    shadow-sm 
-    hover:shadow-md 
-    transition-shadow 
-    p-4 
-    flex flex-row          /* MOBILE: HORIZONTAL */
-    sm:flex-col            /* PC: VERTICAL */
-    gap-4 
-    border border-gray-100
-    h-auto                 /* MOBILE: ALTURA AUTOMÁTICA */
-    sm:h-auto
-  "
+                        relative
+                        bg-white 
+                        rounded-xl 
+                        shadow-sm 
+                        hover:shadow-md 
+                        transition-shadow 
+                        p-4 
+                        flex flex-row          /* MOBILE: HORIZONTAL */
+                        sm:flex-col            /* PC: VERTICAL */
+                        gap-4 
+                        border border-gray-100
+                        h-auto
+                        sm:h-auto
+                      "
                     >
-
-                      {/* IMAGEN – MOBILE IZQUIERDA, PC NORMAL */}
+                      {/* IMAGEN */}
                       <div
                         className="
-      cursor-pointer 
-      flex justify-center items-center 
-      bg-white
-      w-[130px] h-[130px]           /* MOBILE */
-      sm:w-full sm:h-64             /* PC */
-    "
+                          cursor-pointer 
+                          flex justify-center items-center 
+                          bg-white
+                          w-[130px] h-[130px]
+                          sm:w-full sm:h-64
+                        "
                         onClick={() => !autorizado && abrirModal(producto)}
                       >
                         <img
                           src={producto.imagen1}
                           alt={producto.descripcion_corta}
                           className="
-        w-full 
-        h-full 
-        object-contain 
-        rounded-lg 
-        bg-white
-        select-none
-      "
+                            w-full 
+                            h-full 
+                            object-contain 
+                            rounded-lg 
+                            bg-white
+                            select-none
+                          "
                           onContextMenu={(e) => e.preventDefault()}
-                          onError={(e) => (e.target.src = '/imagenes/no-disponible.jpg')}
+                          onError={(e) => (e.target.src = "/imagenes/no-disponible.jpg")}
                         />
                       </div>
 
                       {/* CONTENIDO */}
                       <div className="flex flex-col flex-1 justify-between sm:gap-3">
-
                         {/* LINK ADMIN */}
                         {autorizado && (
                           <a
@@ -357,16 +382,18 @@ function ProductList({ grcat, buscar }) {
                             Precio
                           </p>
                           <p className="text-lg sm:text-2xl font-bold text-black leading-none">
-                            {precio ? formatoAR(precio) : 'Sin precio'}
+                            {precio ? formatoAR(precio) : "Sin precio"}
                           </p>
                         </div>
 
-                        {/* DESCRIPCIÓN + CÓDIGO EN LA MISMA LÍNEA */}
+                        {/* DESCRIPCIÓN + CÓDIGO */}
                         <p className="text-[0.95rem] sm:text-sm text-gray-800 leading-snug mt-1 mb-3">
                           {producto.descripcion_corta}
                           {producto.codigo_int && (
                             <span className="ml-1 text-xs text-gray-600">
-                              <span className="font-semibold text-gray-800">Código:</span>{" "}
+                              <span className="font-semibold text-gray-800">
+                                Código:
+                              </span>{" "}
                               {producto.codigo_int}
                             </span>
                           )}
@@ -381,7 +408,6 @@ function ProductList({ grcat, buscar }) {
 
                         {/* CONTROLES */}
                         <div className="mt-auto flex items-center justify-between sm:flex-col sm:gap-3">
-
                           {/* CANTIDAD */}
                           <div className="flex items-center justify-center gap-2">
                             <button
@@ -394,12 +420,12 @@ function ProductList({ grcat, buscar }) {
                                 modificarCantidad(producto, -1);
                               }}
                               className="
-            w-8 h-8 sm:w-9 sm:h-9 
-            flex items-center justify-center 
-            bg-[#3483FA] text-white 
-            rounded-lg text-lg font-bold 
-            hover:bg-[#2968C8] active:scale-95
-          "
+                                w-8 h-8 sm:w-9 sm:h-9 
+                                flex items-center justify-center 
+                                bg-[#3483FA] text-white 
+                                rounded-lg text-lg font-bold 
+                                hover:bg-[#2968C8] active:scale-95
+                              "
                             >
                               −
                             </button>
@@ -408,11 +434,11 @@ function ProductList({ grcat, buscar }) {
                               type="number"
                               min="0"
                               className="
-            w-14 sm:w-16 
-            text-center border border-gray-300 rounded-lg 
-            p-1 text-sm font-semibold 
-            focus:ring-2 focus:ring-[#3483FA33]
-          "
+                                w-14 sm:w-16 
+                                text-center border border-gray-300 rounded-lg 
+                                p-1 text-sm font-semibold 
+                                focus:ring-2 focus:ring-[#3483FA33]
+                              "
                               value={getCantidadStr(producto.codigo_int)}
                               onFocus={(e) => e.target.select()}
                               onChange={(e) =>
@@ -422,7 +448,9 @@ function ProductList({ grcat, buscar }) {
                                 }))
                               }
                               onBlur={() => commitCantidad(producto, 0)}
-                              onKeyDown={(e) => e.key === 'Enter' && commitCantidad(producto, 0)}
+                              onKeyDown={(e) =>
+                                e.key === "Enter" && commitCantidad(producto, 0)
+                              }
                             />
 
                             <button
@@ -435,35 +463,32 @@ function ProductList({ grcat, buscar }) {
                                 modificarCantidad(producto, 1);
                               }}
                               className="
-            w-8 h-8 sm:w-9 sm:h-9
-            flex items-center justify-center 
-            bg-[#3483FA] text-white 
-            rounded-lg text-lg font-bold 
-            hover:bg-[#2968C8] active:scale-95
-          "
+                                w-8 h-8 sm:w-9 sm:h-9
+                                flex items-center justify-center 
+                                bg-[#3483FA] text-white 
+                                rounded-lg text-lg font-bold 
+                                hover:bg-[#2968C8] active:scale-95
+                              "
                             >
                               +
                             </button>
                           </div>
 
-
-                          {/* BOTÓN FICHA O VIDEO */}
-                          {/* BOTÓN FICHA O VIDEO */}
                           {/* BOTÓN FICHA O VIDEO */}
                           {tieneVideoEnArray(producto.imagearray) ? (
                             <button
                               type="button"
                               onClick={() => abrirModal(producto)}
                               className="
-      w-[90px] sm:w-full
-      bg-red-600 hover:bg-red-700
-      text-white flex items-center justify-center gap-1
-      py-1.5 sm:py-2
-      rounded-lg
-      font-semibold text-xs sm:text-sm
-      shadow-md
-      active:scale-95
-    "
+                                w-[90px] sm:w-full
+                                bg-red-600 hover:bg-red-700
+                                text-white flex items-center justify-center gap-1
+                                py-1.5 sm:py-2
+                                rounded-lg
+                                font-semibold text-xs sm:text-sm
+                                shadow-md
+                                active:scale-95
+                              "
                             >
                               🎥 VIDEO
                             </button>
@@ -472,27 +497,22 @@ function ProductList({ grcat, buscar }) {
                               type="button"
                               onClick={() => abrirModal(producto)}
                               className="
-      w-[90px] sm:w-full
-      bg-[#3483FA] hover:bg-[#2968C8]
-      text-white
-      py-1.5 sm:py-2 
-      rounded-lg
-      font-semibold text-xs sm:text-sm
-      shadow-md
-      active:scale-95
-    "
+                                w-[90px] sm:w-full
+                                bg-[#3483FA] hover:bg-[#2968C8]
+                                text-white
+                                py-1.5 sm:py-2 
+                                rounded-lg
+                                font-semibold text-xs sm:text-sm
+                                shadow-md
+                                active:scale-95
+                              "
                             >
                               Ficha
                             </button>
                           )}
-
-
-
-
                         </div>
                       </div>
                     </div>
-
                   );
                 })}
               </div>
@@ -502,206 +522,222 @@ function ProductList({ grcat, buscar }) {
       </div>
 
       {/* ---------- MODAL ---------- */}
-      {productoSeleccionado && (() => {
-        const slides = Array.isArray(productoSeleccionado.slides)
-          ? productoSeleccionado.slides
-          : [];
+      {productoSeleccionado &&
+        (() => {
+          const slides = Array.isArray(productoSeleccionado.slides)
+            ? productoSeleccionado.slides
+            : [];
 
-        const totalSlides = slides.length;
-        const precioFicha = calcularPrecioMinorista(productoSeleccionado);
+          const totalSlides = slides.length;
+          const precioFicha = calcularPrecioMinorista(productoSeleccionado);
 
-        return (
-          <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-[9999] p-4"
-            onMouseDown={(e) => {
-              if (e.target === e.currentTarget) cerrarModal();
-            }}
-            onTouchStart={(e) => {
-              if (e.target === e.currentTarget) cerrarModal();
-            }}
-          >
-
+          return (
             <div
-              className="
-    bg-white rounded-xl shadow-xl 
-    w-[96vw] max-w-lg sm:max-w-4xl
-    px-4 sm:px-6 pt-8 pb-5 relative
-  "
-              onMouseDown={(e) => e.stopPropagation()}
-              onTouchStart={(e) => e.stopPropagation()}
-              onClick={(e) => e.stopPropagation()}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-[9999] p-4"
+              // ✅ cerrar solo si tocás el fondo (no el contenido)
+              onMouseDown={(e) => {
+                if (e.target === e.currentTarget) cerrarModal();
+              }}
+              onTouchStart={(e) => {
+                if (e.target === e.currentTarget) cerrarModal();
+              }}
             >
-
-
-              {/* BOTÓN CERRAR */}
-              <button
-                className="absolute top-3 right-4 text-3xl text-gray-500 hover:text-gray-800 z-50 focus:outline-none"
-                onClick={cerrarModal}
+              <div
+                className="
+                  bg-white rounded-xl shadow-xl 
+                  w-[92vw] max-w-lg sm:max-w-4xl
+                  px-4 sm:px-6 pt-8 pb-5 relative
+                "
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
               >
-                ×
-              </button>
+                {/* BOTÓN CERRAR */}
+                <button
+                  className="absolute top-3 right-4 text-3xl text-gray-500 hover:text-gray-800 z-50 focus:outline-none"
+                  onClick={cerrarModal}
+                >
+                  ×
+                </button>
 
-              {/* CARRUSEL */}
-              <div className="relative flex justify-center items-center mb-4">
+                {/* CARRUSEL */}
+                <div className="relative flex justify-center items-center mb-4">
+                  {/* BOTÓN ANTERIOR */}
+                  {totalSlides > 1 && (
+                    <button
+                      onClick={() =>
+                        setIndiceImagen((prev) =>
+                          totalSlides <= 1
+                            ? 0
+                            : prev === 0
+                              ? totalSlides - 1
+                              : prev - 1
+                        )
+                      }
+                      className="absolute left-0 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-700 px-3 py-1 rounded-full shadow focus:outline-none"
+                    >
+                      ‹
+                    </button>
+                  )}
 
-                {/* BOTÓN ANTERIOR */}
-                {totalSlides > 1 && (
-                  <button
-                    onClick={() =>
-                      setIndiceImagen((prev) =>
-                        totalSlides <= 1 ? 0 : prev === 0 ? totalSlides - 1 : prev - 1
-
-                      )
-                    }
-                    className="absolute left-0 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-700 px-3 py-1 rounded-full shadow focus:outline-none"
-                  >
-                    ‹
-                  </button>
-                )}
-
-                {/* CONTENIDO DEL SLIDE */}
-                {(() => {
-                  if (totalSlides === 0) {
-                    return (
-                      <div className="w-full text-center py-10 text-gray-600">
-                        <p>No hay imágenes ni videos disponibles</p>
-                        <img
-                          src="/imagenes/no-disponible.jpg"
-                          alt="sin contenido"
-                          className="mx-auto max-h-[300px] object-contain opacity-70"
-                        />
-                      </div>
-                    );
-                  }
-
-                  let safeIndex = Number(indiceImagen);
-
-                  if (isNaN(safeIndex)) safeIndex = 0;
-                  if (safeIndex < 0) safeIndex = 0;
-                  if (safeIndex >= slides.length) safeIndex = 0;
-
-                  const slide = slides[safeIndex] || slides[0];
-
-                  // 🎥 VIDEO con LOOP
-                  if (slide.tipo === "video") {
-                    const base = convertirYoutubeEmbed(slide.url);
-                    const videoId = base ? base.split("/embed/")[1] : "";
-                    const src = videoId
-                      ? `${base}?autoplay=1&mute=1&loop=1&playlist=${videoId}`
-                      : "";
-
-                    return (
-                      <div className="relative w-full">
-                        <span className="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-1 rounded shadow">
-                          🎥 VIDEO
-                        </span>
-
-                        <div className="
-  w-full rounded-lg overflow-hidden bg-black
-  aspect-[9/16] sm:aspect-video
-  max-h-[50vh]
-">
-                          <iframe
-                            src={src}
-                            className="w-full h-full"
-                            title="Video del producto"
-                            allow="autoplay; encrypted-media; fullscreen"
-                            allowFullScreen
-                          ></iframe>
+                  {/* CONTENIDO DEL SLIDE */}
+                  {(() => {
+                    if (totalSlides === 0) {
+                      return (
+                        <div className="w-full text-center py-10 text-gray-600">
+                          <p>No hay imágenes ni videos disponibles</p>
+                          <img
+                            src="/imagenes/no-disponible.jpg"
+                            alt="sin contenido"
+                            className="mx-auto max-h-[300px] object-contain opacity-70"
+                          />
                         </div>
-                      </div>
-                    );
-                  }
-
-                  // 🖼 IMAGEN
-                  return (
-                    <img
-                      src={slide.url}
-                      alt="imagen del producto"
-                      className="max-h-[360px] max-w-[85%] mx-auto object-contain rounded-lg bg-white"
-                      onError={(e) => (e.target.src = "/imagenes/no-disponible.jpg")}
-                    />
-                  );
-                })()}
-
-                {/* BOTÓN SIGUIENTE */}
-                {totalSlides > 1 && (
-                  <button
-                    onClick={() =>
-                      setIndiceImagen((prev) =>
-                        totalSlides <= 1 ? 0 : prev === totalSlides - 1 ? 0 : prev + 1
-
-                      )
+                      );
                     }
-                    className="absolute right-0 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-700 px-3 py-1 rounded-full shadow focus:outline-none"
-                  >
-                    ›
-                  </button>
-                )}
-              </div>
 
-              {/* PRECIO */}
-              <div className="text-left mb-3">
-                <p className="text-xs font-semibold text-gray-500">Precio</p>
-                <p className="text-2xl font-bold text-black">
-                  {precioFicha ? formatoAR(precioFicha) : "Sin precio"}
+                    let safeIndex = Number(indiceImagen);
+                    if (isNaN(safeIndex)) safeIndex = 0;
+                    if (safeIndex < 0) safeIndex = 0;
+                    if (safeIndex >= slides.length) safeIndex = 0;
+
+                    const slide = slides[safeIndex] || slides[0];
+
+                    // 🎥 VIDEO con LOOP
+                    if (slide.tipo === "video") {
+                      const base = convertirYoutubeEmbed(slide.url);
+                      const videoId = base ? base.split("/embed/")[1] : "";
+                      const src = videoId
+                        ? `${base}?autoplay=1&mute=1&loop=1&playlist=${videoId}`
+                        : "";
+
+                      return (
+                        <div className="relative w-full">
+                          <span className="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-1 rounded shadow">
+                            🎥 VIDEO
+                          </span>
+
+                          {/* Ajuste responsive del video */}
+                          <div
+                            className="
+                              w-full rounded-lg overflow-hidden bg-black
+                              aspect-[4/5] sm:aspect-video
+                              max-h-[65vh]
+                            "
+                          >
+                            <iframe
+                              src={src}
+                              className="w-full h-full"
+                              title="Video del producto"
+                              allow="autoplay; encrypted-media; fullscreen"
+                              allowFullScreen
+                            ></iframe>
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    // 🖼 IMAGEN
+                    return (
+                      <img
+                        src={slide.url}
+                        alt="imagen del producto"
+                        className="max-h-[360px] max-w-[85%] mx-auto object-contain rounded-lg bg-white"
+                        onError={(e) =>
+                          (e.target.src = "/imagenes/no-disponible.jpg")
+                        }
+                      />
+                    );
+                  })()}
+
+                  {/* BOTÓN SIGUIENTE */}
+                  {totalSlides > 1 && (
+                    <button
+                      onClick={() =>
+                        setIndiceImagen((prev) =>
+                          totalSlides <= 1
+                            ? 0
+                            : prev === totalSlides - 1
+                              ? 0
+                              : prev + 1
+                        )
+                      }
+                      className="absolute right-0 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-700 px-3 py-1 rounded-full shadow focus:outline-none"
+                    >
+                      ›
+                    </button>
+                  )}
+                </div>
+
+                {/* PRECIO */}
+                <div className="text-left mb-3">
+                  <p className="text-xs font-semibold text-gray-500">Precio</p>
+                  <p className="text-2xl font-bold text-black">
+                    {precioFicha ? formatoAR(precioFicha) : "Sin precio"}
+                  </p>
+                </div>
+
+                {/* ✅ BOTÓN COMPARTIR (copia link con categoría+prod) */}
+                <button
+                  type="button"
+                  onClick={() => copiarLinkProducto(productoSeleccionado)}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2 font-semibold mb-3 active:scale-95"
+                >
+                  🔗 Compartir este producto
+                </button>
+
+                {/* DESCRIPCIÓN */}
+                <p className="text-gray-800 text-base mb-2">
+                  {productoSeleccionado.descripcion_corta}
                 </p>
-              </div>
 
-              {/* DESCRIPCIÓN */}
-              <p className="text-gray-800 text-base mb-2">
-                {productoSeleccionado.descripcion_corta}
-              </p>
+                {/* CÓDIGO */}
+                <p className="text-sm text-gray-600 mb-4">
+                  <strong>Código:</strong> {productoSeleccionado.codigo_int}
+                </p>
 
-              {/* CÓDIGO */}
-              <p className="text-sm text-gray-600 mb-4">
-                <strong>Código:</strong> {productoSeleccionado.codigo_int}
-              </p>
+                {/* CARGA CANTIDAD */}
+                <div className="flex justify-center items-center gap-3 mb-4">
+                  <button
+                    className="w-10 h-10 bg-[#3483FA] text-white rounded-md text-xl font-bold hover:bg-[#2968C8] active:scale-95 transition focus:outline-none"
+                    onClick={() => modificarCantidad(productoSeleccionado, -1)}
+                  >
+                    −
+                  </button>
 
-              {/* CARGA CANTIDAD */}
-              <div className="flex justify-center items-center gap-3 mb-4">
+                  <input
+                    type="number"
+                    value={getCantidadStr(productoSeleccionado.codigo_int)}
+                    min="0"
+                    className="w-20 border border-[#3483FA] rounded-md p-2 text-center text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-[#3483FA55]"
+                    onFocus={(e) => e.target.select()}
+                    onChange={(e) =>
+                      setDraftCantidades((prev) => ({
+                        ...prev,
+                        [productoSeleccionado.codigo_int]: e.target.value,
+                      }))
+                    }
+                    onBlur={() => commitCantidad(productoSeleccionado, 0)}
+                  />
+
+                  <button
+                    className="w-10 h-10 bg-[#3483FA] text-white rounded-md text-xl font-bold hover:bg-[#2968C8] active:scale-95 transition focus:outline-none"
+                    onClick={() => modificarCantidad(productoSeleccionado, 1)}
+                  >
+                    +
+                  </button>
+                </div>
+
+                {/* BOTÓN CERRAR */}
                 <button
-                  className="w-10 h-10 bg-[#3483FA] text-white rounded-md text-xl font-bold hover:bg-[#2968C8] active:scale-95 transition focus:outline-none"
-                  onClick={() => modificarCantidad(productoSeleccionado, -1)}
+                  className="w-full bg-gray-100 border rounded-lg py-2 text-gray-700 font-semibold hover:bg-gray-200 transition focus:outline-none"
+                  onClick={cerrarModal}
                 >
-                  −
-                </button>
-
-                <input
-                  type="number"
-                  value={getCantidadStr(productoSeleccionado.codigo_int)}
-                  min="0"
-                  className="w-20 border border-[#3483FA] rounded-md p-2 text-center text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-[#3483FA55]"
-                  onFocus={(e) => e.target.select()}
-                  onChange={(e) =>
-                    setDraftCantidades((prev) => ({
-                      ...prev,
-                      [productoSeleccionado.codigo_int]: e.target.value,
-                    }))
-                  }
-                  onBlur={() => commitCantidad(productoSeleccionado, 0)}
-                />
-
-                <button
-                  className="w-10 h-10 bg-[#3483FA] text-white rounded-md text-xl font-bold hover:bg-[#2968C8] active:scale-95 transition focus:outline-none"
-                  onClick={() => modificarCantidad(productoSeleccionado, 1)}
-                >
-                  +
+                  ← Seguir viendo productos
                 </button>
               </div>
-
-              {/* BOTÓN CERRAR */}
-              <button
-                className="w-full bg-gray-100 border rounded-lg py-2 text-gray-700 font-semibold hover:bg-gray-200 transition focus:outline-none"
-                onClick={cerrarModal}
-              >
-                ← Seguir viendo productos
-              </button>
             </div>
-          </div>
-        );
-      })()}
-
+          );
+        })()}
     </>
   );
 }
