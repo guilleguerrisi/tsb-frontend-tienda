@@ -513,13 +513,25 @@ function ProductList({ grcat, buscar }) {
         return (
           <div
             className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-[9999] p-4"
-            onClick={cerrarModal}
+            onMouseDown={(e) => {
+              if (e.target === e.currentTarget) cerrarModal();
+            }}
+            onTouchStart={(e) => {
+              if (e.target === e.currentTarget) cerrarModal();
+            }}
           >
-            <div className="
-  bg-white rounded-xl shadow-xl 
-  w-[96vw] max-w-lg sm:max-w-4xl
-  px-4 sm:px-6 pt-8 pb-5 relative
-">
+
+            <div
+              className="
+    bg-white rounded-xl shadow-xl 
+    w-[96vw] max-w-lg sm:max-w-4xl
+    px-4 sm:px-6 pt-8 pb-5 relative
+  "
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
+            >
+
 
               {/* BOTÓN CERRAR */}
               <button
