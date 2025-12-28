@@ -41,7 +41,7 @@ const HomePage = () => {
 
       {/* ===== FOOTER ===== */}
       <footer className="bg-blue-900 text-white text-center py-10 mt-10">
-        <p className="text-sm opacity-90">Todos los derechos reservados © 2025</p>
+        <p className="text-sm opacity-90">Todos los derechos reservados © 2026</p>
         <p className="text-sm opacity-90">Desarrollado por: Tienda Salta Bazar</p>
         <p className="text-sm opacity-90">Dirección: Caseros 1041, Salta Capital</p>
 

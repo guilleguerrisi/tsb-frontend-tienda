@@ -164,7 +164,7 @@ const ProductosPage = () => {
           </a>
         </p>
 
-        <p className="mt-4 opacity-90">Todos los derechos reservados © 2025</p>
+        <p className="mt-4 opacity-90">Todos los derechos reservados © 2026</p>
         <p className="opacity-80 text-sm">Desarrollado por Tienda Salta Bazar</p>
       </footer>
     </div>
