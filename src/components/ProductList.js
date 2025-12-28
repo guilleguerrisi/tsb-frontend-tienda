@@ -4,6 +4,7 @@ import { useCarrito } from "../contexts/CarritoContext";
 import config from "../config";
 import { useLocation, useNavigate } from "react-router-dom";
 
+
 // Detecta si un producto realmente tiene un link de video válido dentro de imagearray
 const tieneVideoEnArray = (imagearray) => {
   if (!imagearray) return false;
@@ -60,6 +61,8 @@ function ProductList({ grcat, buscar }) {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
   const [draftCantidades, setDraftCantidades] = useState({});
+  const [copiado, setCopiado] = useState(false);
+
 
   const redondearCentena = (n) => Math.round(n / 100) * 100;
   const formatoAR = (n) => `$ ${new Intl.NumberFormat("es-AR").format(n)}`;
@@ -117,22 +120,21 @@ function ProductList({ grcat, buscar }) {
       const base = window.location.origin;
       const params = new URLSearchParams(location.search);
 
-      // asegurar que el link abre la lista (ProductosPage depende de buscar/grcat)
       const valorLista = (buscar || grcat || params.get("buscar") || "").trim();
       if (valorLista) params.set("buscar", valorLista);
 
-      // producto por ID (como pediste)
       params.set("prod", String(producto.id));
 
       const url = `${base}${location.pathname}?${params.toString()}`;
       await navigator.clipboard.writeText(url);
 
-      alert("Link del producto copiado ✔");
+      setCopiado(true);
+      setTimeout(() => setCopiado(false), 1800);
     } catch (e) {
       console.error("No se pudo copiar el link", e);
-      alert("No se pudo copiar el link");
     }
   };
+
 
   useEffect(() => {
     const fetchProductos = async () => {
@@ -680,10 +682,28 @@ function ProductList({ grcat, buscar }) {
                 <button
                   type="button"
                   onClick={() => copiarLinkProducto(productoSeleccionado)}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2 font-semibold mb-3 active:scale-95"
+                  className="
+    w-full
+    flex items-center justify-center gap-2
+    text-sm font-medium
+    text-gray-600
+    border border-gray-300
+    rounded-lg
+    py-2
+    mb-2
+    hover:bg-gray-100
+    hover:text-gray-800
+    transition
+    active:scale-[0.98]
+  "
                 >
-                  🔗 Compartir este producto
+                  🔗 Compartir producto
                 </button>
+                {copiado && (
+                  <p className="text-center text-xs text-green-600 mb-2">
+                    ✓ Link copiado al portapapeles
+                  </p>
+                )}
 
                 {/* DESCRIPCIÓN */}
                 <p className="text-gray-800 text-base mb-2">
