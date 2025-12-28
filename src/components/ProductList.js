@@ -308,7 +308,7 @@ function ProductList({ grcat, buscar }) {
     sm:h-auto
   "
                     >
- 
+
                       {/* IMAGEN – MOBILE IZQUIERDA, PC NORMAL */}
                       <div
                         className="
@@ -515,10 +515,12 @@ function ProductList({ grcat, buscar }) {
             className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-[9999] p-4"
             onClick={cerrarModal}
           >
-            <div
-              className="bg-white rounded-xl shadow-xl max-w-lg w-full px-5 pt-8 pb-5 relative"
-              onClick={(e) => e.stopPropagation()}
-            >
+            <div className="
+  bg-white rounded-xl shadow-xl 
+  w-[96vw] max-w-lg sm:max-w-4xl
+  px-4 sm:px-6 pt-8 pb-5 relative
+">
+
               {/* BOTÓN CERRAR */}
               <button
                 className="absolute top-3 right-4 text-3xl text-gray-500 hover:text-gray-800 z-50 focus:outline-none"
@@ -582,7 +584,11 @@ function ProductList({ grcat, buscar }) {
                           🎥 VIDEO
                         </span>
 
-                        <div className="w-full rounded-lg overflow-hidden bg-black aspect-video">
+                        <div className="
+  w-full rounded-lg overflow-hidden bg-black
+  aspect-[9/16] sm:aspect-video
+  max-h-[70vh]
+">
                           <iframe
                             src={src}
                             className="w-full h-full"
