@@ -671,39 +671,45 @@ function ProductList({ grcat, buscar }) {
                 </div>
 
                 {/* PRECIO */}
-                <div className="text-left mb-3">
-                  <p className="text-xs font-semibold text-gray-500">Precio</p>
-                  <p className="text-2xl font-bold text-black">
-                    {precioFicha ? formatoAR(precioFicha) : "Sin precio"}
-                  </p>
+                {/* PRECIO + COMPARTIR */}
+                <div className="flex items-end justify-between gap-3 mb-3">
+                  <div className="text-left">
+                    <p className="text-xs font-semibold text-gray-500">Precio</p>
+                    <p className="text-2xl font-bold text-black leading-none">
+                      {precioFicha ? formatoAR(precioFicha) : "Sin precio"}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col items-end">
+                    <button
+                      type="button"
+                      onClick={() => copiarLinkProducto(productoSeleccionado)}
+                      className="
+        inline-flex items-center gap-2
+        text-xs sm:text-sm font-medium
+        text-gray-600
+        border border-gray-300
+        rounded-full
+        px-3 py-1.5
+        hover:bg-gray-100 hover:text-gray-800
+        transition
+        active:scale-[0.98]
+        whitespace-nowrap
+      "
+                    >
+                      🔗 Compartir
+                    </button>
+
+                    {copiado && (
+                      <span className="mt-1 text-[11px] text-green-600 whitespace-nowrap">
+                        ✓ Copiado
+                      </span>
+                    )}
+                  </div>
                 </div>
 
-                {/* ✅ BOTÓN COMPARTIR (copia link con categoría+prod) */}
-                <button
-                  type="button"
-                  onClick={() => copiarLinkProducto(productoSeleccionado)}
-                  className="
-    w-full
-    flex items-center justify-center gap-2
-    text-sm font-medium
-    text-gray-600
-    border border-gray-300
-    rounded-lg
-    py-2
-    mb-2
-    hover:bg-gray-100
-    hover:text-gray-800
-    transition
-    active:scale-[0.98]
-  "
-                >
-                  🔗 Compartir producto
-                </button>
-                {copiado && (
-                  <p className="text-center text-xs text-green-600 mb-2">
-                    ✓ Link copiado al portapapeles
-                  </p>
-                )}
+
+
 
                 {/* DESCRIPCIÓN */}
                 <p className="text-gray-800 text-base mb-2">
