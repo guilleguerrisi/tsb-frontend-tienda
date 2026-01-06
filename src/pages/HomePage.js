@@ -22,7 +22,7 @@ const HomePage = () => {
         </h1>
 
         <p className="mt-4 text-white text-xl font-semibold max-w-3xl mx-auto leading-snug drop-shadow">
-          <strong className="text-yellow-300">HOLA! Gracias por visitar la web</strong>{" "}
+          <strong className="text-yellow-300">HOLA! Gracias por visitar la web.</strong>{" "}
           Somos de Salta Capital y hacemos envíos a domicilio. Trabajamos 100% Online. Consultanos por chat de WhatsApp. (Zona centro, norte, sur, San Lorenzo, San Lorenzo Chico...)
         </p>
 
