@@ -266,7 +266,7 @@ const Carrito = () => {
             </p>
 
             <p className="text-gray-700 text-sm mt-2 leading-relaxed">
-              * Los precios incluyen IVA. Finalizá la nota de pedido dejándonos un número de contacto para enviarte el presupuesto final con los descuentos correspondientes.
+              * Finalizá la nota de pedido dejándonos un número de contacto para enviarte el presupuesto final.
             </p>
           </div>
         </div>
