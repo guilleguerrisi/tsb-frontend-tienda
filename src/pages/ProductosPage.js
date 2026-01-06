@@ -101,7 +101,7 @@ const ProductosPage = () => {
       {/* INSTRUCTIVO */}
       <div className="max-w-2xl mx-auto mt-4 bg-white/40 border border-white/50 backdrop-blur-xl rounded-xl shadow p-4">
         <h3 className="text-center text-gray-800 font-semibold text-base mb-2">
-          🛒 <strong>Hasta 20% de DESCUENTO</strong> según volumen de compra y distancia.
+          🛒 <strong>Hola! Gracias por visitar la web</strong> Somos de Salta Capital y hacemos envíos a domicilio. Trabajamos 100% Online. Consultanos por chat de WhatsApp. (Zona centro, norte, sur, San Lorenzo, San Lorenzo Chico...)
         </h3>
 
         <ol className="space-y-2 text-gray-900">
