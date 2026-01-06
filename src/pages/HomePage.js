@@ -22,9 +22,8 @@ const HomePage = () => {
         </h1>
 
         <p className="mt-4 text-white text-xl font-semibold max-w-3xl mx-auto leading-snug drop-shadow">
-          <strong className="text-yellow-300">Hasta 20% de DESCUENTO</strong>{" "}
-          según volumen de compra y distancia de envío.  
-          Navegá por las categorías y solicitá tu presupuesto.
+          <strong className="text-yellow-300">HOLA! Gracias por visitar la web</strong>{" "}
+          Somos de Salta Capital y hacemos envíos a domicilio. Trabajamos 100% Online. Consultanos por chat de WhatsApp. (Zona centro, norte, sur, San Lorenzo, San Lorenzo Chico...))
         </p>
 
         <div className="mt-6 flex justify-center">
@@ -43,7 +42,7 @@ const HomePage = () => {
       <footer className="bg-blue-900 text-white text-center py-10 mt-10">
         <p className="text-sm opacity-90">Todos los derechos reservados © 2026</p>
         <p className="text-sm opacity-90">Desarrollado por: Tienda Salta Bazar</p>
-        <p className="text-sm opacity-90">Dirección: Caseros 1041, Salta Capital</p>
+        <p className="text-sm opacity-90">Dirección: Caseros 1041 (Administración), Salta Capital</p>
 
         <p className="mt-4 flex justify-center items-center gap-2 text-lg">
           <FaWhatsapp className="text-green-400 text-xl" />
